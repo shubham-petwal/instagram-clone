@@ -2,19 +2,12 @@ import React, { ReactElement, SyntheticEvent, useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookSquare } from "@fortawesome/free-brands-svg-icons";
 import { faCircleXmark, faEye } from "@fortawesome/free-regular-svg-icons";
-import "../scss/SignUp.scss";
+import "../styles/SignUp.scss";
 import { Link } from "react-router-dom";
 import {
-  Form,
   Formik,
-  Field,
-  FieldProps,
-  FormikProps,
-  FormikHelpers,
-  FormikErrors,
 } from "formik";
 import { signUpSchema } from "../schemas/validationSchema";
-import { faC } from "@fortawesome/free-solid-svg-icons";
 
 function SignUp() {
   const [showPass, setShowPass] = useState(false);
@@ -25,6 +18,11 @@ function SignUp() {
     email: "",
     password: "",
   };
+  const togglePassword = ()=>{
+    setShowPass((prev)=>{
+      return !prev
+    })
+  }
   return (
     <div className="signUpPageWrapper">
       <div className="signUpFormWrapper w-25 commonContainer">
@@ -50,7 +48,7 @@ function SignUp() {
           }}
           validationSchema={signUpSchema}
         >
-          {({ handleSubmit, values, handleChange, errors, touched }) => (
+          {({ handleSubmit, values, handleChange, errors, touched}) => (
             <form className="signUpForm" onSubmit={handleSubmit}>
               <div className="inputWrapper">
                 <input
@@ -61,7 +59,7 @@ function SignUp() {
                   value={values.email}
                   onChange={handleChange}
                 />
-                {errors.email && touched.email ? (
+                {(errors.email && touched.email) ? (
                   <FontAwesomeIcon
                     className="validationIcon"
                     icon={faCircleXmark}
@@ -77,7 +75,7 @@ function SignUp() {
                   value={values.fullName}
                   onChange={handleChange}
                 />
-                {errors.fullName && touched.fullName ? (
+                {(errors.fullName && touched.fullName) ? (
                   <FontAwesomeIcon
                     className="validationIcon"
                     icon={faCircleXmark}
@@ -112,43 +110,18 @@ function SignUp() {
                 />
                 {errors.password && touched.password ? (
                   <>
-                    <FontAwesomeIcon
-                      className="validationIcon"
-                      icon={faCircleXmark}
-                    />
-                    {passswordRef.current?.value == "" ? null : (
-                      <span
-                        onClick={() => {
-                          setShowPass((prev) => {
-                            return !prev;
-                          });
-                        }}
-                        style={{
-                          cursor: "pointer",
-                          marginRight: "5px",
-                          fontSize: "12px",
-                        }}
-                      >
+                    <FontAwesomeIcon className="validationIcon" icon={faCircleXmark} />
+                    {passswordRef.current?.value  ?  (
+                      <span style={{marginRight: "5px", fontSize:"12px",cursor:"pointer"}} className="togglePasswordBtn" onClick={togglePassword} >
                         {!showPass ? "Show" : "Hide"}
                       </span>
-                    )}
+                    ): null}
                   </>
-                ) : passswordRef.current?.value == "" ? null : (
-                  <span
-                    onClick={() => {
-                      setShowPass((prev) => {
-                        return !prev;
-                      });
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      marginRight: "5px",
-                      fontSize: "12px",
-                    }}
-                  >
+                ) : passswordRef.current?.value ? (
+                  <span onClick={togglePassword} style={{marginRight: "5px", fontSize:"12px",cursor:"pointer"}} className="togglePasswordBtn">
                     {!showPass ? "Show" : "Hide"}
                   </span>
-                )}
+                ): null}
               </div>
 
               <div className="info">
@@ -163,6 +136,7 @@ function SignUp() {
                 Sign Up
               </button>
             </form>
+
           )}
         </Formik>
       </div>

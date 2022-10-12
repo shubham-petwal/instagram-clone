@@ -1,7 +1,11 @@
 
 interface UserDetailsInterface {
-    fullName: String;
-    userName: String;
-    email: String;
-    password: String;
+    fullName: string;
+    userName: string;
+    email: string;
+    password: string;
   }
+interface footerInterface {
+    data:string,
+    link:string
+}
