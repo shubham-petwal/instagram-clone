@@ -148,15 +148,12 @@ function Login() {
             <a href="https://apps.apple.com/app/instagram/id389801252?vt=lo">
               <img src={appstoreImg} alt="AppStore" />
             </a>
-            <a href="https://play.google.com/store/apps/details?id=com.instagram.android&referrer=utm_source%3Dinstagramweb%26utm_campaign%3DloginPage%26ig_mid%3D08B122C0-467D-4B46-8E65-7F93497AB50E%26utm_content%3Dlo%26utm_medium%3Dbadge">
+            <a href="https://play.google.com/store/apps/details?id=com.instagram.android">
               <img src={playStoreImg} alt="PlayStore" />
             </a>
           </div>
         </div>
       </div>
-      {/* -------------------------here delete this link to '/home' it was just for testing purposes--------------------------- */}
-      <Link to="/home">Clik to go to home</Link>
-      {/* -------------------------here delete this link to '/home' it was just for testing purposes--------------------------- */}
       <footer className="login_footer">
       <div className="footer">
         {links1.map((item)=>(
