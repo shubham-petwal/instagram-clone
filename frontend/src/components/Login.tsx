@@ -1,27 +1,44 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import {links1,links2,links3} from "../utilities/links";
-import {Link} from 'react-router-dom'
+import {Link,useNavigate,Navigate} from 'react-router-dom'
 import "../styles/Login.scss";
 import Footer from "./Footer";
-const logo = require("../images/instagram.png");
-const fb = require("../images/facebook.png");
-const insta1 = require( "../images/insta1.png");
-const insta2 = require( "../images/insta2.png");
-const insta3 = require( "../images/insta3.png");
-const insta4 = require( "../images/insta4.png");
-const appstoreImg = require( "../images/appStore.png");
-const playStoreImg = require( "../images/playStore.png");
-const instaBackgroungImage = require( "../images/instaBackgroung.png");
+// authentication imports
+import { AuthContext } from "../context/AuthContext";
+import { auth } from "../firebaseSetup"
+const logo = require("../assets/images/instagram.png");
+const fb = require("../assets/images/facebook.png");
+const insta1 = require( "../assets/images/insta1.png");
+const insta2 = require( "../assets/images/insta2.png");
+const insta3 = require( "../assets/images/insta3.png");
+const insta4 = require( "../assets/images/insta4.png");
+const appstoreImg = require( "../assets/images/appStore.png");
+const playStoreImg = require( "../assets/images/playStore.png");
+const instaBackgroungImage = require( "../assets/images/instaBackgroung.png");
 
 function Login() {
+  const navigate = useNavigate();
+  const user = useContext(AuthContext)
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const signIn = async (email:string, password:string) => {
+    try {
+      const response = await auth.signInWithEmailAndPassword(
+        email,
+        password
+      );
+        navigate('/home');
+      } catch (error : any) {
+        console.error(error.messsage);
+        // navigate('/home');
+    }
+  };
   const [showPassword, setShowPassword] = useState(true);
   const [imageCount, setImageCount] = useState(1);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const handleLogin = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    e.preventDefault();
-    console.log(email, password);
+  const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    signIn(email,password)
   };
   const validation = () => {
     if (email && password.length >= 6) {
@@ -56,6 +73,7 @@ function Login() {
     // eslint-disable-next-line
   }, []);
   return (
+    user? <Navigate to='/home' /> :
     <div className="complete_login_page">
       <div className="main_login_wrapper">
         <div className="image_container">
@@ -75,7 +93,7 @@ function Login() {
             <div className="insta_logo">
               <img src={logo} alt="Instagram" />
             </div>
-            <form className="main_form">
+            <form className="main_form" onSubmit={handleLogin}>
               <input
                 type="text"
                 value={email}
@@ -97,11 +115,11 @@ function Login() {
                     {showPassword ? "Show" : "Hide"}
                   </button>
                 ) : (
-                  ""
+                  null
                 )}
               </div>
               <button
-                onClick={handleLogin}
+                type="submit"
                 className="login_btn"
                 disabled={validation()}
               >
@@ -136,20 +154,23 @@ function Login() {
           </div>
         </div>
       </div>
+      {/* -------------------------here delete this link to '/home' it was just for testing purposes--------------------------- */}
+      <Link to="/home">Clik to go to home</Link>
+      {/* -------------------------here delete this link to '/home' it was just for testing purposes--------------------------- */}
       <footer className="login_footer">
       <div className="footer">
         {links1.map((item)=>(
-          <Footer  data={item.data} link={item.link}/>
+          <Footer key={Math.random()}  data={item.data} link={item.link}/>
         ))}
       </div>
       <div className="footer">
       {links2.map((item)=>(        
-          <Footer  data={item.data} link={item.link}/>
+          <Footer key={Math.random()}  data={item.data} link={item.link}/>
         ))}
       </div>
       <div className="footer">
       {links3.map((item)=>(        
-          <Footer  data={item.data} link={item.link}/>
+          <Footer key={Math.random()}  data={item.data} link={item.link}/>
         ))}
       </div>
           

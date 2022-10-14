@@ -1,17 +1,23 @@
-import React, { ReactElement, SyntheticEvent, useState, useRef } from "react";
+import React, { ReactElement, SyntheticEvent,useContext ,useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookSquare } from "@fortawesome/free-brands-svg-icons";
 import { faCircleXmark, faEye } from "@fortawesome/free-regular-svg-icons";
 import "../styles/SignUp.scss";
-import { Link } from "react-router-dom";
-import {
-  Formik,
-} from "formik";
+import { Link, useNavigate,Navigate } from "react-router-dom";
+import { Formik } from "formik";
 import { signUpSchema } from "../schemas/validationSchema";
+import {links1,links3} from "../utilities/links";
+import Footer from "./Footer";
+// authentication imports
+import { AuthContext } from "../context/AuthContext";
+import { auth } from "../firebaseSetup"
 
 function SignUp() {
   const [showPass, setShowPass] = useState(false);
-  const passswordRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const fullNameRef = useRef<HTMLInputElement>(null);
+  const userNameRef = useRef<HTMLInputElement>(null);
   const initialValues = {
     fullName: "",
     userName: "",
@@ -23,7 +29,23 @@ function SignUp() {
       return !prev
     })
   }
+  const navigate = useNavigate();
+  // Authentication code --------------------------------
+  const user = useContext(AuthContext);
+  const createAccount = async () => {
+    try {
+      const response = await auth.createUserWithEmailAndPassword(
+        emailRef.current!.value,
+        passwordRef.current!.value
+      );
+      console.log(response)
+      navigate('/home')
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
+    user? <Navigate to='/home' /> :
     <div className="signUpPageWrapper">
       <div className="signUpFormWrapper w-25 commonContainer">
         <img
@@ -43,15 +65,14 @@ function SignUp() {
         </div>
         <Formik
           initialValues={initialValues}
-          onSubmit={(values) => {
-            alert(JSON.stringify(values));
-          }}
+          onSubmit={createAccount}
           validationSchema={signUpSchema}
         >
           {({ handleSubmit, values, handleChange, errors, touched}) => (
             <form className="signUpForm" onSubmit={handleSubmit}>
               <div className="inputWrapper">
                 <input
+                  ref={emailRef}
                   name="email"
                   placeholder="Mobile number or email address"
                   type="text"
@@ -68,6 +89,7 @@ function SignUp() {
               </div>
               <div className="inputWrapper">
                 <input
+                  ref={fullNameRef}
                   name="fullName"
                   placeholder="Full Name"
                   type="text"
@@ -84,6 +106,7 @@ function SignUp() {
               </div>
               <div className="inputWrapper">
                 <input
+                  ref={userNameRef}
                   name="userName"
                   placeholder="Username"
                   type="text"
@@ -101,7 +124,7 @@ function SignUp() {
               <div className="inputWrapper">
                 <input
                   name="password"
-                  ref={passswordRef}
+                  ref={passwordRef}
                   placeholder="Password"
                   type={!showPass ? "Password" : "text"}
                   autoComplete="off"
@@ -111,13 +134,13 @@ function SignUp() {
                 {errors.password && touched.password ? (
                   <>
                     <FontAwesomeIcon className="validationIcon" icon={faCircleXmark} />
-                    {passswordRef.current?.value  ?  (
+                    {passwordRef.current?.value  ?  (
                       <span style={{marginRight: "5px", fontSize:"12px",cursor:"pointer"}} className="togglePasswordBtn" onClick={togglePassword} >
                         {!showPass ? "Show" : "Hide"}
                       </span>
                     ): null}
                   </>
-                ) : passswordRef.current?.value ? (
+                ) : passwordRef.current?.value ? (
                   <span onClick={togglePassword} style={{marginRight: "5px", fontSize:"12px",cursor:"pointer"}} className="togglePasswordBtn">
                     {!showPass ? "Show" : "Hide"}
                   </span>
@@ -163,7 +186,18 @@ function SignUp() {
           </a>
         </div>
       </div>
-      <div className="footer w-25"></div>
+      <footer className="login_footer">
+        <div className="footer">
+          {links1.map((item)=>(
+            <Footer key={Math.random()}  data={item.data} link={item.link}/>
+          ))}
+        </div>
+        <div className="footer">
+        {links3.map((item)=>(        
+            <Footer key={Math.random()}  data={item.data} link={item.link}/>
+          ))}
+        </div>
+      </footer>
     </div>
   );
 }
