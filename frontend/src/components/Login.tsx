@@ -131,9 +131,11 @@ function Login() {
             </span>
             <span className="facebook_link">
               <img src={fb} alt="Facebook" />
-              <p>Log in with Facebook</p>
+                <p>Log in with Facebook</ p>
             </span>
-            <span className="forgot_password">Forgotten your password?</span>
+            <Link to='/forgotPassword'>
+              <span className="forgot_password">Forgotten your password?</span>
+            </Link>
           </div>
           <div className="form_signup_container">
             <span>

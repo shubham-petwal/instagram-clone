@@ -1,7 +1,7 @@
 import React, { ReactElement, SyntheticEvent,useContext ,useState, useRef } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookSquare } from "@fortawesome/free-brands-svg-icons";
-import { faCircleXmark, faEye } from "@fortawesome/free-regular-svg-icons";
+import { faCircleXmark  } from "@fortawesome/free-regular-svg-icons";
 import "../styles/SignUp.scss";
 import { Link, useNavigate,Navigate } from "react-router-dom";
 import { Formik } from "formik";
