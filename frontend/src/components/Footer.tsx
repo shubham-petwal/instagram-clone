@@ -1,10 +1,12 @@
-import React from 'react'
-function Footer({data,link}:footerInterface) {
+import React from "react";
+import { FooterLink } from "../components/styledComponents/FooterStyled"
+
+function Footer({ data, link }: footerInterface) {
   return (
-    <div className='footer_data'>
-        <a href={link}><span>{data}</span></a>
-    </div>
-  )
+    <FooterLink href={link}>
+      <span>{data}</span>
+    </FooterLink>
+  );
 }
 
-export default Footer
+export default Footer;

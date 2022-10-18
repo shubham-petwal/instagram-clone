@@ -1,16 +1,38 @@
-import React, { ReactElement, SyntheticEvent,useContext ,useState, useRef } from "react";
+import React, {
+  ReactElement,
+  SyntheticEvent,
+  useContext,
+  useState,
+  useRef,
+} from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookSquare } from "@fortawesome/free-brands-svg-icons";
-import { faCircleXmark  } from "@fortawesome/free-regular-svg-icons";
-import "../styles/SignUp.scss";
-import { Link, useNavigate,Navigate } from "react-router-dom";
+import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Formik } from "formik";
 import { signUpSchema } from "../schemas/validationSchema";
-import {links1,links3} from "../utilities/links";
+import { links1, links3 } from "../utilities/links";
 import Footer from "./Footer";
+//importing styled components
+import {
+  FooterDiv,
+  FooterRow,
+} from "../components/styledComponents/FooterStyled";
+import {
+  SignUpPageWrapperDiv,
+  SignUpFormWrapperDiv,
+  LoginWithFacebookBtn,
+  LoginOptionDiv,
+  AppDownloadOptionDiv,
+  OrStrikeDiv,
+  InputStyled,
+  InputWrapperDiv,
+  InfoDiv,
+  SignUpButton,
+} from "./styledComponents/SignUpStyled";
 // authentication imports
 import { AuthContext } from "../context/AuthContext";
-import { auth } from "../firebaseSetup"
+import { auth } from "../firebaseSetup";
 
 function SignUp() {
   const [showPass, setShowPass] = useState(false);
@@ -24,11 +46,11 @@ function SignUp() {
     email: "",
     password: "",
   };
-  const togglePassword = ()=>{
-    setShowPass((prev)=>{
-      return !prev
-    })
-  }
+  const togglePassword = () => {
+    setShowPass((prev) => {
+      return !prev;
+    });
+  };
   const navigate = useNavigate();
   // Authentication code --------------------------------
   const user = useContext(AuthContext);
@@ -38,16 +60,17 @@ function SignUp() {
         emailRef.current!.value,
         passwordRef.current!.value
       );
-      console.log(response)
-      navigate('/home')
+      console.log(response);
+      navigate("/home");
     } catch (error) {
       console.error(error);
     }
   };
-  return (
-    user? <Navigate to='/home' /> :
-    <div className="signUpPageWrapper">
-      <div className="signUpFormWrapper w-25 commonContainer">
+  return user ? (
+    <Navigate to="/home" />
+  ) : (
+    <SignUpPageWrapperDiv>
+      <SignUpFormWrapperDiv>
         <img
           src={require("../assets/images/instagram_logo.png")}
           className="signUpLogo"
@@ -56,22 +79,22 @@ function SignUp() {
         <p className="signUpTitle">
           Sign up to see photos and videos from your friends.
         </p>
-        <button className="logInWithFacebookButton">
+        <LoginWithFacebookBtn>
           <FontAwesomeIcon icon={faFacebookSquare} />
           <span>Log in with Facebook</span>
-        </button>
-        <div className="strike">
+        </LoginWithFacebookBtn>
+        <OrStrikeDiv>
           <span>OR</span>
-        </div>
+        </OrStrikeDiv>
         <Formik
           initialValues={initialValues}
           onSubmit={createAccount}
           validationSchema={signUpSchema}
         >
-          {({ handleSubmit, values, handleChange, errors, touched}) => (
+          {({ handleSubmit, values, handleChange, errors, touched }) => (
             <form className="signUpForm" onSubmit={handleSubmit}>
-              <div className="inputWrapper">
-                <input
+              <InputWrapperDiv>
+                <InputStyled
                   ref={emailRef}
                   name="email"
                   placeholder="Mobile number or email address"
@@ -80,15 +103,15 @@ function SignUp() {
                   value={values.email}
                   onChange={handleChange}
                 />
-                {(errors.email && touched.email) ? (
+                {errors.email && touched.email ? (
                   <FontAwesomeIcon
                     className="validationIcon"
                     icon={faCircleXmark}
                   />
                 ) : null}
-              </div>
-              <div className="inputWrapper">
-                <input
+              </InputWrapperDiv>
+              <InputWrapperDiv>
+                <InputStyled
                   ref={fullNameRef}
                   name="fullName"
                   placeholder="Full Name"
@@ -97,15 +120,15 @@ function SignUp() {
                   value={values.fullName}
                   onChange={handleChange}
                 />
-                {(errors.fullName && touched.fullName) ? (
+                {errors.fullName && touched.fullName ? (
                   <FontAwesomeIcon
                     className="validationIcon"
                     icon={faCircleXmark}
                   />
                 ) : null}
-              </div>
-              <div className="inputWrapper">
-                <input
+              </InputWrapperDiv>
+              <InputWrapperDiv>
+                <InputStyled
                   ref={userNameRef}
                   name="userName"
                   placeholder="Username"
@@ -120,9 +143,9 @@ function SignUp() {
                     icon={faCircleXmark}
                   />
                 ) : null}
-              </div>
-              <div className="inputWrapper">
-                <input
+              </InputWrapperDiv>
+              <InputWrapperDiv>
+                <InputStyled
                   name="password"
                   ref={passwordRef}
                   placeholder="Password"
@@ -133,43 +156,61 @@ function SignUp() {
                 />
                 {errors.password && touched.password ? (
                   <>
-                    <FontAwesomeIcon className="validationIcon" icon={faCircleXmark} />
-                    {passwordRef.current?.value  ?  (
-                      <span style={{marginRight: "5px", fontSize:"12px",cursor:"pointer"}} className="togglePasswordBtn" onClick={togglePassword} >
+                    <FontAwesomeIcon
+                      className="validationIcon"
+                      icon={faCircleXmark}
+                    />
+                    {passwordRef.current?.value ? (
+                      <span
+                        style={{
+                          marginRight: "5px",
+                          fontSize: "12px",
+                          cursor: "pointer",
+                        }}
+                        className="togglePasswordBtn"
+                        onClick={togglePassword}
+                      >
                         {!showPass ? "Show" : "Hide"}
                       </span>
-                    ): null}
+                    ) : null}
                   </>
                 ) : passwordRef.current?.value ? (
-                  <span onClick={togglePassword} style={{marginRight: "5px", fontSize:"12px",cursor:"pointer"}} className="togglePasswordBtn">
+                  <span
+                    onClick={togglePassword}
+                    style={{
+                      marginRight: "5px",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                    }}
+                    className="togglePasswordBtn"
+                  >
                     {!showPass ? "Show" : "Hide"}
                   </span>
-                ): null}
-              </div>
+                ) : null}
+              </InputWrapperDiv>
 
-              <div className="info">
+              <InfoDiv>
                 People who use our service may have uploaded your contact
                 information to Instagram. Learn more
                 <br />
                 <br />
                 By signing up, you agree to our Terms, Privacy Policy and
                 Cookies Policy.
-              </div>
-              <button type="submit" className="signUpButton">
+              </InfoDiv>
+              <SignUpButton type="submit" className="signUpButton">
                 Sign Up
-              </button>
+              </SignUpButton>
             </form>
-
           )}
         </Formik>
-      </div>
-      <div className="logInOption w-25 commonContainer">
+      </SignUpFormWrapperDiv>
+      <LoginOptionDiv>
         Have an account?{" "}
         <span>
           <Link to="/">Log in</Link>
         </span>
-      </div>
-      <div className="appDownloadOptions w-25">
+      </LoginOptionDiv>
+      <AppDownloadOptionDiv className="appDownloadOptions w-25">
         <div>Get the app.</div>
         <div className="downloadLinkWrapper">
           <a href="https://apps.apple.com/app/instagram/id389801252?vt=lo">
@@ -185,20 +226,20 @@ function SignUp() {
             />
           </a>
         </div>
-      </div>
-      <footer className="login_footer">
-        <div className="footer">
-          {links1.map((item)=>(
-            <Footer key={Math.random()}  data={item.data} link={item.link}/>
+      </AppDownloadOptionDiv>
+      <FooterDiv margin="40px">
+        <FooterRow>
+          {links1.map((item) => (
+            <Footer key={Math.random()} data={item.data} link={item.link} />
           ))}
-        </div>
-        <div className="footer">
-        {links3.map((item)=>(        
-            <Footer key={Math.random()}  data={item.data} link={item.link}/>
+        </FooterRow>
+        <FooterRow>
+          {links3.map((item) => (
+            <Footer key={Math.random()} data={item.data} link={item.link} />
           ))}
-        </div>
-      </footer>
-    </div>
+        </FooterRow>
+      </FooterDiv>
+    </SignUpPageWrapperDiv>
   );
 }
 

@@ -5,7 +5,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/Login";
 import Home from "./components/Home";
 import ProtectedRoutes from "./components/ProtectedRoutes";
-import AnotherProtected from "./components/AnotherProtected";
 import ForgotPassword from "./components/ForgotPassword";
 
 function App() {
@@ -21,14 +20,6 @@ function App() {
             element={
               <ProtectedRoutes>
                 <Home />
-              </ProtectedRoutes>
-            }
-          />
-          <Route
-            path="/anotherProtected"
-            element={
-              <ProtectedRoutes>
-                <AnotherProtected />
               </ProtectedRoutes>
             }
           />
