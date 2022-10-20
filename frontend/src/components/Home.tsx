@@ -9,6 +9,8 @@ function Home() {
   return (
     <div style={{"height":"100vh"}}>
       <Navbar/>
+      Home
+      <button onClick={signOut}>Log Out</button>
     </div>
   );
 }

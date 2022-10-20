@@ -8,16 +8,17 @@ import find from "../assets/images/find.svg";
 import love from "../assets/images/love.svg";
 import message from "../assets/images/message.svg";
 import plus from "../assets/images/plus.svg";
-import subh from "../assets/images/shubham.jpg"
+import subh from "../assets/images/shubham.jpg";
 import Avatar from "@material-ui/core/Avatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleUser } from "@fortawesome/free-regular-svg-icons";
-import { faBookmark } from "@fortawesome/free-regular-svg-icons";
-import { faGear } from "@fortawesome/free-solid-svg-icons";
-import { faPlaneCircleExclamation } from "@fortawesome/free-solid-svg-icons";
-import { faRepeat } from "@fortawesome/free-solid-svg-icons";
-import { faUserCheck } from "@fortawesome/free-solid-svg-icons";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { faCircleUser, faBookmark } from "@fortawesome/free-regular-svg-icons";
+import {
+  faPlaneCircleExclamation,
+  faRepeat,
+  faUserCheck,
+  faStar,
+  faGear,
+} from "@fortawesome/free-solid-svg-icons";
 import "react-dropdown/style.css";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -25,7 +26,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../firebaseSetup";
 import type {} from "styled-components/cssprop";
-import { DropdownProfile, NavContainer, NavIcons, NavInput, NavLogo, ProfileAvatar } from "./styledComponents/Navbar.style";
+import {
+  DropdownProfile,
+  NavContainer,
+  NavIcons,
+  NavInput,
+  NavLogo,
+  ProfileAvatar,
+} from "./styledComponents/Navbar.style";
 function Navbar() {
   const user = useContext(AuthContext);
   let navigate = useNavigate();
@@ -54,8 +62,8 @@ function Navbar() {
         <Grid container>
           <Grid item xs={2}></Grid>
           <Grid item xs={3} style={{ display: "flex" }}>
-            <NavLogo src={logo} alt="logo"/>
-            <Dropdown >
+            <NavLogo src={logo} alt="logo" />
+            <Dropdown>
               <Dropdown.Toggle
                 style={{
                   background: "none",
@@ -77,14 +85,14 @@ function Navbar() {
           </Grid>
 
           <Grid item xs={3}>
-            <NavInput type="text"  placeholder="Search" />
+            <NavInput type="text" placeholder="Search" />
           </Grid>
           <Grid item xs={2} style={{ display: "flex" }}>
-            <NavIcons src={home} width="28px" alt="logo"/>
-            <NavIcons src={message} width="28px" alt="logo"/>
-            <NavIcons src={plus} width="28px" height="20px" alt="logo"/>
-            <NavIcons src={find} width="28px" alt="logo"/>
-            <NavIcons src={love} width="28px" alt="logo"/>
+            <NavIcons src={home} width="28px" alt="logo" />
+            <NavIcons src={message} width="28px" alt="logo" />
+            <NavIcons src={plus} width="28px" height="20px" alt="logo" />
+            <NavIcons src={find} width="28px" alt="logo" />
+            <NavIcons src={love} width="28px" alt="logo" />
             {/* <img className="nav_icons" src={home} width="28px" alt="logo" />
             <img className="nav_icons" src={find} width="28px" alt="logo" />
             <img className="nav_icons" src={love} width="28px" alt="logo" />
@@ -92,16 +100,13 @@ function Navbar() {
             <div style={{ position: "relative" }}>
               <Dropdown>
                 <DropdownProfile>
-                <Dropdown.Toggle>
-                  <ProfileAvatar>
-                  <Avatar
-                  id="avatar"
-                    src={subh}
-                  />
-                  </ProfileAvatar>
-                </Dropdown.Toggle>
+                  <Dropdown.Toggle>
+                    <ProfileAvatar>
+                      <Avatar id="avatar" src={subh} />
+                    </ProfileAvatar>
+                  </Dropdown.Toggle>
                 </DropdownProfile>
-                <Dropdown.Menu >
+                <Dropdown.Menu>
                   <Dropdown.Item href="/">
                     <FontAwesomeIcon icon={faCircleUser} /> Profile
                   </Dropdown.Item>

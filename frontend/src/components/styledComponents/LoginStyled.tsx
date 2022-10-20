@@ -79,7 +79,7 @@ export const Input = styled.input<Props>`
   outline: none;
   border: solid 1px ${borderColor};
   padding: 3px 9px 3px 5px;
-  /* padding-right: ${(props) => props.right}px; */
+  padding-right: ${(props) => props.right}px;
   &:focus {
     border-color: rgb(147, 146, 146);
   }
@@ -92,12 +92,12 @@ export const ShowPasswordBtn = styled.button`
   position: absolute;
   font-size: 14px;
   opacity: 0.7;
-  top: 85px;
-  left: 14.5rem;
+  top: 70px;
+  left: 14rem;
   background-color: ${background};
   z-index: 20;
   border: none;
-  /* background: none; */
+  background: none;
   font-weight: 700 !important;
 `;
 export const LoginBtn = styled.button`
