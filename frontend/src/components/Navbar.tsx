@@ -60,7 +60,7 @@ function Navbar() {
     <div>
       <NavContainer>
         <Grid container>
-          <Grid item xs={2}></Grid>
+          <Grid item xs={2} id="nav_first_grid"></Grid>
           <Grid item xs={3} style={{ display: "flex" }}>
             <NavLogo src={logo} alt="logo" />
             <Dropdown>
@@ -84,15 +84,16 @@ function Navbar() {
             </Dropdown>
           </Grid>
 
-          <Grid item xs={3}>
+          <Grid item xs={3} id="input_grid">
             <NavInput type="text" placeholder="Search" />
           </Grid>
-          <Grid item xs={2} style={{ display: "flex" }}>
+          <Grid item xs={2} id="icons_grid" style={{ display: "flex" }}>
             <NavIcons src={home} width="28px" alt="logo" />
             <NavIcons src={message} width="28px" alt="logo" />
             <NavIcons src={plus} width="28px" height="20px" alt="logo" />
             <NavIcons src={find} width="28px" alt="logo" />
             <NavIcons src={love} width="28px" alt="logo" />
+
             {/* <img className="nav_icons" src={home} width="28px" alt="logo" />
             <img className="nav_icons" src={find} width="28px" alt="logo" />
             <img className="nav_icons" src={love} width="28px" alt="logo" />
