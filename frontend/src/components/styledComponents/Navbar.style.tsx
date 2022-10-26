@@ -1,25 +1,43 @@
 import styled, { css } from "styled-components";
 
 export const NavContainer = styled.div`
+  .MuiGrid-item {
+    height: 60px !important;
+  }
   height: 60px;
+  z-index: 100;
   width: 100vw;
   background-color: white;
   border-bottom: 1px solid #dbdbdb;
-  position: sticky;
-  position: -webkit-sticky;
-  top: 0px;
-  .show{
+  position: fixed;
+  top: 0;
+  width: 100%;
+  #nav_first_grid {
+    @media screen and (max-width: 970px) {
+      display: none;
+    }
+  }
+  #input_grid {
+    @media screen and (max-width: 540px) {
+      display: none;
+    }
+  }
+  #icons_grid{
+    @media screen and (max-width: 540px) {
+      margin-left:70px;
+    }
+  }
+  .show {
     width: 250px;
-    a{
+    a {
       padding: 10px 15px;
       font-size: 15px;
-      z-index: 2;
     }
-    #logout{
+    #logout {
       border-top: 1px solid #dbdbdb;
     }
-    svg{
-      margin-right:6px;
+    svg {
+      margin-right: 6px;
     }
   }
 `;
@@ -45,10 +63,16 @@ export const NavInput = styled.input`
   &:focus {
     outline: none;
   }
+  @media screen and (max-width: 968px) {
+    display: none;
+  }
 `;
 export const NavIcons = styled.img`
   margin: 15px 10px;
   cursor: pointer;
+  @media screen and (max-width: 968px) {
+    margin: 15px 0px 0px 6px;
+  }
 `;
 export const DropdownProfile = styled.div`
   button {
@@ -59,18 +83,17 @@ export const DropdownProfile = styled.div`
     height: 25px;
     border: none;
     background: none;
-    &:hover{
-        background: none;
+    &:hover {
+      background: none;
     }
   }
 `;
 export const ProfileAvatar = styled.div`
-    position: absolute;
-    top: 13px;
-    left: 7px;
-    #avatar{
-      max-width: 27px;
-      max-height: 27px;
-
+  position: absolute;
+  top: 13px;
+  left: 7px;
+  #avatar {
+    max-width: 27px;
+    max-height: 27px;
   }
 `;
