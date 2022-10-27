@@ -24,7 +24,7 @@ export const NavContainer = styled.div`
   }
   #icons_grid{
     @media screen and (max-width: 540px) {
-      margin-left:70px;
+      margin-left:50px;
     }
   }
   .show {
@@ -70,8 +70,8 @@ export const NavInput = styled.input`
 export const NavIcons = styled.img`
   margin: 15px 10px;
   cursor: pointer;
-  @media screen and (max-width: 968px) {
-    margin: 15px 0px 0px 6px;
+  @media screen and (max-width: 580px) {
+    margin: 15px 2px 0px 10px;
   }
 `;
 export const DropdownProfile = styled.div`

@@ -1,4 +1,5 @@
 import styled, { css } from "styled-components";
+import { borderColor } from "./utilityFiles/variables";
 
 export const PostContainer = styled.div`
   margin-top: 15px;
@@ -6,9 +7,10 @@ export const PostContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 470px;
-  background: red;
+  background: white;
   justify-content: center;
   align-items: center;
+  border: 1px solid ${borderColor};
   img {
     object-fit: cover;
   }

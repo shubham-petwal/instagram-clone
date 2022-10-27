@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { Grid } from "@material-ui/core";
 // import "../styles/Navbar.scss";
-
 import logo from "../assets/images/instagram_logo.png";
 import home from "../assets/images/home.svg";
 import find from "../assets/images/find.svg";
@@ -20,7 +19,7 @@ import {
   faGear,
 } from "@fortawesome/free-solid-svg-icons";
 import "react-dropdown/style.css";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, NavLink, useNavigate } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
@@ -62,7 +61,9 @@ function Navbar() {
         <Grid container>
           <Grid item xs={2} id="nav_first_grid"></Grid>
           <Grid item xs={3} style={{ display: "flex" }}>
-            <NavLogo src={logo} alt="logo" />
+            <NavLink to="/home">
+              <NavLogo src={logo} alt="logo" />
+            </NavLink>
             <Dropdown>
               <Dropdown.Toggle
                 style={{
@@ -108,9 +109,11 @@ function Navbar() {
                   </Dropdown.Toggle>
                 </DropdownProfile>
                 <Dropdown.Menu>
-                  <Dropdown.Item href="/">
-                    <FontAwesomeIcon icon={faCircleUser} /> Profile
+                  <Dropdown.Item onClick={()=>navigate("/userProfile")}>
+                    <FontAwesomeIcon icon={faCircleUser} />
+                    Profile
                   </Dropdown.Item>
+
                   <Dropdown.Item href="/">
                     <FontAwesomeIcon icon={faBookmark} /> Saved
                   </Dropdown.Item>
