@@ -1,9 +1,10 @@
 const express = require("express");
-const { collection, getDocs } = require("firebase/firestore");
+const { collection, getDocs, addDoc } = require("firebase/firestore");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const db = require('./db')
+const bcrypt = require("bcrypt");
+const db = require("./db");
 
 const app = express();
 
@@ -14,23 +15,32 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 dotenv.config();
 
-app.get("/", async (req, res) => {
+//endpoints are described below
+
+app.post("/register", async (req, res) => {
+  const { userId, userName, fullName, email, password } = req.body;
   const collectionRef = collection(db, "users");
-
-  getDocs(collectionRef).then((snapshot) => {
-    let users = [];
-    snapshot.docs.forEach((doc)=>{
-        users.push({...doc.data(), id : doc.id})
-    })
-    console.log(users);
-  }).finally(()=>{
-      res.send("this is homepage");
-  })
+  try{
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const docRef = await addDoc(collectionRef, {
+      userId,
+      userName,
+      fullName,
+      email,
+      hashedPassword,
+    });
+    res.send({ success: true, message: "user Registered Successfully" });
+  }catch(error){
+    console.log(error);
+    res.send({success : false, message: error.message});
+  }
 });
-app.get("/about", (req, res) => {
-  res.send("this is about");
-});
+app.get("/users/:userId",(req,res)=>{
+  
+})
 
+// console.log("reference of doc on storing user data on firestore : ",docRef);
 app.listen(process.env.PORT, () => {
   console.log(`app started at port ${process.env.PORT}`);
 });
