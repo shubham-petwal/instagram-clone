@@ -5,15 +5,20 @@ import {
   UserHighlightSection,
   UserInfoContainer,
   EditAndSettingsDiv,
+  AllPostImages,
 } from "./styledComponents/UserProfile.style";
 import Navbar from "./Navbar";
 import { Avatar } from "@material-ui/core";
 import subh from "../assets/images/shubham.jpg";
+import WhiteRing from "../assets/images/UserHighlightRing.png"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
+import StatusStories from "./StatusStories";
+import { useNavigate } from "react-router-dom";
 function UserProfile() {
+  const navigate = useNavigate();
   return (
-    <>
+    <div >
       <Navbar />
       <UserProfileContainer>
         <UserDataSection>
@@ -23,7 +28,7 @@ function UserProfile() {
           <UserInfoContainer>
             <EditAndSettingsDiv>
               <p>shubham_petwal_</p>
-              <button>Edit Profile</button>
+              <button onClick={()=>navigate("/editProfile")}>Edit Profile</button>
               <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
@@ -46,10 +51,37 @@ function UserProfile() {
           </UserInfoContainer>
         </UserDataSection>
 
-        <UserHighlightSection>data</UserHighlightSection>
-        <div>data</div>
+        <UserHighlightSection>
+          <div id="userProfileHighlight" >
+          <ul>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+            <StatusStories ringImage={WhiteRing} Ringwidth="85" Ringheight="85" width="80" height="80"/>
+          </ul>
+          </div>
+          </UserHighlightSection>
+          <AllPostImages>
+            <ul>
+              <li><img src={subh} height="280px" width="300px"/></li>
+              <li><img src={subh} height="280px" width="300px"/></li>
+              <li><img src={subh} height="280px" width="300px"/></li>
+              <li><img src={subh} height="280px" width="300px"/></li>
+              <li><img src={subh} height="280px" width="300px"/></li>
+              <li><img src={subh} height="280px" width="300px"/></li>
+              <li><img src={subh} height="280px" width="300px"/></li>
+            </ul>
+          </AllPostImages>
       </UserProfileContainer>
-    </>
+    </div>
   );
 }
 

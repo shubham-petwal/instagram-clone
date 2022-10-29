@@ -9,7 +9,7 @@ function Home() {
     <>
       <Navbar/>
       <HomePageContainer>
-        <div className='all_posts' >
+        <div id='all_posts' >
           <StatusBar/>
           <Posts/>
           <Posts/>
