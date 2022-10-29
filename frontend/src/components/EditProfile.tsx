@@ -6,12 +6,9 @@ import Navbar from "./Navbar";
 import {
   EditProfileContainer,
   EditProfileMainContainer,
-  FormInput,
   InputDiv,
   LabelDiv,
   LeftEditPage,
-  PersonalInformation,
-  RightChangePassword,
   RightEditPage,
 } from "./styledComponents/EditProfile.style";
 function EditProfile() {
@@ -21,7 +18,7 @@ function EditProfile() {
       <Navbar />
       <EditProfileMainContainer>
         <EditProfileContainer>
-          <LeftEditPage height="152.3vh">
+          <LeftEditPage>
             <div>
               <span>Edit Profile</span>
               <span onClick={() => navigate("/ChangePass")}>
@@ -30,8 +27,13 @@ function EditProfile() {
             </div>
           </LeftEditPage>
           <RightEditPage>
-            <div>
+            <div id="topavatar">
+            <LabelDiv >
               <Avatar src={subh} />
+              </LabelDiv>
+              <InputDiv>   
+                <p>UserName</p>
+              </InputDiv>
             </div>
             <form>
               <LabelDiv>

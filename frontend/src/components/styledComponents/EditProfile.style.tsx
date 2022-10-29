@@ -2,7 +2,6 @@ import styled, { css } from "styled-components";
 import { borderColor, pageBgColor } from "./utilityFiles/variables";
 export const EditProfileMainContainer = styled.div`
   background: ${pageBgColor};
-  height: 100%;
 `;
 interface Props {
   height: string;
@@ -12,14 +11,13 @@ export const EditProfileContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: center;
+  /* align-items: center; */
   margin: auto;
   padding-top: 100px !important;
 `;
-export const LeftEditPage = styled.div<Props>`
+export const LeftEditPage = styled.div`
   background: white;
   width: 30%;
-  height: ${(p) => p.height};
   border: 1px solid ${borderColor};
   overflow-y: hidden;
   @media screen and (max-width: 950px) {
@@ -55,10 +53,16 @@ export const RightEditPage = styled.div`
   border: 1px solid ${borderColor};
   border-left: none;
   padding-bottom: 30px;
-  @media screen and (max-width: 670px) {
+  #topavatar{
+    @media screen and (max-width: 740px) {
+      padding-left:12px;
+  }
+  }
+  @media screen and (max-width: 740px) {
     form{
       display: flex;
       flex-direction: column;
+      padding:0px 10px 0px 10px;
     }
     width: 100%;
     padding-left:10px;
@@ -71,6 +75,7 @@ export const RightEditPage = styled.div`
     display: flex;
     justify-content: center;
     align-items: center;
+    width: 100%;
     button {
       background: #0095f6;
       border: #0095f6;
@@ -79,73 +84,18 @@ export const RightEditPage = styled.div`
     }
   }
 `;
-export const FormInput = styled.div`
-  justify-content: center;
-  display: flex;
-  margin-bottom: 30px;
-  label {
-    font-weight: 700;
-    float: right;
-  }
-  input {
-    border-radius: 3px;
-    border: 1px solid ${borderColor};
-    background: rgb(236, 236, 236);
-  }
-  div {
-    margin-left: 20px;
-    display: flex;
-    float: left;
-    flex-direction: column;
-    width: 400px;
-  }
-  p {
-    margin-top: 15px;
-    font-size: 12px;
-    color: grey;
-  }
-  span {
-    margin-left: 10px;
-    width: 300px;
-    font-weight: 500;
-  }
-`;
-export const PersonalInformation = styled.div`
-  margin-left: 170px;
-  width: 500px;
-  h3 {
-    font-size: 15px;
-    color: grey;
-  }
-  p {
-    margin-top: 15px;
-    font-size: 12px;
-    color: grey;
-  }
-`;
+
 export const RightChangePassword = styled.div`
   width: 70%;
-  height: 100vh;
+  min-height: 100vh;
   background: white;
   padding-left: 30px;
   border: 1px solid ${borderColor};
   border-left: none;
-  padding-bottom: 30px;
-  #forgotPassword {
-    margin-left: 183px;
-    padding-top: 30px;
-    font-weight: 500;
-    color: #0095f6;
-  }
-
-  input[type="submit"] {
-    background-color: #0095f6;
-    color: white;
-    padding: 4px 4px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    margin: 40px 0px 0px 185px;
+  /* padding-bottom: 30px; */
+  @media screen and (max-width: 739px) {
+      width: 100% !important;
+      margin-top:-5px;
   }
 `;
 export const LabelDiv = styled.div`
@@ -153,6 +103,10 @@ export const LabelDiv = styled.div`
   float: left;
   margin-top: 30px;
   margin-left: 15px;
+  @media screen and (max-width: 739px) {
+      width: 100% !important;
+      margin-left:3px;
+  }
   label {
     padding: 8px 8px 8px 0;
     font-weight: 700;
@@ -162,9 +116,9 @@ export const InputDiv = styled.div`
   width: 65%;
   float: left;
   margin-top: 30px;
-  @media screen and (max-width: 739px) {
+  @media screen and (max-width: 740px) {
       width: 100% !important;
-      margin-top:-5px;
+      margin-top:-3px;
   }
   input[type="text"] {
     width: 100%;
@@ -181,7 +135,20 @@ export const InputDiv = styled.div`
   input[type="checkbox"] {
     margin-right: 10px;
   }
+  input[type="submit"] {
+    background-color: #0095f6;
+    color: white;
+    padding: 4px 4px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top:20px;
+  }
   span {
     font-weight: 500;
+  }
+  #forgotPassword{
+    font-weight: 500;
+    color: #0095f6; 
   }
 `;

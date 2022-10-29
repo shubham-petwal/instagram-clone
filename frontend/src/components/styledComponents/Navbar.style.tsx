@@ -46,6 +46,9 @@ export const NavLogo = styled.img`
   width: 6.8rem;
   margin-top: 15px;
   cursor: pointer;
+  @media screen and (max-width: 670px) {
+    margin-left:40px;
+    }
 `;
 export const NavInput = styled.input`
   height: 35px;

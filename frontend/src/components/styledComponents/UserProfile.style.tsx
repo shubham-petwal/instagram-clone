@@ -25,7 +25,7 @@ export const UserDataSection = styled.div`
       width: 70px;
     }
     @media screen and (max-width: 439px) {
-      margin:0px 0px 10px 150px;
+      margin: 0px 0px 10px 150px;
     }
   }
 `;
@@ -38,6 +38,19 @@ export const UserInfoContainer = styled.div`
 `;
 export const EditAndSettingsDiv = styled.div`
   display: flex;
+  /* @media screen and (max-width: 400px) {
+    margin-top:10px;
+      flex-direction: column;
+      overflow-x: hidden;
+      height: 14vh;
+    }; */
+    div {
+    @media screen and (max-width: 400px) {
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+    }
+  }
   flex-wrap: wrap;
   height: 55px;
   justify-content: space-between;
@@ -57,7 +70,7 @@ export const EditAndSettingsDiv = styled.div`
   }
   svg {
     height: 25px;
-    margin-top: 5px;
+    margin-top: 6px;
   }
   span {
     font-weight: 600;
@@ -69,18 +82,21 @@ export const UserHighlightSection = styled.div`
   #userProfileHighlight {
     @media screen and (max-width: 840px) {
       width: 620px;
-    };
+    }
     @media screen and (max-width: 984px) {
       width: 620px;
-    };
+    }
     @media screen and (max-width: 540px) {
       width: 370px;
-    };
+    }
     @media screen and (max-width: 620px) {
       max-width: 510px;
-    };
+    }
+    /* @media screen and (max-width: 400px) {
+      margin-top:120px;
+    }; */
   }
-  margin: 60px 0px 20px 0px;
+  margin: 45px 0px 20px 0px;
   max-width: 950px;
   float: left;
   ul {
@@ -89,9 +105,9 @@ export const UserHighlightSection = styled.div`
     overflow-y: scroll;
     -ms-overflow-style: none;
     scrollbar-width: none;
-    padding-bottom:15px;
+    padding-bottom: 15px;
     li {
-      margin-right:30px;
+      margin-right: 30px;
       width: 100%;
     }
   }
@@ -110,19 +126,22 @@ export const AllPostImages = styled.div`
     li {
       margin: 10px 10px 10px 8px;
       object-fit: cover;
+      @media screen and (max-width: 438px) {
+        margin-left: -20px;
+    }
     }
     @media screen and (max-width: 670px) {
-      flex-direction:column;
+      flex-direction: column;
       align-items: center;
     }
     @media screen and (max-width: 984px) {
       align-items: center;
     }
     @media screen and (max-width: 985px) {
-      max-width:670px;
+      max-width: 670px;
       display: flex;
       align-items: center;
       overflow-y: hidden;
-      }
+    }
   }
 `;
