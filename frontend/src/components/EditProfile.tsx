@@ -1,6 +1,6 @@
 import { Avatar } from "@material-ui/core";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import subh from "../assets/images/shubham.jpg";
 import Navbar from "./Navbar";
 import {
@@ -9,10 +9,18 @@ import {
   InputDiv,
   LabelDiv,
   LeftEditPage,
+  PageDetails,
   RightEditPage,
 } from "./styledComponents/EditProfile.style";
 function EditProfile() {
   const navigate = useNavigate();
+  const [isActive, setIsActive] = useState(true);
+
+  const handleClick = () => {
+    setIsActive(!isActive);
+    navigate("/ChangePass");
+  };
+
   return (
     <div>
       <Navbar />
@@ -20,19 +28,28 @@ function EditProfile() {
         <EditProfileContainer>
           <LeftEditPage>
             <div>
-              <span>Edit Profile</span>
-              <span onClick={() => navigate("/ChangePass")}>
-                Change password
+              <span
+                style={{
+                  "background": isActive ? "#f8f8f8" : "",
+                  "fontSize": isActive ? "22px" : "",
+                  "fontWeight": isActive ? "500":"",
+                }}
+              >
+                Edit Profile
               </span>
+              <span onClick={handleClick}>Change password</span>
             </div>
           </LeftEditPage>
           <RightEditPage>
+          <PageDetails>
+              <p>Edit Profile</p>
+            </PageDetails>
             <div id="topavatar">
-            <LabelDiv >
-              <Avatar src={subh} />
+              <LabelDiv>
+                <Avatar src={subh} id="Avatar" />
               </LabelDiv>
-              <InputDiv>   
-                <p>UserName</p>
+              <InputDiv>
+                <p id="username">UserName</p>
               </InputDiv>
             </div>
             <form>
@@ -43,7 +60,7 @@ function EditProfile() {
                 <input type="text" placeholder="Name of User" />
                 <p>
                   You are using the same name on Instagram and Facebook. Go to
-                  Facebook to change your name. Change Name
+                  Facebook to change your name. <Link to="">Change Name</Link>
                 </p>
               </InputDiv>
               <LabelDiv>
@@ -53,7 +70,8 @@ function EditProfile() {
                 <input type="text" placeholder="Name of User" />
                 <p>
                   In most cases, you'll be able to change your username back to
-                  shubham_petwal_ for another 14 days. Learn more
+                  shubham_petwal_ for another 14 days.{" "}
+                  <Link to="">Learn more</Link>
                 </p>
               </InputDiv>
               <LabelDiv>
@@ -106,17 +124,17 @@ function EditProfile() {
                 <label>Gender</label>
               </LabelDiv>
               <InputDiv>
-                <input type="text"/>
+                <input type="text" />
               </InputDiv>
 
               <LabelDiv>
                 <label>Similar account suggestions</label>
               </LabelDiv>
-              <InputDiv style={{ "display":"flex" }}>
+              <InputDiv style={{ display: "flex" }}>
                 <input type="checkbox" />
                 <span>
                   Include your account when recommending similar accounts that
-                  people might want to follow.[?]
+                  people might want to follow.<Link to="">[?]</Link>
                 </span>
               </InputDiv>
               <LabelDiv id="submit">

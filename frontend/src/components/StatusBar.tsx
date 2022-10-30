@@ -5,7 +5,7 @@ import ring from "../assets/images/storyRing.png"
 function StatusBar() {
   let rows = [];
   for (let i = 0; i <=10; i++) {
-    rows.push(<StatusStories ringImage={ring} Ringwidth="65" Ringheight="65" width="60" height="60" />);
+    rows.push(<StatusStories key={Math.random()} ringImage={ring} Ringwidth="65" Ringheight="65" width="60" height="60" />);
   }
   return (
     <StatusBarContainer>

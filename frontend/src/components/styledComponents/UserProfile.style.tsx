@@ -125,7 +125,9 @@ export const AllPostImages = styled.div`
     list-style: none;
     li {
       margin: 10px 10px 10px 8px;
-      object-fit: cover;
+      img{
+        object-fit: cover;
+      }
       @media screen and (max-width: 438px) {
         margin-left: -20px;
     }
