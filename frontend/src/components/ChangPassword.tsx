@@ -10,9 +10,15 @@ import {
   InputDiv,
   LeftEditPage,
   RightChangePassword,
+  PageDetails,
 } from "./styledComponents/EditProfile.style";
 function ChangPassword() {
   const navigate = useNavigate();
+  const [isActive, setIsActive] = useState(true);
+  const handleClick = () => {
+    setIsActive(!isActive);
+    navigate("/editProfile");
+  };
   return (
     <>
       <div>
@@ -21,20 +27,30 @@ function ChangPassword() {
           <EditProfileContainer>
             <LeftEditPage>
               <div>
-                <span onClick={() => navigate("/editProfile")}>
-                  Edit Profile
+                <span onClick={handleClick}>Edit Profile</span>
+                <span
+                  style={{
+                    "background": isActive ? "#f8f8f8" : "",
+                    "fontSize": isActive ? "22px" : "",
+                    "fontWeight": isActive ? "500":"",
+                  }}
+                >
+                  Change password
                 </span>
-                <span>Change password</span>
               </div>
             </LeftEditPage>
             <RightChangePassword>
-              <LabelDiv >
-              <Avatar src={subh} />
-              </LabelDiv>
-              <InputDiv>
-                
-                <p>UserName</p>
-              </InputDiv>
+            <PageDetails>
+              <p>Change Password</p>
+            </PageDetails>
+              <div id="topavatar">
+                <LabelDiv>
+                  <Avatar src={subh} id="Avatar" />
+                </LabelDiv>
+                <InputDiv>
+                  <p>UserName</p>
+                </InputDiv>
+              </div>
               <div>
                 <div id="row">
                   <LabelDiv>
@@ -69,8 +85,8 @@ function ChangPassword() {
                 <input type="submit" value="Change Password" />
               </InputDiv>
               <LabelDiv>
-                    <label></label>
-                  </LabelDiv>
+                <label></label>
+              </LabelDiv>
               <InputDiv>
                 <span id="forgotPassword">Forgotten your Password?</span>
               </InputDiv>

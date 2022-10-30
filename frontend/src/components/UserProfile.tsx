@@ -22,6 +22,7 @@ function UserProfile() {
     rows.push(
       <StatusStories
         ringImage={WhiteRing}
+        key={Math.random()}
         Ringwidth="85"
         Ringheight="85"
         width="80"
@@ -44,7 +45,7 @@ function UserProfile() {
               <button onClick={() => navigate("/editProfile")}>
                 Edit Profile
               </button>
-    
+
               <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
@@ -74,25 +75,34 @@ function UserProfile() {
         </UserHighlightSection>
         <AllPostImages>
           <ul>
-            <li>
+            <li key={Math.random()}>
               <img src={subh} height="280px" width="300px" />
             </li>
-            <li>
+            <li key={Math.random()}>
               <img src={subh} height="280px" width="300px" />
             </li>
-            <li>
+            <li key={Math.random()}>
               <img src={subh} height="280px" width="300px" />
             </li>
-            <li>
+            <li key={Math.random()}>
               <img src={subh} height="280px" width="300px" />
             </li>
-            <li>
+            <li key={Math.random()}>
               <img src={subh} height="280px" width="300px" />
             </li>
-            <li>
+            <li key={Math.random()}>
               <img src={subh} height="280px" width="300px" />
             </li>
-            <li>
+            <li key={Math.random()}>
+              <img src={subh} height="280px" width="300px" />
+            </li>
+            <li key={Math.random()}>
+              <img src={subh} height="280px" width="300px" />
+            </li>
+            <li key={Math.random()}>
+              <img src={subh} height="280px" width="300px" />
+            </li>
+            <li key={Math.random()}>
               <img src={subh} height="280px" width="300px" />
             </li>
           </ul>
