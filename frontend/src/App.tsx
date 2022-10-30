@@ -6,6 +6,9 @@ import Login from "./components/Login";
 import Home from "./components/Home";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import ForgotPassword from "./components/ForgotPassword";
+import UserProfile from "./components/UserProfile";
+import EditProfile from "./components/EditProfile";
+import ChangPassword from "./components/ChangPassword";
 
 function App() {
   return (
@@ -20,6 +23,30 @@ function App() {
             element={
               <ProtectedRoutes>
                 <Home />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/userProfile"
+            element={
+              <ProtectedRoutes>
+                <UserProfile />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/editProfile"
+            element={
+              <ProtectedRoutes>
+                <EditProfile />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/ChangePass"
+            element={
+              <ProtectedRoutes>
+                <ChangPassword/>
               </ProtectedRoutes>
             }
           />

@@ -3,25 +3,21 @@ import { auth } from "../firebaseSetup";
 import Navbar from "./Navbar";
 import Posts from './Posts';
 import StatusBar from './StatusBar';
-import { HomePageContainer } from "./styledComponents/Home.style";
+import { HomePageContainer, SuggestionContainer } from "./styledComponents/Home.style";
 function Home() {
-    const signOut = async () => {
-        await auth.signOut();
-    };
   return (
     <>
       <Navbar/>
       <HomePageContainer>
-
-        <div className='all_posts' >
+        <div id='all_posts' >
           <StatusBar/>
           <Posts/>
           <Posts/>
           <Posts/>
         </div>
-        <div className='suggestion_container'>
+        <SuggestionContainer>
           <h1>SHubham</h1>
-        </div>
+        </SuggestionContainer>
       </HomePageContainer>
     </>
   );

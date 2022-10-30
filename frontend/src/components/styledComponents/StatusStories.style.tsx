@@ -6,7 +6,7 @@ export const StatusStoriesContainer = styled.li`
   width: 70px;
   height: 90px;
   margin-top: 18px;
-  margin-left: 12px;
+  margin-right: 12px;
   img {
     border-radius: 50%;
     object-fit:cover;
