@@ -33,6 +33,7 @@ import {
 // authentication imports
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../firebaseSetup";
+import axios from "axios";
 
 function SignUp() {
   const [showPass, setShowPass] = useState(false);
@@ -60,10 +61,21 @@ function SignUp() {
         emailRef.current!.value,
         passwordRef.current!.value
       );
-      console.log(response);
+      //sending post request to server to store the user in the firestore cloud database
+      //@types-ignore
+      const userId = response.user?.uid;
+      const registerObject = {
+        userId : userId,
+        userName : userNameRef.current?.value,
+        fullName : fullNameRef.current?.value,
+        email : emailRef.current?.value,
+        password : passwordRef.current?.value
+      }
+      const result = await axios.post('http://localhost:90/register', registerObject)
       navigate("/home");
-    } catch (error) {
+    } catch (error:any) {
       console.error(error);
+      window.alert(error.message);
     }
   };
   return user ? (

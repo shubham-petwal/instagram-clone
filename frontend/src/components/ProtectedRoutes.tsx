@@ -16,4 +16,4 @@ function ProtectedRoutes({children}: Props) {
     }
 }
 
-export default ProtectedRoutes
+export default ProtectedRoutes;
