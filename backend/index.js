@@ -28,6 +28,7 @@ app.post("/register", async (req, res) => {
   try {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
+    //need to initialise "profileImage" as some dummy image and then store in the database, can be updated afterwards
     const docRef = await addDoc(collectionRef, {
       userId,
       userName,
@@ -45,6 +46,7 @@ app.post("/register", async (req, res) => {
 });
 
 app.get("/users/:userId", async (req, res) => {
+  //need to send the userId, profileImg url in the response 
   try {
     const userId = req.params.userId;
     const collectionRef = collection(db, "users");

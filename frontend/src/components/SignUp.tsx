@@ -12,6 +12,7 @@ import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Formik } from "formik";
 import { signUpSchema } from "../schemas/validationSchema";
 import { links1, links3 } from "../utilities/links";
+import { useSelector, useDispatch } from 'react-redux'
 import Footer from "./Footer";
 //importing styled components
 import {
@@ -36,6 +37,12 @@ import { auth } from "../firebaseSetup";
 import axios from "axios";
 
 function SignUp() {
+  const dispatch = useDispatch();
+  const fetchedLoading = useSelector((state : ReduxState)=>{
+    return state;
+  })
+  console.log(fetchedLoading)
+
   const [showPass, setShowPass] = useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
