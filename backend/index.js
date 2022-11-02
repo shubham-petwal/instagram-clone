@@ -5,6 +5,8 @@ const {
   query,
   where,
   getDocs,
+  updateDoc,
+  doc
 } = require("firebase/firestore");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -35,8 +37,9 @@ app.post("/register", async (req, res) => {
       fullName,
       email,
       hashedPassword,
-      description: "",  //this is the initial data passes, can be updated further
+      bioData : "",  //this is the initial data passes, can be updated further
       postCount: 0,
+      profileImage : ""
     });
     res.send({ success: true, message: "user Registered Successfully" });
   } catch (error) {
@@ -66,7 +69,9 @@ app.get("/users/:userId", async (req, res) => {
         fullName: resArr[0].fullName,
         postCount: resArr[0].postCount,
         userName: resArr[0].userName,
-        description: resArr[0].description,
+        bioData : resArr[0].bioData,
+        email : resArr[0].email,
+        gender : resArr[0].gender || undefined
       },
     });
   } catch (error) {
@@ -76,6 +81,44 @@ app.get("/users/:userId", async (req, res) => {
     });
   }
 });
+
+
+app.post('/updateUser',async (req,res)=>{
+  const {fullName,userName, gender, bioData, userId}=req.body;
+  const data = {
+    fullName,
+    userName,
+    bioData,
+    gender
+  }
+  try{
+    //finding user and getting its document id
+    const collectionRef = collection(db, "users");
+    const q = query(collectionRef, where("userId", "==", userId.toString())); //created a query
+    const findQuerySnapshot = await getDocs(q);
+    const resArr = [];
+    findQuerySnapshot.forEach((doc) => {
+      resArr.push({...doc.data(), id : doc.id});
+    });
+    // updating user document
+    const documentRef = doc(db,"users",resArr[0].id)
+    const updateDocResponse = await updateDoc(documentRef,data);
+    console.log(updateDocResponse);
+    //sending response once user is updated
+    res.send({
+      success : true,
+      message : "user update successful"
+    });
+
+  }catch(error){
+    res.send({
+      success : false,
+      message : error.message
+    });
+  }
+
+})
+
 
 app.listen(process.env.PORT, () => {
   console.log(`app started at port ${process.env.PORT}`);
