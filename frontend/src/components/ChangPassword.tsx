@@ -1,8 +1,9 @@
 import { Avatar } from "@material-ui/core";
-import React, { useState } from "react";
+import React, { useState,useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import subh from "../assets/images/shubham.jpg";
 import Navbar from "./Navbar";
+import { auth } from "../firebaseSetup";
 import {
   LabelDiv,
   EditProfileContainer,
@@ -14,11 +15,20 @@ import {
 } from "./styledComponents/EditProfile.style";
 function ChangPassword() {
   const navigate = useNavigate();
+  const oldPasswordRef = useRef<HTMLInputElement>(null)
+  const newPasswordRef = useRef<HTMLInputElement>(null)
   const [isActive, setIsActive] = useState(true);
   const handleClick = () => {
     setIsActive(!isActive);
     navigate("/editProfile");
   };
+  // const handleFormSubmit = async ()=>{
+  //   const oldPassword = oldPasswordRef.current?.value || "";
+  //   const newPassword = newPasswordRef.current?.value || "";
+  //   const response = await auth.updateCurrentUser(auth.currentUser);
+  //   console.log(response);
+  // }
+
   return (
     <>
       <div>
@@ -30,9 +40,9 @@ function ChangPassword() {
                 <span onClick={handleClick}>Edit Profile</span>
                 <span
                   style={{
-                    "background": isActive ? "#f8f8f8" : "",
-                    "fontSize": isActive ? "22px" : "",
-                    "fontWeight": isActive ? "500":"",
+                    background: isActive ? "#f8f8f8" : "",
+                    fontSize: isActive ? "22px" : "",
+                    fontWeight: isActive ? "500" : "",
                   }}
                 >
                   Change password
@@ -40,9 +50,9 @@ function ChangPassword() {
               </div>
             </LeftEditPage>
             <RightChangePassword>
-            <PageDetails>
-              <p>Change Password</p>
-            </PageDetails>
+              <PageDetails>
+                <p>Change Password</p>
+              </PageDetails>
               <div id="topavatar">
                 <LabelDiv>
                   <Avatar src={subh} id="Avatar" />
@@ -57,7 +67,7 @@ function ChangPassword() {
                     <label>Old Password</label>
                   </LabelDiv>
                   <InputDiv>
-                    <input type="text" />
+                    <input ref={oldPasswordRef} type="text" />
                   </InputDiv>
                 </div>
               </div>
@@ -67,7 +77,7 @@ function ChangPassword() {
                     <label>New password</label>
                   </LabelDiv>
                   <InputDiv>
-                    <input type="text" />
+                    <input ref={newPasswordRef} type="text" />
                   </InputDiv>
                 </div>
               </div>
@@ -82,7 +92,7 @@ function ChangPassword() {
                 </div>
               </div>
               <InputDiv>
-                <input type="submit" value="Change Password" />
+                <button type="submit" >Change password</button>
               </InputDiv>
               <LabelDiv>
                 <label></label>
