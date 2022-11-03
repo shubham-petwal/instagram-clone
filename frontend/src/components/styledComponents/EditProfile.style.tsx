@@ -181,7 +181,7 @@ export const InputDiv = styled.div`
   button[type="submit"] {
     background-color: #0095f6;
     color: white;
-    padding: 4px 4px;
+    padding: 4px 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;

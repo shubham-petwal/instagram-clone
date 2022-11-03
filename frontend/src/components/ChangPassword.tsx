@@ -1,5 +1,5 @@
 import { Avatar } from "@material-ui/core";
-import React, { useState,useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import subh from "../assets/images/shubham.jpg";
 import Navbar from "./Navbar";
@@ -15,19 +15,27 @@ import {
 } from "./styledComponents/EditProfile.style";
 function ChangPassword() {
   const navigate = useNavigate();
-  const oldPasswordRef = useRef<HTMLInputElement>(null)
-  const newPasswordRef = useRef<HTMLInputElement>(null)
+  const [emailState, setEmailState] = useState("");
   const [isActive, setIsActive] = useState(true);
   const handleClick = () => {
     setIsActive(!isActive);
     navigate("/editProfile");
   };
-  // const handleFormSubmit = async ()=>{
-  //   const oldPassword = oldPasswordRef.current?.value || "";
-  //   const newPassword = newPasswordRef.current?.value || "";
-  //   const response = await auth.updateCurrentUser(auth.currentUser);
-  //   console.log(response);
-  // }
+
+  async function handleFormSubmit() {
+    try {
+      if (emailState === "") {
+        throw new Error("email is not provided");
+      } else {
+        const response = await auth.sendPasswordResetEmail(emailState);
+        alert("Reset Password link is sent to your email");
+        setEmailState("");
+        console.log(response)
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <>
@@ -64,40 +72,33 @@ function ChangPassword() {
               <div>
                 <div id="row">
                   <LabelDiv>
-                    <label>Old Password</label>
+                    <label>Current email Address</label>
                   </LabelDiv>
-                  <InputDiv>
-                    <input ref={oldPasswordRef} type="text" />
-                  </InputDiv>
-                </div>
-              </div>
-              <div>
-                <div id="row">
-                  <LabelDiv>
-                    <label>New password</label>
-                  </LabelDiv>
-                  <InputDiv>
-                    <input ref={newPasswordRef} type="text" />
-                  </InputDiv>
-                </div>
-              </div>
-              <div>
-                <div id="row">
-                  <LabelDiv>
-                    <label>Confirm new password</label>
-                  </LabelDiv>
-                  <InputDiv>
-                    <input type="text" />
+                  <InputDiv style={{ marginTop: "42px" }}>
+                    <input
+                      value={emailState}
+                      onChange={(event) => {
+                        setEmailState(event.target.value);
+                      }}
+                      type="email"
+                      required
+                    />
                   </InputDiv>
                 </div>
               </div>
               <InputDiv>
-                <button type="submit" >Change password</button>
+                <button onClick={handleFormSubmit}  type="submit">
+                  Send Reset Password Link
+                </button>
               </InputDiv>
               <LabelDiv>
                 <label></label>
               </LabelDiv>
-              <InputDiv>
+              <InputDiv
+                onClick={() => {
+                  navigate("/forgotPassword");
+                }}
+              >
                 <span id="forgotPassword">Forgotten your Password?</span>
               </InputDiv>
             </RightChangePassword>
