@@ -32,6 +32,7 @@ export function PostDetailModal(props: any) {
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxISbGKaOWbeQjagbw4mTs7ldZW2jbA7njbw&usqp=CAU",
     location: "Lucknow",
     likes: 455,
+    time : "4 week"
   };
   const commentsArray = [
     {
@@ -49,19 +50,23 @@ export function PostDetailModal(props: any) {
         "https://www.ourmigrationstory.org.uk/uploads/_CGSmartImage/img-a2beae8392617b8c02b85d8b9197fb96",
       commentData:
         "voluptates molestias labore culpa nulla magni, nihil non! Dignissimos recusandae sint dicta numquam. Provident, animi! Atque ",
-      time: "3 week",
+      time: "2 week",
       likes: "21",
     },
-    
+    {
+      userName: "mnp4321",
+      profileImage:
+        "https://www.ourmigrationstory.org.uk/uploads/_CGSmartImage/img-a2beae8392617b8c02b85d8b9197fb96",
+      commentData:
+        "nulla magni voluptates molestias labore culpa, nihil non! Dignissimos recusandae sint dicta numquam. Provident, animi! Atque ",
+      time: "2 week",
+      likes: "21",
+    }
   ];
-  const [modalState, setModalState] = useState(true);
   function postComment() {
     console.log("comment posted");
   }
   function handleClick() {
-    // setModalState((prev) => {
-    //   return !prev;
-    // });
     props.setModal(props.modalState);
   }
   // useEffect(() => {
@@ -99,6 +104,23 @@ export function PostDetailModal(props: any) {
                   </div>
                 </AuthorProfileDiv>
                 <CommentsWrapperDiv>
+                  <CommentDiv>
+                    <div className="profile-img">
+                      <img src={postData.profileImage} alt="profile image" />
+                    </div>
+                    <div>
+                      <p className="comment-data">
+                        <span className="userName">{postData.useName}</span>
+                        {postData.caption}
+                      </p>
+                      <p className="comment-info">
+                        <span>{postData.time}</span>
+                      </p>
+                    </div>
+                    <div className="like-icon">
+                      <FontAwesomeIcon icon={faHeart} />
+                    </div>
+                  </CommentDiv>
                   {commentsArray.map((commentDoc) => {
                     return (
                       <CommentDiv>
@@ -139,9 +161,14 @@ export function PostDetailModal(props: any) {
                     </div>
                   </div>
                   <div className="likes-wrapper">
-                    <img src={commentsArray[0].profileImage} alt="profile image" />
+                    <img
+                      src={commentsArray[0].profileImage}
+                      alt="profile image"
+                    />
                     <p>
-                      Liked by <span>{commentsArray[0].userName}</span> and <span>{postData.likes}</span> others
+                      Liked by <span>{commentsArray[0].userName}</span> and{" "}
+                      <span>{postData.likes}</span> others
+                      &ldquo;{props.postId}&rdquo;
                     </p>
                   </div>
                 </ActionIconsDiv>
