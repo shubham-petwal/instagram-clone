@@ -15,7 +15,7 @@ export const StatusStoriesContainer = styled.li`
     position: absolute;
     top: 2.5px;
     left: 2.5px;
-    z-index: 1;
+    /* z-index: 1; */
   }
   p {
     box-sizing: border-box;

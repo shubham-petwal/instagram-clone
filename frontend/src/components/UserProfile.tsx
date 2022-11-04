@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   UserProfileContainer,
   UserDataSection,
@@ -15,8 +15,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import StatusStories from "./StatusStories";
 import { useNavigate } from "react-router-dom";
+import { PostDetailModal } from "./PostDetailModal";
 function UserProfile() {
   const navigate = useNavigate();
+  const [modalState, setModalState] = useState(false);
   let rows = [];
   for (let i = 0; i <= 10; i++) {
     rows.push(
@@ -29,6 +31,21 @@ function UserProfile() {
         height="80"
       />
     );
+  }
+  let randomPosts = [];
+  for (let i = 0; i <= 10; i++) {
+    randomPosts.push(
+      <li key={Math.random()} onClick={handlePostClick}>
+        <img key={Math.random()} src={subh} height="280px" width="300px" />
+      </li>
+    );
+  }
+
+  function handlePostClick(event:React.SyntheticEvent) {
+    console.log(event.target);
+    setModalState((prev) => {
+      return !prev;
+    });
   }
   return (
     <div>
@@ -75,39 +92,16 @@ function UserProfile() {
         </UserHighlightSection>
         <AllPostImages>
           <ul>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
+            {randomPosts.map((item)=>{return item})}
           </ul>
         </AllPostImages>
       </UserProfileContainer>
+      <PostDetailModal
+        modalState={modalState}
+        setModal={(prev: boolean) => {
+          setModalState(!prev);
+        }}
+      />
     </div>
   );
 }
