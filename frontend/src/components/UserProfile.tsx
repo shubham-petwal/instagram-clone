@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   UserProfileContainer,
   UserDataSection,
@@ -15,8 +15,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import StatusStories from "./StatusStories";
 import { useNavigate } from "react-router-dom";
+import { PostDetailModal } from "./PostDetailModal";
+import ProfilePosts from "./ProfilePosts";
 function UserProfile() {
   const navigate = useNavigate();
+  const [modalState, setModalState] = useState(false);
+  const [currentPostId, setCurrentPostId] = useState("");
   let rows = [];
   for (let i = 0; i <= 10; i++) {
     rows.push(
@@ -29,6 +33,31 @@ function UserProfile() {
         height="80"
       />
     );
+  }
+  // let randomPosts = [];
+
+  // for (let i = 0; i <= 10; i++) {
+  //   randomPosts.push(
+  //     <li onClick={handlePostClick} key={Math.random()*10}>
+  //       <ProfilePosts
+  //         getId={(id : string) => {
+  //           setCurrentPostId(id);
+  //         }}
+  //         id={Math.random().toString()}
+  //         src={subh}
+  //         height="280px"
+  //         width="300px"
+  //         role="button"
+  //       />
+  //     </li>
+  //   );
+  // }
+
+  function handlePostClick(event: React.MouseEvent<HTMLElement>) {
+    setModalState((prev) => {
+      return !prev;
+    });
+    console.log("Post id in frontend : ", currentPostId);
   }
   return (
     <div>
@@ -75,39 +104,67 @@ function UserProfile() {
         </UserHighlightSection>
         <AllPostImages>
           <ul>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
+            {/* {randomPosts.map((item) => {
+              return item;
+            })} */}
+            <li onClick={handlePostClick} key={Math.random() * 10}>
+              <ProfilePosts
+                getId={(id: string) => {
+                  setCurrentPostId(id);
+                }}
+                id="a"
+                src={subh}
+                height="280px"
+                width="300px"
+                role="button"
+              />
             </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
+            <li onClick={handlePostClick} key={Math.random() * 10}>
+              <ProfilePosts
+                getId={(id: string) => {
+                  setCurrentPostId(id);
+                }}
+                id="b"
+                src={subh}
+                height="280px"
+                width="300px"
+                role="button"
+              />
             </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
+            <li onClick={handlePostClick} key={Math.random() * 10}>
+              <ProfilePosts
+                getId={(id: string) => {
+                  setCurrentPostId(id);
+                }}
+                id="c"
+                src={subh}
+                height="280px"
+                width="300px"
+                role="button"
+              />
             </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
+            <li onClick={handlePostClick} key={Math.random() * 10}>
+              <ProfilePosts
+                getId={(id: string) => {
+                  setCurrentPostId(id);
+                }}
+                id="d"
+                src={subh}
+                height="280px"
+                width="300px"
+                role="button"
+              />
             </li>
           </ul>
         </AllPostImages>
       </UserProfileContainer>
+      <PostDetailModal
+        modalState={modalState}
+        setModal={(prev: boolean) => {
+          setModalState(!prev);
+        }}
+        postId = {currentPostId}
+      />
     </div>
   );
 }
