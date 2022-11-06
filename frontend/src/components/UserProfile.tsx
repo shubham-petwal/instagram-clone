@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   UserProfileContainer,
   UserDataSection,
@@ -15,7 +15,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import StatusStories from "./StatusStories";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
+import { string } from "yup";
+interface GetDataInterface{
+  image:string;
+  caption:string;
+  children: React.ReactNode;
+}
 function UserProfile() {
+  const user = useContext(AuthContext);
   const navigate = useNavigate();
   let rows = [];
   for (let i = 0; i <= 10; i++) {
@@ -30,6 +39,28 @@ function UserProfile() {
       />
     );
   }
+  const [imageArray,setImageArray] = useState<Array<GetDataInterface>>([])
+
+  useEffect(()=>{
+    const getData = async()=>{
+      try {
+        const allPosts = await axios.get(`http://localhost:90/getPosts/${user?.uid}`);
+        const Details = allPosts.data;      
+        if(Details){
+          setImageArray(Details.data)
+          return
+        }
+      } catch (error:any) {
+        console.log(error.message)
+      }
+    }
+    if(user?.uid){
+      getData();
+    }
+    else{
+      alert("Cannot find user ID");
+    }
+  },[])
   return (
     <div>
       <Navbar />
@@ -75,37 +106,14 @@ function UserProfile() {
         </UserHighlightSection>
         <AllPostImages>
           <ul>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-            <li key={Math.random()}>
-              <img src={subh} height="280px" width="300px" />
-            </li>
-          </ul>
+            {
+              imageArray?
+             imageArray.length>0?imageArray.map((item:any)=>(
+             <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
+            )):<p>No content</p>
+            :<p>No content</p>
+            }
+            </ul>
         </AllPostImages>
       </UserProfileContainer>
     </div>

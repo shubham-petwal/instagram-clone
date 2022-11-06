@@ -19,7 +19,8 @@ export const PostContainer = styled.div`
       overflow-y: hidden;
       }
   img {
-    object-fit: cover;
+
+    object-fit: contain;
   }
 
   .like{
