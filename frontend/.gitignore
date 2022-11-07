@@ -5,6 +5,7 @@
 /.pnp
 .pnp.js
 .firebaseCred.json
+.bucket.js
 
 # testing
 /coverage
