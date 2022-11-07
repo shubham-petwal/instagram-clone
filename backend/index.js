@@ -104,6 +104,7 @@ app.get("/users/:userId", async (req, res) => {
       success: true,
       message: "request fetched successfully",
       data: {
+        profileImage : resArr[0].profileImage,
         fullName: resArr[0].fullName,
         postCount: resArr[0].postCount,
         userName: resArr[0].userName,
@@ -163,12 +164,10 @@ app.get("/getPosts/:userId",async(req,res)=>{
     const resArr = [];
     querySnapshot.forEach((doc) => {
       resArr.push(doc.data());
-      console.log(doc.data())
     });
     if (resArr.length == 0) {
       throw new Error("unable to find the user with provided userId");
     }
-    console.log(resArr)
     res.send({
       success: true,
       message: "request fetched successfully",
@@ -228,7 +227,6 @@ app.post('/updateUser',async (req,res)=>{
     // updating user document
     const documentRef = doc(db,"users",resArr[0].id)
     const updateDocResponse = await updateDoc(documentRef,data);
-    console.log(updateDocResponse);
     //sending response once user is updated
     res.send({
       success : true,
@@ -243,6 +241,33 @@ app.post('/updateUser',async (req,res)=>{
   }
 
 })
+
+app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
+    const { userId } = req.body;
+  //finding user and getting its document id
+  try {
+    const collectionRef = collection(db, "users");
+    const q = query(collectionRef, where("userId", "==", userId.toString())); //created a query
+    const findQuerySnapshot = await getDocs(q);
+    const resArr = [];
+    findQuerySnapshot.forEach((doc) => {
+      resArr.push({...doc.data(), id : doc.id});
+    });
+  // updating user document
+    const documentRef = doc(db,"users",resArr[0].id)
+    const url = await uploadImageToBucket('profiles/'+req.file.filename,req.file.filename);
+    const postObj = {
+      profileImage : url
+    };
+    await updateDoc(documentRef,postObj);
+    res.send({success : true, message : "updated profile picture"})
+  } 
+  catch (error) {
+      console.log(error);
+      res.send({ success: false, message: error.message });
+  }
+  
+});
 
 
 
