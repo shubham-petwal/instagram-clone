@@ -20,10 +20,12 @@ function EditProfile() {
   const navigate = useNavigate();
   const [gender,setGender] = useState("NA")
   const [isActive, setIsActive] = useState(true);
+  const [userRetrievedData, setRetrievedData] = useState<any>();
   const emailRef = useRef<HTMLInputElement>(null);
   const fullNameRef = useRef<HTMLInputElement>(null);
   const userNameRef = useRef<HTMLInputElement>(null);
   const bioDataRef = useRef<HTMLTextAreaElement>(null);
+  var imageUrl = "";
 
   const handleClick = () => {
     setIsActive(!isActive);
@@ -34,7 +36,9 @@ function EditProfile() {
     let userData;
     axios.get(`http://localhost:90/users/${userId}`).then((res)=>{
       userData= res.data.data;
-      if(emailRef.current && fullNameRef.current && userNameRef.current && bioDataRef.current){
+      // imageUrl = userData.profileImage;
+      setRetrievedData(userData);
+      if(emailRef.current && fullNameRef.current && userNameRef.current && bioDataRef.current ){
         emailRef.current.value = userData.email;
         fullNameRef.current.value = userData.fullName;
         userNameRef.current.value = userData.userName;
@@ -95,10 +99,11 @@ function EditProfile() {
             </PageDetails>
             <div id="topavatar">
               <LabelDiv>
-                <Avatar src={subh} id="Avatar" />
+                <Avatar src={userRetrievedData?.profileImage} id="Avatar" />
               </LabelDiv>
               <InputDiv>
-                <p id="username">UserName</p>
+                <p id="username">{userRetrievedData?.userName}</p>
+                <Link to="/updateProfileImage" style={{fontSize : "12px", border:"none", background:"none", margin : "0px 3px", display:"block"}}>update Profile</Link>
               </InputDiv>
             </div>
             <form onSubmit={handleFormSubmit}>

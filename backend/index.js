@@ -259,15 +259,6 @@ app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
     const postObj = {
       profileImage : url
     };
-    // addDoc(collectionRef, postObj).then(()=>{
-    //   console.log("Document Added")
-    //   fs.unlink("uploads/"+req.file.filename,function(err){
-    //     if(err) return console.log(err);
-    //     console.log('file deleted successfully');
-    //     res.send({ success: true, message: "Uploaded Successfully" });
-  
-    //   });
-    // })
     await updateDoc(documentRef,postObj);
     res.send({success : true, message : "updated profile picture"})
   } 
