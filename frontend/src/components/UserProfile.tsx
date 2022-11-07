@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   UserProfileContainer,
   UserDataSection,
@@ -15,9 +15,18 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import StatusStories from "./StatusStories";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import axios from "axios";
+import { string } from "yup";
 import { PostDetailModal } from "./PostDetailModal";
 import ProfilePosts from "./ProfilePosts";
+interface GetDataInterface {
+  image: string;
+  caption: string;
+  children: React.ReactNode;
+}
 function UserProfile() {
+  const user = useContext(AuthContext);
   const navigate = useNavigate();
   const [modalState, setModalState] = useState(false);
   const [currentPostId, setCurrentPostId] = useState("");
@@ -34,6 +43,29 @@ function UserProfile() {
       />
     );
   }
+  const [imageArray, setImageArray] = useState<Array<GetDataInterface>>([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const allPosts = await axios.get(
+          `http://localhost:90/getPosts/${user?.uid}`
+        );
+        const Details = allPosts.data;
+        if (Details) {
+          setImageArray(Details.data);
+          return;
+        }
+      } catch (error: any) {
+        console.log(error.message);
+      }
+    };
+    if (user?.uid) {
+      getData();
+    } else {
+      alert("Cannot find user ID");
+    }
+  }, []);
   // let randomPosts = [];
 
   // for (let i = 0; i <= 10; i++) {
@@ -107,7 +139,29 @@ function UserProfile() {
             {/* {randomPosts.map((item) => {
               return item;
             })} */}
-            <li onClick={handlePostClick} key={Math.random() * 10}>
+            {imageArray ? (
+              imageArray.length > 0 ? (
+                imageArray.map((item: any) => (
+                  <li key={Math.random()} onClick={handlePostClick}>
+                    <ProfilePosts
+                      getId={(id: string) => {
+                        setCurrentPostId(id);
+                      }}
+                      id={item.postId}
+                      src={item.image}
+                      height="280px"
+                      width="300px"
+                      role="button"
+                    />
+                  </li>
+                ))
+              ) : (
+                <p>No content</p>
+              )
+            ) : (
+              <p>No content</p>
+            )}
+            {/* <li onClick={handlePostClick} key={Math.random() * 10}>
               <ProfilePosts
                 getId={(id: string) => {
                   setCurrentPostId(id);
@@ -154,7 +208,7 @@ function UserProfile() {
                 width="300px"
                 role="button"
               />
-            </li>
+            </li> */}
           </ul>
         </AllPostImages>
       </UserProfileContainer>
@@ -163,10 +217,18 @@ function UserProfile() {
         setModal={(prev: boolean) => {
           setModalState(!prev);
         }}
-        postId = {currentPostId}
+        postId={currentPostId}
       />
     </div>
   );
 }
+
+// {
+//   imageArray?
+//  imageArray.length>0?imageArray.map((item:any)=>(
+//  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
+// )):<p>No content</p>
+// :<p>No content</p>
+// }
 
 export default UserProfile;

@@ -5,10 +5,10 @@ export const UserProfileContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
   padding-top: 80px;
   background: ${pageBgColor};
+  min-height: 100vh;
 `;
 export const UserDataSection = styled.div`
   margin-top: 15px;

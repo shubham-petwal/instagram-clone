@@ -91,7 +91,7 @@ function Navbar() {
           <Grid item xs={2} id="icons_grid" style={{ display: "flex" }}>
             <NavIcons src={home} width="28px" alt="logo" />
             <NavIcons src={message} width="28px" alt="logo" />
-            <NavIcons src={plus} width="28px" height="20px" alt="logo" />
+            <NavIcons src={plus} width="28px" height="20px" alt="logo" onClick={()=>navigate("/uploadImage")} />
             <NavIcons src={find} width="28px" alt="logo" />
             <NavIcons src={love} width="28px" alt="logo" />
 
