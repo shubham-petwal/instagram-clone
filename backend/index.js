@@ -8,8 +8,6 @@ const {
   setDoc,
   onSnapshot,
   Timestamp,
-  updateDoc,
-  doc
 } = require("firebase/firestore");
 // import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 
