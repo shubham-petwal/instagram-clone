@@ -26,6 +26,21 @@ const fs = require("fs");
 
 // DiskSotrage function accepts an object with two values which is {destination:"", filename:""}
 
+
+async function uploadImageToBucket(destination,fileName){
+  await bucket.upload("./uploads/"+fileName, {
+    destination: destination,
+    gzip: true,
+    metadata: {
+      cacheControl: 'public, max-age=31536000'
+    }
+  });
+    const storageRef =  ref(storage, destination)
+    const url = await getDownloadURL(storageRef)
+    return url;
+}
+
+
 const fileStoragePath = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "./uploads");
@@ -109,42 +124,28 @@ app.post(
   "/uploadPost",
   upload.single("file"), //the name we are using here in single("file")---should be in the input name  <input type="text" name=file"> than only we can get file
   async (req, res) => {
-  const collectionRef = collection(db, "Posts");
-  function uploadImageToBucket(){
     const { userId, caption } = req.body;
     const newDate = new Date().toLocaleString();
-    bucket.upload("./uploads/"+req.file.filename, {
-      destination: 'Posts/'+req.file.filename,
-      gzip: true,
-      metadata: {
-        cacheControl: 'public, max-age=31536000'
-      }
-    }).then(() => {
-      const storageRef =  ref(storage, "Posts/"+req.file.filename)
-      getDownloadURL(storageRef).then((url)=>{      
-        const postObj = {
-          userId: userId,
-          image: url,
-          caption: caption,
-          postId: uuidv4(),
-          createdAt: newDate,
-        };
-        addDoc(collectionRef, postObj).then(()=>{
-          console.log("Document Added")
-          fs.unlink("uploads/"+req.file.filename,function(err){
-            if(err) return console.log(err);
-            console.log('file deleted successfully');
-            res.send({ success: true, message: "Uploaded Successfully" });
-  
-       });
-        })
-      })
-    }).catch(err => {
-      console.error('ERROR:', err);
-    });
-  }
+
   try {
-    uploadImageToBucket();
+    const url = await uploadImageToBucket('Posts/'+req.file.filename,req.file.filename);
+    const collectionRef = collection(db, "Posts");
+    const postObj = {
+      userId: userId,
+      image: url,
+      caption: caption,
+      postId: uuidv4(),
+      createdAt: newDate,
+    };
+    addDoc(collectionRef, postObj).then(()=>{
+      console.log("Document Added")
+      fs.unlink("uploads/"+req.file.filename,function(err){
+        if(err) return console.log(err);
+        console.log('file deleted successfully');
+        res.send({ success: true, message: "Uploaded Successfully" });
+  
+   });
+    })
     } catch (error) {
       console.log(error);
       res.send({ success: false, message: error.message });
@@ -184,14 +185,8 @@ app.get("/getPosts/:userId",async(req,res)=>{
 
 app.get("/getPosts/",async(req,res)=>{
   try {
-    // const collectionRef = await collection(db, "Posts").get();
     const resArr = [];
     console.log("Started")
-    // await collectionRef.onSnapshot(querySnap=>{
-    //   querySnap.docs.forEach(doc => {
-    //      console.log(doc.data());
-    //   });
-    // })
     const collectionRef = query(collection(db, 'Posts'))
     const documentSnapshots = await getDocs(collectionRef)
     documentSnapshots.forEach(doc => {
