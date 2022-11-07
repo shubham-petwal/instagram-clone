@@ -8,6 +8,8 @@ const {
   setDoc,
   onSnapshot,
   Timestamp,
+  updateDoc,
+  doc
 } = require("firebase/firestore");
 // import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 
@@ -53,14 +55,16 @@ app.post("/register", async (req, res) => {
   try {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
+    //need to initialise "profileImage" as some dummy image and then store in the database, can be updated afterwards
     const docRef = await addDoc(collectionRef, {
       userId,
       userName,
       fullName,
       email,
       hashedPassword,
-      description: "", //this is the initial data passes, can be updated further
+      bioData : "",  //this is the initial data passes, can be updated further
       postCount: 0,
+      profileImage : ""
     });
     res.send({ success: true, message: "user Registered Successfully" });
   } catch (error) {
@@ -70,6 +74,7 @@ app.post("/register", async (req, res) => {
 });
 
 app.get("/users/:userId", async (req, res) => {
+  //need to send the userId, profileImg url in the response 
   try {
     const userId = req.params.userId;
     const collectionRef = collection(db, "users");
@@ -89,7 +94,9 @@ app.get("/users/:userId", async (req, res) => {
         fullName: resArr[0].fullName,
         postCount: resArr[0].postCount,
         userName: resArr[0].userName,
-        description: resArr[0].description,
+        bioData : resArr[0].bioData,
+        email : resArr[0].email,
+        gender : resArr[0].gender || undefined
       },
     });
   } catch (error) {
@@ -207,6 +214,43 @@ app.get("/getPosts/",async(req,res)=>{
 })
 
 // In Post method we can get data using "req.body" and in GET method we get data by "req.query"
+
+app.post('/updateUser',async (req,res)=>{
+  const {fullName,userName, gender, bioData, userId}=req.body;
+  const data = {
+    fullName,
+    userName,
+    bioData,
+    gender
+  }
+  try{
+    //finding user and getting its document id
+    const collectionRef = collection(db, "users");
+    const q = query(collectionRef, where("userId", "==", userId.toString())); //created a query
+    const findQuerySnapshot = await getDocs(q);
+    const resArr = [];
+    findQuerySnapshot.forEach((doc) => {
+      resArr.push({...doc.data(), id : doc.id});
+    });
+    // updating user document
+    const documentRef = doc(db,"users",resArr[0].id)
+    const updateDocResponse = await updateDoc(documentRef,data);
+    console.log(updateDocResponse);
+    //sending response once user is updated
+    res.send({
+      success : true,
+      message : "user update successful"
+    });
+
+  }catch(error){
+    res.send({
+      success : false,
+      message : error.message
+    });
+  }
+
+})
+
 
 app.listen(process.env.PORT, () => {
   console.log(`app started at port ${process.env.PORT}`);

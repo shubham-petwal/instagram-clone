@@ -1,5 +1,12 @@
 import styled, { css } from "styled-components";
-import { borderColor, globalFontFamily, pageBgColor, primaryFontColor } from "./utilityFiles/variables";
+import {
+  borderColor,
+  globalFontFamily,
+  pageBgColor,
+  primaryFontColor,
+} from "./utilityFiles/variables";
+import { blueButtonStyles } from "./utilityFiles/styledFunctions";
+
 export const EditProfileMainContainer = styled.div`
   background: ${pageBgColor};
 `;
@@ -14,28 +21,27 @@ export const EditProfileContainer = styled.div`
   font-family: ${globalFontFamily};
   margin: auto;
   padding-top: 100px !important;
-  #topavatar{
+  #topavatar {
     height: 70px;
-    p{
-        font-weight: 500;
-        font-size:16px;
-        color: black;
-      }
+    p {
+      font-weight: 500;
+      font-size: 16px;
+      color: black;
+    }
     @media screen and (max-width: 740px) {
-      padding-left:12px;
+      padding-left: 12px;
       display: flex;
       width: fit-content;
-      div{
+      div {
         display: flex;
         align-items: center;
       }
-      p{
-        margin-top:30px;
+      p {
+        margin-top: 30px;
         font-weight: 500;
         color: black;
-
       }
-  }
+    }
   }
 `;
 export const LeftEditPage = styled.div`
@@ -56,17 +62,17 @@ export const LeftEditPage = styled.div`
     margin-top: 10px;
     display: flex;
     /* justify-content: center; */
-    padding-left:30px;
+    padding-left: 30px;
     font-weight: 400;
     width: 100%;
     font-size: 20px;
     height: 55px;
     cursor: pointer;
     :hover {
-      background: #f8f8f8;
+      background: ${pageBgColor};
     }
     :active {
-      background: #f8f8f8;
+      background: ${pageBgColor};
     }
   }
 `;
@@ -78,15 +84,15 @@ export const RightEditPage = styled.div`
   border-left: none;
   padding-bottom: 30px;
   @media screen and (max-width: 740px) {
-    form{
+    form {
       display: flex;
       flex-direction: column;
-      padding:0px 10px 0px 10px;
+      padding: 0px 10px 0px 10px;
     }
     width: 100%;
-    padding-left:10px;
-    label{
-      padding-bottom:-10px;
+    padding-left: 10px;
+    label {
+      padding-bottom: -10px;
     }
   }
 
@@ -112,8 +118,8 @@ export const RightChangePassword = styled.div`
   border-left: none;
   /* padding-bottom: 30px; */
   @media screen and (max-width: 754px) {
-      width: 100% !important;
-      margin-top:-5px;
+    width: 100% !important;
+    margin-top: -5px;
   }
 `;
 export const LabelDiv = styled.div`
@@ -121,19 +127,19 @@ export const LabelDiv = styled.div`
   float: left;
   text-align: right;
   margin-top: 30px;
-  padding-right:10px;
-  #Avatar{
-float: right;
-margin-right:5px;
+  padding-right: 10px;
+  #Avatar {
+    float: right;
+    margin-right: 5px;
   }
   @media screen and (max-width: 740px) {
-      width: 100% !important;
-      margin-left:3px;
-      text-align: left;
-      #Avatar{
-float: left;
-margin-right:5px;
-  }
+    width: 100% !important;
+    margin-left: 3px;
+    text-align: left;
+    #Avatar {
+      float: left;
+      margin-right: 5px;
+    }
   }
   label {
     padding: 8px 8px 8px 0;
@@ -145,57 +151,77 @@ export const InputDiv = styled.div`
   float: left;
   margin-top: 30px;
   @media screen and (max-width: 740px) {
-      width: 100% !important;
-      margin-top:-3px;
+    width: 100% !important;
+    margin-top: -3px;
   }
-  textarea{
+  textarea {
     width: 100%;
   }
-  p{
+  p {
     color: ${primaryFontColor};
-    font-size:12px;
+    font-size: 12px;
   }
-  input[type="text"] {
+  input[type="text"],
+  input[type="email"] {
     width: 100%;
     padding: 7px;
     border: 1px solid #ccc;
-    border-radius: 4px;
     resize: vertical;
     border-radius: 7px;
-    background: #f8f8f8;
+    :disabled {
+      background: ${pageBgColor};
+    }
     @media screen and (max-width: 740px) {
       width: 100% !important;
-  }
+    }
   }
   input[type="checkbox"] {
     margin-right: 10px;
   }
-  input[type="submit"] {
+  button[type="submit"] {
     background-color: #0095f6;
     color: white;
-    padding: 4px 4px;
+    padding: 4px 10px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin-top:20px;
+    margin-top: 20px;
   }
   span {
     font-weight: 500;
   }
-  #forgotPassword{
+  #forgotPassword {
     font-weight: 500;
-    color: #0095f6; 
+    color: #0095f6;
   }
-  a{
-    text-decoration:none;
+  a {
+    text-decoration: none;
   }
+`;
+export const GenderRadioWrapperDiv = styled.div`
+  min-height:40px;
+  width:100%;
+  display:flex;
+  /* flex-direction: column; */
+  border-radius: 7px;
+  padding:7px;
+  border:1px solid #ccc;
+  input[type="radio"]{
+    margin: 0 5px;
+  }
+  span{
+    margin-right: 10px;
+  }
+`;
+export const ChangePasswordButton = styled.button`
+  ${blueButtonStyles("35%")}
 `;
 export const PageDetails = styled.div`
   width: 100%;
   display: flex;
   font-size: 20px;
-  text-align:center;
+  text-align: center;
   justify-content: center;
   align-items: center;
-  padding-top:10px;
-`
+  padding-top: 10px;
+`;
