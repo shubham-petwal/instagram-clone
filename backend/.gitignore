@@ -3,6 +3,7 @@
 ./node_modules
 /.pnp
 .pnp.js
+firebaseCred.json
 
 # testing
 /coverage
@@ -23,4 +24,3 @@ yarn-debug.log*
 yarn-error.log*
 
 /uploads
-*.json
