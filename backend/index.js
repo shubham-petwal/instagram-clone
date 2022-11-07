@@ -26,6 +26,15 @@ const fs = require("fs");
 
 // DiskSotrage function accepts an object with two values which is {destination:"", filename:""}
 
+const fileStoragePath = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "./uploads");
+  },
+  filename: (req, file, callback) => {
+    callback(null, Date.now() + "--" + file.originalname);
+  },
+});
+
 
 async function uploadImageToBucket(destination,fileName){
   await bucket.upload("./uploads/"+fileName, {
@@ -40,15 +49,6 @@ async function uploadImageToBucket(destination,fileName){
     return url;
 }
 
-
-const fileStoragePath = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, "./uploads");
-  },
-  filename: (req, file, callback) => {
-    callback(null, Date.now() + "--" + file.originalname);
-  },
-});
 
 const upload = multer({ storage: fileStoragePath });
 
