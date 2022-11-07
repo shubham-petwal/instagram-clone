@@ -4,7 +4,6 @@
 /.pnp
 .pnp.js
 firebaseCred.json
-
 # testing
 /coverage
 
