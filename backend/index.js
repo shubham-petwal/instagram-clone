@@ -9,7 +9,8 @@ const {
   onSnapshot,
   Timestamp,
   increment,
-  deleteDoc
+  deleteDoc,
+  getDoc
 } = require("firebase/firestore");
 // import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 
@@ -338,11 +339,84 @@ app.post("/like", async (req, res) => {
   }
 });
 
+app.post("/follow", async (req, res) => {
+  const { target_userId, userId } = req.body;
+  if(!target_userId || !userId){
+    res.send({
+      success : false,
+      message : "send the userId and target userId"
+    });
+    return;
+  }
+  try {
+    // on clicking follow button inbound of target user increases and outbound of current use increases
+    const inboundDocRef = doc( db,`social_graph/${target_userId}/inbound_users`,userId);  
+    const outboundDocRef = doc( db,`social_graph/${userId}/outbound_users`,target_userId);
+    const currentSocialUserDocumentRef = doc(db,"social_graph",userId)
+    const targetSocialUserDocumentRef = doc(db,"social_graph",target_userId)
+
+    // check if target user's document is present in particular user's collection
+    const targetUserSnapshot = await getDoc(outboundDocRef);
+    if(targetUserSnapshot.exists()){
+      throw new Error("already following to the user");
+    }
+    
+    const userCollectionRef = collection(db, "users");
+    const userQuery = query(userCollectionRef, where("userId", "==", userId.toString())); //created a query
+    const targetUserQuery = query(userCollectionRef, where("userId", "==", target_userId.toString())); //created a query
+    const userQuerySnapshot = await getDocs(userQuery);
+    const targetUserQuerySnapshot = await getDocs(targetUserQuery);
+
+    // these are two different arrays to store userData and target user data
+    const userInfoArr = [];  
+    const targetUserInfoArr = [];
+    userQuerySnapshot.forEach((doc) => {
+      userInfoArr.push({ ...doc.data(), id: doc.id });
+    });
+    targetUserQuerySnapshot.forEach((doc) => {
+      targetUserInfoArr.push({ ...doc.data(), id: doc.id });
+    });
+    Promise.all([
+      //  storing user info in respective collection 
+      await setDoc(inboundDocRef,{
+        userId : userInfoArr[0].userId,
+        userName : userInfoArr[0].userName,
+        fullName : userInfoArr[0].fullName,
+        profileImage : userInfoArr[0].profileImage
+      }),
+      await setDoc(outboundDocRef,{
+        userId : targetUserInfoArr[0].userId,
+        userName : targetUserInfoArr[0].userName,
+        fullName : targetUserInfoArr[0].fullName,
+        profileImage : targetUserInfoArr[0].profileImage
+      }),
+      // increase the inbound count of target user and outbound count of current user
+      await setDoc(currentSocialUserDocumentRef, { outbound_count : increment(1), inbound_count : increment(0) }, {merge : true}) ,
+      await setDoc(targetSocialUserDocumentRef, { inbound_count : increment(1), outbound_count : increment(0)  }, {merge : true}) ,
+    ]).then((result)=>{
+      res.send({
+        success : true,
+        message : "successfully followed the user"
+      })
+    }).catch((err)=>{
+      res.send({
+        success : false,
+        message : err.message
+      })
+    })
+  } catch (error) {
+    res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+
+
+
 
 
 app.listen(process.env.PORT, () => {
   console.log(`app started at port ${process.env.PORT}`);
 });
-
-
-
