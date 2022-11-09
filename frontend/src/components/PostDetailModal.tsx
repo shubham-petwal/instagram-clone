@@ -78,7 +78,7 @@ export function PostDetailModal(props: any) {
   }
     getData();
   },[])
-  console.log("myArray",commentsArray)
+  // console.log("myArray",commentsArray)
   function postComment() {
     console.log("comment posted");
   }

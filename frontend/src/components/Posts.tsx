@@ -27,18 +27,20 @@ import {
 import { AuthContext } from "../context/AuthContext";
 import { Value } from "sass";
 import { PostDetailModal } from "./PostDetailModal";
+import { db } from "../db";
+import { doc, onSnapshot } from "firebase/firestore";
+import { async } from "@firebase/util";
 
 interface PostInterFace {
   src: string;
   caption: string;
   postId: string;
-  userName:string
+  userName: string;
 }
 
-
-function Posts({ src, caption, postId,userName}: PostInterFace) {
+function Posts({ src, caption, postId, userName }: PostInterFace) {
   const [comment, setComment] = useState("");
-  const [totalComments, setTotalComments] = useState(0);
+  const [totalComments, setTotalComments] = useState("");
   const [modalState, setModalState] = useState(false);
   const user = useContext(AuthContext);
   const data = {
@@ -49,16 +51,12 @@ function Posts({ src, caption, postId,userName}: PostInterFace) {
   const handleAddComments = async () => {
     try {
       const result = await axios.post("http://localhost:90/addComment", data);
-      setComment("")
-      // const res = await axios.get(`http://localhost:90/totalLikesAndComments/${postId}`)
-      // // console.log("Total Comments", res.data)
-      // setTotalComments(res.data.data)
-      // console.log("Comment added");
+      setComment("");
     } catch (error) {
       console.log(error);
     }
   };
-  
+
   // useEffect(()=>{
   //   const getData = async()=>{
   //     const res = await axios.get(`http://localhost:90/totalLikesAndComments/${postId}`)
@@ -67,10 +65,18 @@ function Posts({ src, caption, postId,userName}: PostInterFace) {
   //   }
   //   getData();
   // },[])
+  //when you call onSnapShot you will get unsubscribe function
+  useEffect(() => {
+    const unsubscribe = onSnapshot(
+      doc(db, "post_interaction", postId),
+      (doc) => {
+        setTotalComments(doc.data()?.comments_count);
+      }
+    );
+    return unsubscribe;
+  }, []);
 
-
-
-function handlePostClick(event: React.MouseEvent<HTMLElement>) {
+  function handlePostClick(event: React.MouseEvent<HTMLElement>) {
     setModalState((prev) => {
       return !prev;
     });
@@ -122,15 +128,15 @@ function handlePostClick(event: React.MouseEvent<HTMLElement>) {
         <button onClick={handleAddComments}>Post</button>
       </AddCommentsDiv>
       <PostDetailModal
-      key={Math.random()}
+        key={Math.random()}
         modalState={modalState}
         setModal={(prev: boolean) => {
           setModalState(!prev);
         }}
         postId={postId}
-        postImage = {src}
-        caption = {caption}
-        userName = {userName}     
+        postImage={src}
+        caption={caption}
+        userName={userName}
       />
     </PostContainer>
   );

@@ -200,13 +200,11 @@ app.get("/getPosts/:userId",async(req,res)=>{
 app.get("/getPosts/",async(req,res)=>{
   try {
     const resArr = [];
-    console.log("Started")
     const collectionRef = query(collection(db, 'Posts'))
     const documentSnapshots = await getDocs(collectionRef)
     documentSnapshots.forEach(doc => {
       resArr.push(doc.data());
     })
-    console.log("Ended")
     res.send({
       success: true,
       message: "request fetched successfully",
@@ -305,7 +303,6 @@ app.get("/getComments/:postId",async(req,res)=>{
   try {
     const postId = req.params.postId;
     const resArr = [];
-    console.log("Started")
     const collectionRef = query(collection(db, `post_interaction/${postId}/comments`))
     const documentSnapshots = await getDocs(collectionRef)
     documentSnapshots.forEach(doc => {
@@ -353,32 +350,41 @@ app.get("/getComments/:postId",async(req,res)=>{
 //   }
 // })
 
-app.get("/totalLikesAndComments/:postId",async(req,res)=>{
-  try {
-    const postId = req.params.postId;
-    const resArr = [];
-    // console.log("Started")
-    const docRef = doc(db, "post_interaction",postId);
-    const docSnap = await getDoc(docRef)
-    if (docSnap.exists()) {
-      res.send({
-        success: true,
-        message: "request fetched successfully",
-        data: docSnap.data().comments_count,
-      });
-    } else {
-      console.log('No such document!')
-    }
+// app.get("/totalLikesAndComments/:postId",async(req,res)=>{
+//   try {
+//     const postId = req.params.postId;
+//     const resArr = [];
+//     // console.log("Started")
 
-  } catch (error) {
-    console.log(error.message)
-    res.send({
-      success: false,
-      message: error.message,
-    });
 
-  }
-})
+//     const docRef = doc(db, "post_interaction",postId);
+//     // const docSnap = await getDoc(docRef)
+//     // const doc = db.collection('post_interaction').doc(postId);
+
+//     const unsub =  onSnapshot(doc(db, "post_interaction", postId), (doc) => {
+//       console.log("Current data: ", doc.data());
+//   });
+//     // console.log(observer)
+
+//     // if (docSnap.exists()) {
+//     //   res.send({
+//     //     success: true,
+//     //     message: "request fetched successfully",
+//     //     data: docSnap.data().comments_count,
+//     //   });
+//     // } else {
+//     //   console.log('No such document!')
+//     // }
+
+//   } catch (error) {
+//     console.log(error.message)
+//     res.send({
+//       success: false,
+//       message: error.message,
+//     });
+
+//   }
+// })
 
 
 
