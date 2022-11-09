@@ -9,7 +9,8 @@ const {
   onSnapshot,
   Timestamp,
   increment,
-  deleteDoc
+  deleteDoc,
+  getDoc
 } = require("firebase/firestore");
 // import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 
@@ -279,7 +280,7 @@ app.post("/like", async (req, res) => {
     const likesDocRef = doc(db,`post_interaction/${postId}/likes`,likedBy_userId);
     const userCollectionRef = collection(db, "users");
     const likeQuery = query(likesCollectionRef,where("likedBy_userId", "==", likedBy_userId.toString()));
-    const userQuery = query(userCollectionRef, where("userId", "==", likedBy_userId.toString())); //created a query
+    const userQuery = query(userCollectionRef, where("userId", "==", likedBy_userId.toString())); 
     const querySnapshot = await getDocs(likeQuery);
     const resArr = [];
     querySnapshot.forEach((doc) => {
@@ -321,15 +322,113 @@ app.post("/like", async (req, res) => {
     // if user has already liked the post and clicks the like button again
     else {
       const documentRef = doc(db, "post_interaction", postId);
-      await updateDoc(documentRef, { likes_count: increment(-1) });
-      const deleteDocResponse = await deleteDoc(
-        doc(db, `post_interaction/${postId}/likes`, resArr[0].id)
-      );
-      res.send({
-        success: true,
-        message: "unliked the post",
-      });
+      Promise.all([
+        updateDoc(documentRef, { likes_count: increment(-1) }),
+        deleteDoc(
+          doc(db, `post_interaction/${postId}/likes`, resArr[0].id)
+        ),
+      ]).then(()=>{
+        res.send({
+          success: true,
+          message: "unliked the post",
+        });
+      }).catch((err)=>{
+        res.send({
+          success: false,
+          message : err.message
+        })
+      })
     }
+  } 
+  catch(error){
+    res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
+app.post("/follow", async (req, res) => {
+  const { target_userId, userId } = req.body;
+  if(!target_userId || !userId){
+    res.send({
+      success : false,
+      message : "send the userId and target userId"
+    });
+    return;
+  }
+  try {
+    // on clicking follow button inbound of target user increases and outbound of current use increases
+    const inboundDocRef = doc( db,`social_graph/${target_userId}/inbound_users`,userId);  
+    const outboundDocRef = doc( db,`social_graph/${userId}/outbound_users`,target_userId);
+    const currentSocialUserDocumentRef = doc(db,"social_graph",userId)
+    const targetSocialUserDocumentRef = doc(db,"social_graph",target_userId)
+    const userCollectionRef = collection(db, "users");
+    const userQuery = query(userCollectionRef, where("userId", "==", userId.toString() )); //created a query
+    const targetUserQuery = query(userCollectionRef, where("userId", "==", target_userId.toString())); //created a query
+
+    // check if target user's document is present in particular user's collection
+    const targetUserSnapshot = await getDoc(outboundDocRef);
+    if(targetUserSnapshot.exists()){
+      return Promise.all([
+        setDoc(currentSocialUserDocumentRef, { outbound_count : increment(-1), inbound_count : increment(0) }, {merge : true}) ,
+        setDoc(targetSocialUserDocumentRef, { inbound_count : increment(-1), outbound_count : increment(0)  }, {merge : true}) ,
+        deleteDoc(outboundDocRef),
+        deleteDoc(inboundDocRef),
+      ]).then((response)=>{
+        return res.send({
+          success : true,
+          message : "successfuly unfollowed the user"
+        });
+      }).catch((err)=>{
+        return res.send({
+          success : false,
+          message: err.message
+        });
+      })
+      
+    }
+    
+    const userQuerySnapshot = await getDocs(userQuery);
+    const targetUserQuerySnapshot = await getDocs(targetUserQuery);
+
+    // these are two different arrays to store userData and target user data
+    const userInfoArr = [];  
+    const targetUserInfoArr = [];
+    userQuerySnapshot.forEach((doc) => {
+      userInfoArr.push({ ...doc.data(), id: doc.id });
+    });
+    targetUserQuerySnapshot.forEach((doc) => {
+      targetUserInfoArr.push({ ...doc.data(), id: doc.id });
+    });
+    Promise.all([
+      //  storing user info in respective collection 
+      setDoc(inboundDocRef,{
+        userId : userInfoArr[0].userId,
+        userName : userInfoArr[0].userName,
+        fullName : userInfoArr[0].fullName,
+        profileImage : userInfoArr[0].profileImage
+      }),
+       setDoc(outboundDocRef,{
+        userId : targetUserInfoArr[0].userId,
+        userName : targetUserInfoArr[0].userName,
+        fullName : targetUserInfoArr[0].fullName,
+        profileImage : targetUserInfoArr[0].profileImage
+      }),
+      // increase the inbound count of target user and outbound count of current user
+       setDoc(currentSocialUserDocumentRef, { outbound_count : increment(1)}, {merge : true}) ,
+       setDoc(targetSocialUserDocumentRef, { inbound_count : increment(1) }, {merge : true}) ,
+    ]).then((result)=>{
+      res.send({
+        success : true,
+        message : "successfully followed the user"
+      })
+    }).catch((err)=>{
+      res.send({
+        success : false,
+        message : err.message
+      })
+    })
   } catch (error) {
     res.send({
       success: false,
@@ -338,11 +437,68 @@ app.post("/like", async (req, res) => {
   }
 });
 
+app.get('/followers/:userId', async (req,res)=>{
+  const {userId} = req.params;
+  if(!userId){
+    res.send({
+      success : false,
+      message : "provide userId"
+    })
+  }
+  try{
+    const followersArray = [];
+    const followersCollectionRef = collection(db, `social_graph/${userId}/inbound_users`);
+    const snapshot = await getDocs(followersCollectionRef);
+    snapshot.forEach((doc) => {
+      followersArray.push({...doc.data(), document_id : doc.id});
+    });
+    console.log(followersArray);
+    res.send({
+      success : true,
+      message : "fetched all the followers successfuly",
+      data : followersArray
+    })
+  }catch(err){
+    res.send({
+      success : false,
+      message : err.message
+    })
+  }
+})
+
+
+app.get('/following/:userId', async (req,res)=>{
+  const {userId} = req.params;
+  if(!userId){
+    res.send({
+      success : false,
+      message : "provide userId"
+    })
+  }
+  try{
+    const followingArray = [];
+    const followingCollectionRef = collection(db, `social_graph/${userId}/outbound_users`);
+    const snapshot = await getDocs(followingCollectionRef);
+    snapshot.forEach((doc) => {
+      followingArray.push({...doc.data(), document_id : doc.id});
+    });
+    console.log(followingArray);
+    res.send({
+      success : true,
+      message : "fetched all the users you are following successfuly",
+      data : followingArray
+    })
+  }catch(err){
+    res.send({
+      success : false,
+      message : err.message
+    })
+  }
+})
+
+
 
 
 app.listen(process.env.PORT, () => {
   console.log(`app started at port ${process.env.PORT}`);
 });
-
-
-
