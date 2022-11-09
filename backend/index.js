@@ -9,13 +9,10 @@ const {
   onSnapshot,
   Timestamp,
   increment,
-<<<<<<< HEAD
   FieldValue,
   getDoc,
-=======
   deleteDoc,
   getDoc
->>>>>>> b1e5b7c27476432fa68b78d6c99f932681a4f0fe
 } = require("firebase/firestore");
 // import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 
