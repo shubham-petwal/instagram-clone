@@ -56,7 +56,15 @@ function App() {
             path="/uploadImage"
             element={
               <ProtectedRoutes>
-                <UploadImage/>
+                <UploadImage method="uploadPost"/>
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/updateProfileImage"
+            element={
+              <ProtectedRoutes>
+                <UploadImage method="updateProfileImage"/>
               </ProtectedRoutes>
             }
           />

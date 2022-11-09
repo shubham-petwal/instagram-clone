@@ -37,6 +37,7 @@ function Home() {
       getData();
   },[])
   
+  // console.log(imageArray)
   return (
     <>
       <Navbar/>
