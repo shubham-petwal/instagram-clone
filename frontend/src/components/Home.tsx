@@ -36,6 +36,7 @@ function Home() {
     }
       getData();
   },[])
+  
   // console.log(imageArray)
   return (
     <>
@@ -44,9 +45,9 @@ function Home() {
         <div id='all_posts' >
           <StatusBar/>
 
-          { imageArray? imageArray.length>0?imageArray.map((item:any)=>(
+          {imageArray? imageArray.length>0?imageArray.map((item:any)=>(
             //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
-             <Posts key={Math.random()} src={item.image} caption={item.caption}/>
+             <Posts key={Math.random()} src={item.image} caption={item.caption} postId={item.postId} userName={item.userName}/>
             )):<p>No content</p>
             :<p>No content</p>
             }

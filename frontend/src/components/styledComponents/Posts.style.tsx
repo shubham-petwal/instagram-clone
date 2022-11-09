@@ -91,6 +91,9 @@ export const CommentsDiv = styled.div`
   padding: 3px 0px 3px 10px;
   font-size: 14px;
   color:${primaryFontColor};
+  span{
+    cursor: pointer;
+  }
 `;
 
 export const AddCommentsDiv = styled.div`
