@@ -28,8 +28,7 @@ interface GetDataInterface {
 function UserProfile() {
   const user = useContext(AuthContext);
   const navigate = useNavigate();
-  const [modalState, setModalState] = useState(false);
-  const [currentPostId, setCurrentPostId] = useState("");
+
   let rows = [];
   for (let i = 0; i <= 10; i++) {
     rows.push(
@@ -66,31 +65,9 @@ function UserProfile() {
       alert("Cannot find user ID");
     }
   }, []);
-  // let randomPosts = [];
 
-  // for (let i = 0; i <= 10; i++) {
-  //   randomPosts.push(
-  //     <li onClick={handlePostClick} key={Math.random()*10}>
-  //       <ProfilePosts
-  //         getId={(id : string) => {
-  //           setCurrentPostId(id);
-  //         }}
-  //         id={Math.random().toString()}
-  //         src={subh}
-  //         height="280px"
-  //         width="300px"
-  //         role="button"
-  //       />
-  //     </li>
-  //   );
-  // }
 
-  function handlePostClick(event: React.MouseEvent<HTMLElement>) {
-    setModalState((prev) => {
-      return !prev;
-    });
-    console.log("Post id in frontend : ", currentPostId);
-  }
+  console.log(imageArray)
   return (
     <div>
       <Navbar />
@@ -142,13 +119,13 @@ function UserProfile() {
             {imageArray ? (
               imageArray.length > 0 ? (
                 imageArray.map((item: any) => (
-                  <li key={Math.random()} onClick={handlePostClick}>
+                  <li key={Math.random()}>
                     <ProfilePosts
-                      getId={(id: string) => {
-                        setCurrentPostId(id);
-                      }}
-                      id={item.postId}
                       src={item.image}
+                      postId={item.postId}
+                      postImage = {item.image}
+                      caption = {item.caption}
+                      userName = {item.userName}
                       height="280px"
                       width="300px"
                       role="button"
@@ -212,13 +189,6 @@ function UserProfile() {
           </ul>
         </AllPostImages>
       </UserProfileContainer>
-      <PostDetailModal
-        modalState={modalState}
-        setModal={(prev: boolean) => {
-          setModalState(!prev);
-        }}
-        postId={currentPostId}
-      />
     </div>
   );
 }

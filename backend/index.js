@@ -8,6 +8,9 @@ const {
   setDoc,
   onSnapshot,
   Timestamp,
+  increment,
+  FieldValue,
+  getDoc,
 } = require("firebase/firestore");
 // import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 
@@ -23,6 +26,7 @@ const storage = require("./storage");
 const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 const fs = require("fs");
+const { async } = require("@firebase/util");
 
 // DiskSotrage function accepts an object with two values which is {destination:"", filename:""}
 
@@ -100,6 +104,7 @@ app.get("/users/:userId", async (req, res) => {
     if (resArr.length == 0) {
       throw new Error("unable to find the user with provided userId");
     }
+    console.log(resArr)
     res.send({
       success: true,
       message: "request fetched successfully",
@@ -130,12 +135,23 @@ app.post(
   try {
     const url = await uploadImageToBucket('Posts/'+req.file.filename,req.file.filename);
     const collectionRef = collection(db, "Posts");
+
+    const userscollectionRef = collection(db, "users");
+    const q = query(userscollectionRef, where("userId", "==", userId.toString())); //created a query
+    const querySnapshot = await getDocs(q);
+    const resArr = [];
+    querySnapshot.forEach((doc) => {
+      resArr.push(doc.data());
+    });
+
+
     const postObj = {
       userId: userId,
       image: url,
       caption: caption,
       postId: uuidv4(),
       createdAt: newDate,
+      userName:resArr[0].userName
     };
     addDoc(collectionRef, postObj).then(()=>{
       console.log("Document Added")
@@ -163,12 +179,10 @@ app.get("/getPosts/:userId",async(req,res)=>{
     const resArr = [];
     querySnapshot.forEach((doc) => {
       resArr.push(doc.data());
-      console.log(doc.data())
     });
     if (resArr.length == 0) {
       throw new Error("unable to find the user with provided userId");
     }
-    console.log(resArr)
     res.send({
       success: true,
       message: "request fetched successfully",
@@ -190,7 +204,7 @@ app.get("/getPosts/",async(req,res)=>{
     const collectionRef = query(collection(db, 'Posts'))
     const documentSnapshots = await getDocs(collectionRef)
     documentSnapshots.forEach(doc => {
-      resArr.push(doc.data()); 
+      resArr.push(doc.data());
     })
     console.log("Ended")
     res.send({
@@ -242,6 +256,128 @@ app.post('/updateUser',async (req,res)=>{
     });
   }
 
+})
+
+app.post("/addComment",async(req,res)=>{
+  const {userId, postId, commentData} = req.body;
+  try {
+    const collectionRef = collection(db, "users");
+    const q = query(collectionRef, where("userId", "==", userId.toString())); //created a query
+    const querySnapshot = await getDocs(q);
+    const resArr = [];
+    querySnapshot.forEach((doc) => {
+      resArr.push(doc.data());
+    });
+    if (resArr.length == 0) {
+      throw new Error("unable to find the user with provided userId");
+    }
+    console.log("commentData:",commentData)
+   const data =  {
+      commentBy_fullName: resArr[0].fullName,
+      commentBy_userName: resArr[0].userName,
+      commentBy_userId:userId,
+      commentData:commentData,
+      commentId:uuidv4(),
+      commentBy_profileImage:""
+    }
+    const commentsDocumentRef =  collection(db, `post_interaction/${postId}/comments`);
+    Promise.all([
+      addDoc(commentsDocumentRef, data),
+      setDoc(doc(db, "post_interaction", postId), {comments_count: increment(1)},{merge:true})      //write merge:true to make doc if not exists and update it as well if it exist
+    ]).then(()=>{
+      res.send({
+        success: true,
+        message: "request fetched successfully",
+      });
+    }).catch ((error)=>{
+      console.log(error)
+      res.send({success : false, message : error.message});
+    })
+    // console.log(docRef)
+    
+  } catch (error) {
+    console.log(error)
+    res.send({success : false, message : error.message});
+  }
+})
+
+app.get("/getComments/:postId",async(req,res)=>{
+  try {
+    const postId = req.params.postId;
+    const resArr = [];
+    console.log("Started")
+    const collectionRef = query(collection(db, `post_interaction/${postId}/comments`))
+    const documentSnapshots = await getDocs(collectionRef)
+    documentSnapshots.forEach(doc => {
+      resArr.push(doc.data());
+    })
+    if (resArr.length == 0) {
+      throw new Error("unable to find the comments with provided userId");
+    }
+    res.send({
+      success: true,
+      message: "request fetched successfully",
+      data: resArr,
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+})
+// app.get("/totalLikesAndComments/:postId",async(req,res)=>{
+//   try {
+//     const postId = req.params.postId;
+//     const resArr = [];
+//     // console.log("Started")
+//     const docRef = doc(db, "post_interaction",postId);
+//     const docSnap = await getDoc(docRef)
+//     if (docSnap.exists()) {
+//       res.send({
+//         success: true,
+//         message: "request fetched successfully",
+//         data: docSnap.data().comments_count,
+//       });
+//     } else {
+//       console.log('No such document!')
+//     }
+
+//   } catch (error) {
+//     console.log(error.message)
+//     res.send({
+//       success: false,
+//       message: error.message,
+//     });
+
+//   }
+// })
+
+app.get("/totalLikesAndComments/:postId",async(req,res)=>{
+  try {
+    const postId = req.params.postId;
+    const resArr = [];
+    // console.log("Started")
+    const docRef = doc(db, "post_interaction",postId);
+    const docSnap = await getDoc(docRef)
+    if (docSnap.exists()) {
+      res.send({
+        success: true,
+        message: "request fetched successfully",
+        data: docSnap.data().comments_count,
+      });
+    } else {
+      console.log('No such document!')
+    }
+
+  } catch (error) {
+    console.log(error.message)
+    res.send({
+      success: false,
+      message: error.message,
+    });
+
+  }
 })
 
 
