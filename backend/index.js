@@ -364,29 +364,29 @@ app.post("/follow", async (req, res) => {
     const currentSocialUserDocumentRef = doc(db,"social_graph",userId)
     const targetSocialUserDocumentRef = doc(db,"social_graph",target_userId)
     const userCollectionRef = collection(db, "users");
-    const userQuery = query(userCollectionRef, where("userId", "==", userId.toString())); //created a query
+    const userQuery = query(userCollectionRef, where("userId", "==", userId.toString() )); //created a query
     const targetUserQuery = query(userCollectionRef, where("userId", "==", target_userId.toString())); //created a query
 
     // check if target user's document is present in particular user's collection
     const targetUserSnapshot = await getDoc(outboundDocRef);
     if(targetUserSnapshot.exists()){
-      Promise.all([
-        await setDoc(currentSocialUserDocumentRef, { outbound_count : increment(-1), inbound_count : increment(0) }, {merge : true}) ,
-        await setDoc(targetSocialUserDocumentRef, { inbound_count : increment(-1), outbound_count : increment(0)  }, {merge : true}) ,
-        await deleteDoc(outboundDocRef),
-        await deleteDoc(inboundDocRef),
+      return Promise.all([
+        setDoc(currentSocialUserDocumentRef, { outbound_count : increment(-1), inbound_count : increment(0) }, {merge : true}) ,
+        setDoc(targetSocialUserDocumentRef, { inbound_count : increment(-1), outbound_count : increment(0)  }, {merge : true}) ,
+        deleteDoc(outboundDocRef),
+        deleteDoc(inboundDocRef),
       ]).then((response)=>{
-        res.send({
+        return res.send({
           success : true,
           message : "successfuly unfollowed the user"
         });
       }).catch((err)=>{
-        res.send({
+        return res.send({
           success : false,
           message: err.message
         });
       })
-      return;
+      
     }
     
     const userQuerySnapshot = await getDocs(userQuery);
@@ -403,21 +403,21 @@ app.post("/follow", async (req, res) => {
     });
     Promise.all([
       //  storing user info in respective collection 
-      await setDoc(inboundDocRef,{
+      setDoc(inboundDocRef,{
         userId : userInfoArr[0].userId,
         userName : userInfoArr[0].userName,
         fullName : userInfoArr[0].fullName,
         profileImage : userInfoArr[0].profileImage
       }),
-      await setDoc(outboundDocRef,{
+       setDoc(outboundDocRef,{
         userId : targetUserInfoArr[0].userId,
         userName : targetUserInfoArr[0].userName,
         fullName : targetUserInfoArr[0].fullName,
         profileImage : targetUserInfoArr[0].profileImage
       }),
       // increase the inbound count of target user and outbound count of current user
-      await setDoc(currentSocialUserDocumentRef, { outbound_count : increment(1), inbound_count : increment(0) }, {merge : true}) ,
-      await setDoc(targetSocialUserDocumentRef, { inbound_count : increment(1), outbound_count : increment(0)  }, {merge : true}) ,
+       setDoc(currentSocialUserDocumentRef, { outbound_count : increment(1)}, {merge : true}) ,
+       setDoc(targetSocialUserDocumentRef, { inbound_count : increment(1) }, {merge : true}) ,
     ]).then((result)=>{
       res.send({
         success : true,
