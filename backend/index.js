@@ -323,8 +323,8 @@ app.post("/like", async (req, res) => {
     else {
       const documentRef = doc(db, "post_interaction", postId);
       Promise.all([
-        await updateDoc(documentRef, { likes_count: increment(-1) }),
-        await deleteDoc(
+        updateDoc(documentRef, { likes_count: increment(-1) }),
+        deleteDoc(
           doc(db, `post_interaction/${postId}/likes`, resArr[0].id)
         ),
       ]).then(()=>{
