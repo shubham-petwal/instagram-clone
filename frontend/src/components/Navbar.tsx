@@ -33,7 +33,10 @@ import {
   NavLogo,
   ProfileAvatar,
 } from "./styledComponents/Navbar.style";
-function Navbar() {
+interface NavInterFace {
+  profileImage: string;
+}
+function Navbar({profileImage}:NavInterFace) {
   const user = useContext(AuthContext);
   let navigate = useNavigate();
   const signOut = async () => {
@@ -104,7 +107,7 @@ function Navbar() {
                 <DropdownProfile>
                   <Dropdown.Toggle>
                     <ProfileAvatar>
-                      <Avatar id="avatar" src={subh} />
+                      <Avatar id="avatar" src={profileImage} />
                     </ProfileAvatar>
                   </Dropdown.Toggle>
                 </DropdownProfile>

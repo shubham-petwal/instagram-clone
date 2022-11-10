@@ -43,10 +43,16 @@ function UserProfile() {
     );
   }
   const [imageArray, setImageArray] = useState<Array<GetDataInterface>>([]);
+  const [userRetrievedData, setRetrievedData] = useState<any>();
 
   useEffect(() => {
     const getData = async () => {
       try {
+        const userData = await axios.get(
+          `http://localhost:90/users/${user?.uid}`
+        );
+        setRetrievedData(userData.data.data);
+
         const allPosts = await axios.get(
           `http://localhost:90/getPosts/${user?.uid}`
         );
@@ -65,20 +71,17 @@ function UserProfile() {
       alert("Cannot find user ID");
     }
   }, []);
-
-
-  console.log(imageArray)
   return (
     <div>
-      <Navbar />
+      <Navbar profileImage={userRetrievedData?.profileImage} />
       <UserProfileContainer>
         <UserDataSection>
           <div>
-            <Avatar id="userProfileAvatar" src={subh} />
+            <Avatar id="userProfileAvatar" src={userRetrievedData?.profileImage} />
           </div>
           <UserInfoContainer>
             <EditAndSettingsDiv>
-              <p>shubham_petwal_</p>
+              <p>{userRetrievedData?.userName}</p>
 
               <button onClick={() => navigate("/editProfile")}>
                 Edit Profile
@@ -101,7 +104,7 @@ function UserProfile() {
               </div>
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
-              <span>Shubham Petwal</span>
+              <span>{userRetrievedData?.fullName}</span>
             </EditAndSettingsDiv>
           </UserInfoContainer>
         </UserDataSection>
@@ -123,14 +126,14 @@ function UserProfile() {
                     <ProfilePosts
                       src={item.image}
                       postId={item.postId}
-                      postImage = {item.image}
-                      caption = {item.caption}
-                      userName = {item.userName}
+                      profileImage={userRetrievedData?.profileImage}
+                      postImage={item.image}
+                      caption={item.caption}
+                      userName={userRetrievedData?.userName}
                       height="280px"
                       width="300px"
                       role="button"
                     />
-
                   </li>
                 ))
               ) : (
@@ -139,54 +142,7 @@ function UserProfile() {
             ) : (
               <p>No content</p>
             )}
-            {/* <li onClick={handlePostClick} key={Math.random() * 10}>
-              <ProfilePosts
-                getId={(id: string) => {
-                  setCurrentPostId(id);
-                }}
-                id="a"
-                src={subh}
-                height="280px"
-                width="300px"
-                role="button"
-              />
-            </li>
-            <li onClick={handlePostClick} key={Math.random() * 10}>
-              <ProfilePosts
-                getId={(id: string) => {
-                  setCurrentPostId(id);
-                }}
-                id="b"
-                src={subh}
-                height="280px"
-                width="300px"
-                role="button"
-              />
-            </li>
-            <li onClick={handlePostClick} key={Math.random() * 10}>
-              <ProfilePosts
-                getId={(id: string) => {
-                  setCurrentPostId(id);
-                }}
-                id="c"
-                src={subh}
-                height="280px"
-                width="300px"
-                role="button"
-              />
-            </li>
-            <li onClick={handlePostClick} key={Math.random() * 10}>
-              <ProfilePosts
-                getId={(id: string) => {
-                  setCurrentPostId(id);
-                }}
-                id="d"
-                src={subh}
-                height="280px"
-                width="300px"
-                role="button"
-              />
-            </li> */}
+
           </ul>
         </AllPostImages>
       </UserProfileContainer>

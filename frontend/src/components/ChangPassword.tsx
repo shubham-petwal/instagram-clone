@@ -1,9 +1,10 @@
 import { Avatar } from "@material-ui/core";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import subh from "../assets/images/shubham.jpg";
 import Navbar from "./Navbar";
 import { auth } from "../firebaseSetup";
+import axios from "axios";
 import {
   LabelDiv,
   EditProfileContainer,
@@ -13,10 +14,13 @@ import {
   RightChangePassword,
   PageDetails,
 } from "./styledComponents/EditProfile.style";
+import { AuthContext } from "../context/AuthContext";
 function ChangPassword() {
   const navigate = useNavigate();
+  const user = useContext(AuthContext);
   const [emailState, setEmailState] = useState("");
   const [isActive, setIsActive] = useState(true);
+  const [userRetrievedData, setRetrievedData] = useState<any>();
   const handleClick = () => {
     setIsActive(!isActive);
     navigate("/editProfile");
@@ -36,11 +40,28 @@ function ChangPassword() {
       console.log(error);
     }
   }
+  useEffect(()=>{
+    const getData = async () => {
+      try {
+        const userData = await axios.get(
+          `http://localhost:90/users/${user?.uid}`
+        );
+        setRetrievedData(userData.data.data);
+      } catch (error: any) {
+        console.log(error.message);
+      }
+    };
+    if (user?.uid) {
+      getData();
+    } else {
+      alert("Cannot find user ID");
+    }
+  })
 
   return (
     <>
       <div>
-        <Navbar />
+        <Navbar profileImage={userRetrievedData?.profileImage}/>
         <EditProfileMainContainer>
           <EditProfileContainer>
             <LeftEditPage>
@@ -63,10 +84,10 @@ function ChangPassword() {
               </PageDetails>
               <div id="topavatar">
                 <LabelDiv>
-                  <Avatar src={subh} id="Avatar" />
+                  <Avatar src={userRetrievedData?.profileImage} id="Avatar" />
                 </LabelDiv>
                 <InputDiv>
-                  <p>UserName</p>
+                  <p>{userRetrievedData?.userName}</p>
                 </InputDiv>
               </div>
               <div>

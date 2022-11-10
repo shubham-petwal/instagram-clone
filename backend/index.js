@@ -12,7 +12,6 @@ const {
   FieldValue,
   getDoc,
   deleteDoc,
-  getDoc
 } = require("firebase/firestore");
 // import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 
@@ -106,7 +105,6 @@ app.get("/users/:userId", async (req, res) => {
     if (resArr.length == 0) {
       throw new Error("unable to find the user with provided userId");
     }
-    console.log(resArr)
     res.send({
       success: true,
       message: "request fetched successfully",
@@ -139,22 +137,12 @@ app.post(
     const url = await uploadImageToBucket('Posts/'+req.file.filename,req.file.filename);
     const collectionRef = collection(db, "Posts");
 
-    const userscollectionRef = collection(db, "users");
-    const q = query(userscollectionRef, where("userId", "==", userId.toString())); //created a query
-    const querySnapshot = await getDocs(q);
-    const resArr = [];
-    querySnapshot.forEach((doc) => {
-      resArr.push(doc.data());
-    });
-
-
     const postObj = {
       userId: userId,
       image: url,
       caption: caption,
       postId: uuidv4(),
       createdAt: newDate,
-      userName:resArr[0].userName
     };
     addDoc(collectionRef, postObj).then(()=>{
       console.log("Document Added")
@@ -271,7 +259,6 @@ app.post("/addComment",async(req,res)=>{
     if (resArr.length == 0) {
       throw new Error("unable to find the user with provided userId");
     }
-    console.log("commentData:",commentData)
    const data =  {
       commentBy_fullName: resArr[0].fullName,
       commentBy_userName: resArr[0].userName,
@@ -301,93 +288,6 @@ app.post("/addComment",async(req,res)=>{
   }
 })
 
-app.get("/getComments/:postId",async(req,res)=>{
-  try {
-    const postId = req.params.postId;
-    const resArr = [];
-    const collectionRef = query(collection(db, `post_interaction/${postId}/comments`))
-    const documentSnapshots = await getDocs(collectionRef)
-    documentSnapshots.forEach(doc => {
-      resArr.push(doc.data());
-    })
-    if (resArr.length == 0) {
-      throw new Error("unable to find the comments with provided userId");
-    }
-    res.send({
-      success: true,
-      message: "request fetched successfully",
-      data: resArr,
-    });
-  } catch (error) {
-    res.send({
-      success: false,
-      message: error.message,
-    });
-  }
-})
-// app.get("/totalLikesAndComments/:postId",async(req,res)=>{
-//   try {
-//     const postId = req.params.postId;
-//     const resArr = [];
-//     // console.log("Started")
-//     const docRef = doc(db, "post_interaction",postId);
-//     const docSnap = await getDoc(docRef)
-//     if (docSnap.exists()) {
-//       res.send({
-//         success: true,
-//         message: "request fetched successfully",
-//         data: docSnap.data().comments_count,
-//       });
-//     } else {
-//       console.log('No such document!')
-//     }
-
-//   } catch (error) {
-//     console.log(error.message)
-//     res.send({
-//       success: false,
-//       message: error.message,
-//     });
-
-//   }
-// })
-
-// app.get("/totalLikesAndComments/:postId",async(req,res)=>{
-//   try {
-//     const postId = req.params.postId;
-//     const resArr = [];
-//     // console.log("Started")
-
-
-//     const docRef = doc(db, "post_interaction",postId);
-//     // const docSnap = await getDoc(docRef)
-//     // const doc = db.collection('post_interaction').doc(postId);
-
-//     const unsub =  onSnapshot(doc(db, "post_interaction", postId), (doc) => {
-//       console.log("Current data: ", doc.data());
-//   });
-//     // console.log(observer)
-
-//     // if (docSnap.exists()) {
-//     //   res.send({
-//     //     success: true,
-//     //     message: "request fetched successfully",
-//     //     data: docSnap.data().comments_count,
-//     //   });
-//     // } else {
-//     //   console.log('No such document!')
-//     // }
-
-//   } catch (error) {
-//     console.log(error.message)
-//     res.send({
-//       success: false,
-//       message: error.message,
-//     });
-
-//   }
-// })
-
 app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
     const { userId } = req.body;
   //finding user and getting its document id
@@ -414,6 +314,9 @@ app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
   }
   
 });
+
+app.get("/likedByUser",(req,res)=>{
+})
 
 
 app.post("/like", async (req, res) => {
@@ -442,9 +345,9 @@ app.post("/like", async (req, res) => {
         const documentRef = doc(db, "post_interaction", postId);
         const likeDocData = {
           likedBy_userId,
-          likedBy_fullName: userArray[0].fullName,
-          likedBy_profileImage: userArray[0].profileImage,
-          likedBy_userName: userArray[0].userName,
+          likedBy_fullName: userArray[0]?.fullName,
+          likedBy_profileImage: userArray[0].profileImage?userArray[0].profileImage:"",
+          likedBy_userName: userArray[0]?.userName,
         };
         Promise.all([
           setDoc(likesDocRef, likeDocData),
@@ -484,6 +387,7 @@ app.post("/like", async (req, res) => {
     }
   } 
   catch(error){
+    console.log(error)
     res.send({
       success: false,
       message: error.message,
@@ -595,7 +499,6 @@ app.get('/followers/:userId', async (req,res)=>{
     snapshot.forEach((doc) => {
       followersArray.push({...doc.data(), document_id : doc.id});
     });
-    console.log(followersArray);
     res.send({
       success : true,
       message : "fetched all the followers successfuly",
@@ -625,7 +528,6 @@ app.get('/following/:userId', async (req,res)=>{
     snapshot.forEach((doc) => {
       followingArray.push({...doc.data(), document_id : doc.id});
     });
-    console.log(followingArray);
     res.send({
       success : true,
       message : "fetched all the users you are following successfuly",

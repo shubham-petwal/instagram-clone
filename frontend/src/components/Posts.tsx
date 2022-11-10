@@ -1,6 +1,5 @@
 import { Avatar } from "@material-ui/core";
 import React, { useContext, useEffect, useState } from "react";
-import shubh from "../assets/images/shubham.jpg";
 import axios from "axios";
 import {
   AddCommentsDiv,
@@ -28,20 +27,25 @@ import { AuthContext } from "../context/AuthContext";
 import { Value } from "sass";
 import { PostDetailModal } from "./PostDetailModal";
 import { db } from "../db";
-import { doc, onSnapshot } from "firebase/firestore";
+import { collection, doc, onSnapshot, query } from "firebase/firestore";
 import { async } from "@firebase/util";
+import redHeart from "../assets/images/red-heart-icon.svg";
 
 interface PostInterFace {
-  src: string;
+  postImage: string;
   caption: string;
   postId: string;
-  userName: string;
+  userId: string;
 }
 
-function Posts({ src, caption, postId, userName }: PostInterFace) {
+function Posts({ postImage, caption, postId, userId }: PostInterFace) {
   const [comment, setComment] = useState("");
-  const [totalComments, setTotalComments] = useState("");
+  const [totalComments, setTotalComments] = useState(0);
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [liked,setLiked] = useState(false);
+  const [likesArrayDetails, setLikesArrayDetails] = useState<any>();
   const [modalState, setModalState] = useState(false);
+  const [userRetrievedData, setRetrievedData] = useState<any>();
   const user = useContext(AuthContext);
   const data = {
     userId: user?.uid,
@@ -57,37 +61,83 @@ function Posts({ src, caption, postId, userName }: PostInterFace) {
     }
   };
 
-  // useEffect(()=>{
-  //   const getData = async()=>{
-  //     const res = await axios.get(`http://localhost:90/totalLikesAndComments/${postId}`)
-  //     // console.log("Total Comments", res.data)
-  //     setTotalComments(res.data.data)
-  //   }
-  //   getData();
-  // },[])
-  //when you call onSnapShot you will get unsubscribe function
+  const getData = async () => {
+    const collectionRef = query(
+      collection(db, `post_interaction/${postId}/likes`)
+    );
+    const unsubscribeLikesDetails = onSnapshot(collectionRef, (querySnapshot) => {
+      const likesDetails: any = [];
+      querySnapshot.forEach((doc) => {
+        // console.log(doc.data())
+        likesDetails.push(doc.data());
+      });
+      setLikesArrayDetails(likesDetails);
+    });
+  };
+
+  // if(user?.uid){
+  //   const unsub = onSnapshot(doc(db, `post_interaction/${postId}/likes/${user?.uid}`), (doc) => {
+  //     // console.log("Current data: ", doc.data());
+  //     if(doc.data()){
+  //       setLiked(true)
+  //     }
+  //     else{
+  //       setLiked(false)
+  //     }
+  // });
+  // }
+
   useEffect(() => {
+    getData();
+    let userData;
+    axios
+      .get(`http://localhost:90/users/${userId}`)
+      .then((res) => {
+        userData = res.data.data;
+        // imageUrl = userData.profileImage;
+        setRetrievedData(userData);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+      if(user?.uid){
+        const unsub = onSnapshot(doc(db, `post_interaction/${postId}/likes/${user?.uid}`), (doc) => {
+          // console.log("Current data: ", doc.data());
+          if(doc.data()){
+            setLiked(true)
+          }
+          else{
+            setLiked(false)
+          }
+      });
+      }
     const unsubscribe = onSnapshot(
       doc(db, "post_interaction", postId),
       (doc) => {
         setTotalComments(doc.data()?.comments_count);
+        setTotalLikes(doc.data()?.likes_count);
       }
     );
-    return unsubscribe;
-  }, []);
-
+  },[]);
+console.log(liked)
   function handlePostClick(event: React.MouseEvent<HTMLElement>) {
     setModalState((prev) => {
       return !prev;
     });
   }
-  return (
+  const handleLikePost = async () => {
+    const result = await axios.post("http://localhost:90/like", {
+      likedBy_userId: user?.uid,
+      postId: postId,
+    });
+  };
+  return (  
     <PostContainer>
       <PostHeader>
         <UserDetailsContainer>
-          <Avatar src={src} />
+          <Avatar src={userRetrievedData?.profileImage} />
           <div>
-            <span>{userName}</span>
+            <span>{userRetrievedData?.userName}</span>
           </div>
         </UserDetailsContainer>
         <div>
@@ -95,11 +145,16 @@ function Posts({ src, caption, postId, userName }: PostInterFace) {
         </div>
       </PostHeader>
       <PostImageDiv>
-        <img src={src} alt="imageI" />
+        <img src={postImage} alt="imageI" onDoubleClick={handleLikePost} />
       </PostImageDiv>
       <LikeCommentShareDiv>
         <ThreeIconsDiv>
-          <FontAwesomeIcon icon={faHeart} />
+          {liked?
+            <img onClick={handleLikePost} src={redHeart} />
+         :
+            <FontAwesomeIcon onClick={handleLikePost} icon={faHeart} />
+          }
+
           <FontAwesomeIcon icon={faComment} />
           <FontAwesomeIcon icon={faShareSquare} />
         </ThreeIconsDiv>
@@ -108,14 +163,16 @@ function Posts({ src, caption, postId, userName }: PostInterFace) {
         </div>
       </LikeCommentShareDiv>
       <LikesDiv>
-        <span>10 likes</span>
+        <span>{totalLikes?totalLikes : 0} likes</span>
       </LikesDiv>
       <DescriptionDiv>
-        <span id="userName">{userName}</span>
+        <span id="userName">{userRetrievedData?.userName}</span>
         <span>{caption}</span>
       </DescriptionDiv>
       <CommentsDiv>
-        <span onClick={handlePostClick}>View all {totalComments} Comments</span>
+        <span onClick={handlePostClick}>
+          View all {totalComments ? totalComments : 0} Comments
+        </span>
       </CommentsDiv>
       <AddCommentsDiv>
         <FontAwesomeIcon icon={faSmile} />
@@ -134,9 +191,11 @@ function Posts({ src, caption, postId, userName }: PostInterFace) {
           setModalState(!prev);
         }}
         postId={postId}
-        postImage={src}
+        postImage={postImage}
+        profileImage={userRetrievedData?.profileImage}
         caption={caption}
-        userName={userName}
+        userName={userRetrievedData?.userName}
+        liked = {liked}
       />
     </PostContainer>
   );

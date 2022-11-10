@@ -137,7 +137,7 @@ export const CommentDiv = styled.div`
 `;
 export const ActionIconsDiv = styled.div`
   width: 100%;
-  padding: 6px 8px;
+  padding: 2px 6px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -158,17 +158,27 @@ export const ActionIconsDiv = styled.div`
     font-size: 25px;
     svg {
       margin: 10px;
+      cursor: pointer;
+      :hover{
+        opacity: 0.4;
+      }
     }
+    img{
+    width: 26px;
+    margin-left: 9px;
+    margin-right: 9px;
+  }
   }
   div.likes-wrapper {
     width: 100%;
-    padding: 3px 10px 0 10px;
+    padding: 0 10px 10px 14px;
     color: #3d3d3d;
     display: flex;
     align-items: center;
     p{
         margin: 0;
         display: inline-block;
+        font-weight: 700;
     }
     img{
         display: inline-block;
@@ -176,10 +186,6 @@ export const ActionIconsDiv = styled.div`
         border-radius: 20px;
         margin-right: 15px;
         /* width: 100%; */
-    }
-    span{
-        font-weight: 700;
-        color: #3d3d3d;
     }
   }
 `;
