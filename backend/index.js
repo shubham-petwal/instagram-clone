@@ -12,7 +12,11 @@ const {
   FieldValue,
   getDoc,
   deleteDoc,
-  getDoc
+  limit,
+  startAfter,
+  orderBy,
+  documentId,
+  FieldPath
 } = require("firebase/firestore");
 // import { getStorage, ref, uploadBytesResumable } from "firebase/storage";
 
@@ -325,68 +329,6 @@ app.get("/getComments/:postId",async(req,res)=>{
     });
   }
 })
-// app.get("/totalLikesAndComments/:postId",async(req,res)=>{
-//   try {
-//     const postId = req.params.postId;
-//     const resArr = [];
-//     // console.log("Started")
-//     const docRef = doc(db, "post_interaction",postId);
-//     const docSnap = await getDoc(docRef)
-//     if (docSnap.exists()) {
-//       res.send({
-//         success: true,
-//         message: "request fetched successfully",
-//         data: docSnap.data().comments_count,
-//       });
-//     } else {
-//       console.log('No such document!')
-//     }
-
-//   } catch (error) {
-//     console.log(error.message)
-//     res.send({
-//       success: false,
-//       message: error.message,
-//     });
-
-//   }
-// })
-
-// app.get("/totalLikesAndComments/:postId",async(req,res)=>{
-//   try {
-//     const postId = req.params.postId;
-//     const resArr = [];
-//     // console.log("Started")
-
-
-//     const docRef = doc(db, "post_interaction",postId);
-//     // const docSnap = await getDoc(docRef)
-//     // const doc = db.collection('post_interaction').doc(postId);
-
-//     const unsub =  onSnapshot(doc(db, "post_interaction", postId), (doc) => {
-//       console.log("Current data: ", doc.data());
-//   });
-//     // console.log(observer)
-
-//     // if (docSnap.exists()) {
-//     //   res.send({
-//     //     success: true,
-//     //     message: "request fetched successfully",
-//     //     data: docSnap.data().comments_count,
-//     //   });
-//     // } else {
-//     //   console.log('No such document!')
-//     // }
-
-//   } catch (error) {
-//     console.log(error.message)
-//     res.send({
-//       success: false,
-//       message: error.message,
-//     });
-
-//   }
-// })
 
 app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
     const { userId } = req.body;
@@ -582,25 +524,67 @@ app.post("/follow", async (req, res) => {
 
 app.get('/followers/:userId', async (req,res)=>{
   const {userId} = req.params;
+  const {lastDocId} = req.query;
   if(!userId){
     res.send({
       success : false,
       message : "provide userId"
     })
+    return;
   }
+
+  const followersCollectionRef = collection(db, `social_graph/${userId}/inbound_users`);
+  
   try{
-    const followersArray = [];
-    const followersCollectionRef = collection(db, `social_graph/${userId}/inbound_users`);
-    const snapshot = await getDocs(followersCollectionRef);
-    snapshot.forEach((doc) => {
-      followersArray.push({...doc.data(), document_id : doc.id});
-    });
-    console.log(followersArray);
-    res.send({
-      success : true,
-      message : "fetched all the followers successfuly",
-      data : followersArray
-    })
+    if(!lastDocId){ // if we fetching userData for the first time
+      const followersArr = [];
+      const nextFollowers = query(followersCollectionRef,orderBy(documentId()),limit(2));
+      const snapshot = await getDocs(nextFollowers);
+      snapshot.forEach((doc) => {
+        followersArr.push({...doc.data(), document_id : doc.id});
+      });
+      if(snapshot.docs.length == 0){ // if first document fetch of the user contains no document
+        res.send({
+          success : true,
+          message : "followers list of this user is empty",
+          data : []
+        })
+        return;
+      }
+      res.send({
+        success : true,
+        message : "fetched followers successfuly",
+        data : followersArr,
+        lastDocId : followersArr[followersArr.length-1].document_id
+      })
+      return;
+    }
+    else{
+      // if we are fetching userData with some lastDocId
+      const followersArr = [];
+      // below query to check if documents after the lastDocId exists or not
+      const checkSnapshot = await getDocs(query(followersCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(1) ));
+      if(checkSnapshot.docs.length == 0){
+          res.send({
+              success : true,
+              message : "you have reached the end of the follower's list",
+              data : []
+            })
+            return;
+      }
+      const nextFollowers = query(followersCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(2));
+      const snapshot = await getDocs(nextFollowers);
+      snapshot.forEach((doc) => {
+        followersArr.push({...doc.data(), document_id : doc.id});
+      });
+      res.send({
+        success : true,
+        message : "fetched all the followers successfuly",
+        data : followersArr,
+        lastDocId : followersArr[followersArr.length-1].document_id
+      })
+      return;
+    }
   }catch(err){
     res.send({
       success : false,
@@ -612,25 +596,67 @@ app.get('/followers/:userId', async (req,res)=>{
 
 app.get('/following/:userId', async (req,res)=>{
   const {userId} = req.params;
+  const {lastDocId} = req.query;
   if(!userId){
     res.send({
       success : false,
       message : "provide userId"
     })
+    return;
   }
+
+  const followingCollectionRef = collection(db, `social_graph/${userId}/outbound_users`);
+  
   try{
-    const followingArray = [];
-    const followingCollectionRef = collection(db, `social_graph/${userId}/outbound_users`);
-    const snapshot = await getDocs(followingCollectionRef);
-    snapshot.forEach((doc) => {
-      followingArray.push({...doc.data(), document_id : doc.id});
-    });
-    console.log(followingArray);
-    res.send({
-      success : true,
-      message : "fetched all the users you are following successfuly",
-      data : followingArray
-    })
+    if(!lastDocId){ // if we fetching userData for the first time
+      const followingArray = [];
+      const nextFollowing = query(followingCollectionRef,orderBy(documentId()),limit(2));
+      const snapshot = await getDocs(nextFollowing);
+      snapshot.forEach((doc) => {
+        followingArray.push({...doc.data(), document_id : doc.id});
+      });
+      if(snapshot.docs.length == 0){ // if first document fetch of the user contains no document
+        res.send({
+          success : true,
+          message : "following list of this user is empty",
+          data : []
+        })
+        return;
+      }
+      res.send({
+        success : true,
+        message : "fetched 2 users you are following successfuly",
+        data : followingArray,
+        lastDocId : followingArray[followingArray.length-1].document_id
+      })
+      return;
+    }
+    else{
+      // if we are fetching userData with some lastDocId
+      const followingArray = [];
+      // below query to check if documents after the lastDocId exists or not
+      const checkSnapshot = await getDocs(query(followingCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(1) ));
+      if(checkSnapshot.docs.length == 0){
+          res.send({
+              success : true,
+              message : "you have reached the end of the following user's list",
+              data : []
+            })
+            return;
+      }
+      const nextFollowing = query(followingCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(2));
+      const snapshot = await getDocs(nextFollowing);
+      snapshot.forEach((doc) => {
+        followingArray.push({...doc.data(), document_id : doc.id});
+      });
+      res.send({
+        success : true,
+        message : "fetched all the users you are following successfuly",
+        data : followingArray,
+        lastDocId : followingArray[followingArray.length-1].document_id
+      })
+      return;
+    }
   }catch(err){
     res.send({
       success : false,
