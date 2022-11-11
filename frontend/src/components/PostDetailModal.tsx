@@ -23,6 +23,10 @@ import {
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+import { Avatar } from "@material-ui/core";
+import { collection, doc, onSnapshot, query } from "firebase/firestore";
+import { db } from "../db";
+import redHeart from "../assets/images/red-heart-icon.svg";
 
 export function PostDetailModal(props: any) {
   const postData = {
@@ -32,56 +36,61 @@ export function PostDetailModal(props: any) {
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxISbGKaOWbeQjagbw4mTs7ldZW2jbA7njbw&usqp=CAU",
     location: "Lucknow",
     likes: 455,
-    time : "4 week"
+    time: "4 week",
   };
   const user = useContext(AuthContext);
-  const[postDat, setPostData] = useState([])
-  const[commentsArray, setcommentsArray] = useState<any[]>([])
-  
-  // const commentsArray = [
-  //   {
-  //     userName: "subh_Petwal",
-  //     profileImage:
-  //       "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bWFufGVufDB8fDB8fA%3D%3D&w=1000&q=80",
-  //     commentData:
-  //       "Lorem ipsum dolor, sit amet Lorem ipsum dolor sit, ametconsectetur adipisicing elit. Doloremque minus, recusandaeexercitationem odio dolores aperiam voluptates molestiaslabore culpa nulla magni, nihil non! Dignissimosrecusandae sint dicta numquam. Provident, animi! Atque ",
-  //     time: "3 days",
-  //     likes: "4",
-  //   },
-  //   {
-  //     userName: "alien_23",
-  //     profileImage:
-  //       "https://www.ourmigrationstory.org.uk/uploads/_CGSmartImage/img-a2beae8392617b8c02b85d8b9197fb96",
-  //     commentData:
-  //       "voluptates molestias labore culpa nulla magni, nihil non! Dignissimos recusandae sint dicta numquam. Provident, animi! Atque ",
-  //     time: "2 week",
-  //     likes: "21",
-  //   },
-  //   {
-  //     userName: "mnp4321",
-  //     profileImage:
-  //       "https://www.ourmigrationstory.org.uk/uploads/_CGSmartImage/img-a2beae8392617b8c02b85d8b9197fb96",
-  //     commentData:
-  //       "nulla magni voluptates molestias labore culpa, nihil non! Dignissimos recusandae sint dicta numquam. Provident, animi! Atque ",
-  //     time: "2 week",
-  //     likes: "21",
-  //   }
-  // ];
+  const [totalComments, setTotalComments] = useState(0);
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [commentsArray, setcommentsArray] = useState<any[]>([]);
+  const [comment, setComment] = useState("");
+  const data = {
+    userId: user?.uid,
+    commentData: comment,
+    postId: props.postId,
+  };
 
-  useEffect(()=>{
-    let userData;
-    const getData = async()=>{
-      const res = await axios.get(`http://localhost:90/getComments/${props.postId}`)
-      if(res.data.data){
-        setcommentsArray(res.data.data)
-      }
-  }
+  const handleAddComments = async () => {
+    try {
+      const result = await axios.post("http://localhost:90/addComment", data);
+      setComment("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleLikePost = async () => {
+    const result = await axios.post("http://localhost:90/like", {
+      likedBy_userId: user?.uid,
+      postId: props.postId,
+    });
+    console.log("Liked");
+  };
+
+  const getData = async () => {
+    const collectionRef = query(
+      collection(db, `post_interaction/${props.postId}/comments`)
+    );
+    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
+      const commentsDetails: any = [];
+      querySnapshot.forEach((doc) => {
+        // console.log(doc.data())
+        commentsDetails.push(doc.data());
+      });
+      setcommentsArray(commentsDetails);
+    });
+  };
+
+  useEffect(() => {
     getData();
-  },[])
-  // console.log("myArray",commentsArray)
-  function postComment() {
-    console.log("comment posted");
-  }
+    const unsubscribe = onSnapshot(
+      doc(db, "post_interaction", props.postId),
+      (doc) => {
+        setTotalComments(doc.data()?.comments_count);
+        setTotalLikes(doc.data()?.likes_count);
+      }
+    );
+    return unsubscribe;
+  }, []);
   function handleClick() {
     props.setModal(props.modalState);
   }
@@ -109,7 +118,7 @@ export function PostDetailModal(props: any) {
               <DetailsWrapperDiv>
                 <AuthorProfileDiv>
                   <div className="profile-img">
-                    <img src={props.postImage} alt="profile image" />
+                    <img src={props.profileImage} alt="profile image" />
                   </div>
                   <div className="description">
                     <p className="user-name">{props.userName}</p>
@@ -137,38 +146,49 @@ export function PostDetailModal(props: any) {
                       <FontAwesomeIcon icon={faHeart} />
                     </div>
                   </CommentDiv>
-                  {commentsArray?commentsArray.map((commentDoc) => {
-                    return (
-                      <CommentDiv key={Math.random()}>
-                        <div className="profile-img">
-                          <img
-                            src={commentDoc.commentBy_profileImage}
-                            alt="profile image"
-                          />
-                        </div>
-                        <div>
-                          <p className="comment-data">
-                            <span className="userName">
-                              {commentDoc.commentBy_userName}
-                            </span>
-                            {commentDoc.commentData}
-                          </p>
-                          <p className="comment-info">
-                            {/* <span>{commentDoc.time}</span>
+                  {commentsArray ? (
+                    commentsArray.map((commentDoc) => {
+                      return (
+                        <CommentDiv key={Math.random()}>
+                          <div className="profile-img">
+                            <Avatar
+                              src={commentDoc.commentBy_profileImage}
+                              alt="profile image"
+                            />
+                          </div>
+                          <div>
+                            <p className="comment-data">
+                              <span className="userName">
+                                {commentDoc.commentBy_userName}
+                              </span>
+                              {commentDoc.commentData}
+                            </p>
+                            <p className="comment-info">
+                              {/* <span>{commentDoc.time}</span>
                             <span>{commentDoc.likes} likes</span> */}
-                          </p>
-                        </div>
-                        <div className="like-icon">
-                          <FontAwesomeIcon icon={faHeart} />
-                        </div>
-                      </CommentDiv>
-                    );
-                  }):<p>No Comments</p>}
+                            </p>
+                          </div>
+                          <div className="like-icon">
+                            <FontAwesomeIcon icon={faHeart} />
+                          </div>
+                        </CommentDiv>
+                      );
+                    })
+                  ) : (
+                    <p>No Comments</p>
+                  )}
                 </CommentsWrapperDiv>
                 <ActionIconsDiv>
                   <div className="icon-wrapper">
                     <div className="left-icon">
-                      <FontAwesomeIcon icon={faHeart} />
+                      {props.liked ? (
+                        <img onClick={handleLikePost} src={redHeart} />
+                      ) : (
+                        <FontAwesomeIcon
+                          onClick={handleLikePost}
+                          icon={faHeart}
+                        />
+                      )}
                       <FontAwesomeIcon icon={faComment} />
                       <FontAwesomeIcon icon={faShareFromSquare} />
                     </div>
@@ -177,15 +197,7 @@ export function PostDetailModal(props: any) {
                     </div>
                   </div>
                   <div className="likes-wrapper">
-                    <img
-                      src={commentsArray[0]?commentsArray[0].commentBy_userName:""}
-                      alt="profile image"
-                    />
-                    <p>
-                      Liked by <span>{commentsArray[0]?commentsArray[0].commentBy_userName:null}</span> and{" "}
-                      <span>{postData.likes}</span> others
-                      
-                    </p>
+                    <p>{totalLikes ? totalLikes : 0} likes</p>
                   </div>
                 </ActionIconsDiv>
                 <CommentInput>
@@ -195,12 +207,13 @@ export function PostDetailModal(props: any) {
                   <div className="input-div">
                     <input
                       type="text"
-                      name="comment"
-                      placeholder="Add a Comment..."
+                      placeholder="Add a comment..."
+                      onChange={(e) => setComment(e.target.value)}
+                      value={comment}
                     />
                   </div>
                   <div className="post-button">
-                    <button onClick={postComment}>Post</button>
+                    <button onClick={handleAddComments}>Post</button>
                   </div>
                 </CommentInput>
               </DetailsWrapperDiv>

@@ -110,7 +110,6 @@ app.get("/users/:userId", async (req, res) => {
     if (resArr.length == 0) {
       throw new Error("unable to find the user with provided userId");
     }
-    console.log(resArr)
     res.send({
       success: true,
       message: "request fetched successfully",
@@ -143,22 +142,12 @@ app.post(
     const url = await uploadImageToBucket('Posts/'+req.file.filename,req.file.filename);
     const collectionRef = collection(db, "Posts");
 
-    const userscollectionRef = collection(db, "users");
-    const q = query(userscollectionRef, where("userId", "==", userId.toString())); //created a query
-    const querySnapshot = await getDocs(q);
-    const resArr = [];
-    querySnapshot.forEach((doc) => {
-      resArr.push(doc.data());
-    });
-
-
     const postObj = {
       userId: userId,
       image: url,
       caption: caption,
       postId: uuidv4(),
       createdAt: newDate,
-      userName:resArr[0].userName
     };
     addDoc(collectionRef, postObj).then(()=>{
       console.log("Document Added")
@@ -275,7 +264,6 @@ app.post("/addComment",async(req,res)=>{
     if (resArr.length == 0) {
       throw new Error("unable to find the user with provided userId");
     }
-    console.log("commentData:",commentData)
    const data =  {
       commentBy_fullName: resArr[0].fullName,
       commentBy_userName: resArr[0].userName,
@@ -357,6 +345,9 @@ app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
   
 });
 
+app.get("/likedByUser",(req,res)=>{
+})
+
 
 app.post("/like", async (req, res) => {
   const { likedBy_userId, postId } = req.body;
@@ -384,9 +375,9 @@ app.post("/like", async (req, res) => {
         const documentRef = doc(db, "post_interaction", postId);
         const likeDocData = {
           likedBy_userId,
-          likedBy_fullName: userArray[0].fullName,
-          likedBy_profileImage: userArray[0].profileImage,
-          likedBy_userName: userArray[0].userName,
+          likedBy_fullName: userArray[0]?.fullName,
+          likedBy_profileImage: userArray[0].profileImage?userArray[0].profileImage:"",
+          likedBy_userName: userArray[0]?.userName,
         };
         Promise.all([
           setDoc(likesDocRef, likeDocData),
@@ -426,6 +417,7 @@ app.post("/like", async (req, res) => {
     }
   } 
   catch(error){
+    console.log(error)
     res.send({
       success: false,
       message: error.message,

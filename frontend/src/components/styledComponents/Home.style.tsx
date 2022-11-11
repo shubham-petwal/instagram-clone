@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { borderColor, pageBgColor } from "./utilityFiles/variables";
+import { borderColor, globalFacebookColor, pageBgColor } from "./utilityFiles/variables";
 
 export const HomePageContainer = styled.div`
   display: flex;
@@ -17,4 +17,23 @@ export const SuggestionContainer = styled.div`
   @media screen and (max-width: 1000px) {
     display: none;
   }
+`
+export const SuggestionUserDetailsdiv = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  #details{
+    display: flex;
+
+    
+  }
+  span{
+    float: right;
+    button{
+      background: none;
+      border: none;
+      color:${globalFacebookColor};
+    }
+  }
+  
 `

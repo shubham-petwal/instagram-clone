@@ -73,6 +73,11 @@ export const ThreeIconsDiv = styled.div`
   display: flex;
   height: 60px;
   align-items: center;
+  img{
+    width: 26px;
+    margin-right: 14px;
+    /* margin-left: 8px; */
+  }
 `;
 export const LikesDiv = styled.div`
   padding: 0px 0px 0px 10px;

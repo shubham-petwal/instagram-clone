@@ -27,6 +27,7 @@ function ProfilePosts(props: any) {
         }}
         postId={props.postId}
         postImage={props.postImage}
+        profileImage={props.profileImage}
         caption={props.caption}
         userName={props.userName}
       />
