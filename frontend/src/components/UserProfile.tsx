@@ -9,7 +9,6 @@ import {
 } from "./styledComponents/UserProfile.style";
 import Navbar from "./Navbar";
 import { Avatar } from "@material-ui/core";
-import subh from "../assets/images/shubham.jpg";
 import WhiteRing from "../assets/images/UserHighlightRing.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
@@ -17,8 +16,8 @@ import StatusStories from "./StatusStories";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
-import { string } from "yup";
 import { PostDetailModal } from "./PostDetailModal";
+import FollowerModal from "./FollowerModal";
 import ProfilePosts from "./ProfilePosts";
 interface GetDataInterface {
   image: string;
@@ -44,6 +43,8 @@ function UserProfile() {
   }
   const [imageArray, setImageArray] = useState<Array<GetDataInterface>>([]);
   const [userRetrievedData, setRetrievedData] = useState<any>();
+  const [showFollowerModal, setShowFollowerModal] = useState<boolean>(false);
+  const [currentMethod, setCurrentMethod] = useState<string>("");
 
   useEffect(() => {
     const getData = async () => {
@@ -77,7 +78,10 @@ function UserProfile() {
       <UserProfileContainer>
         <UserDataSection>
           <div>
-            <Avatar id="userProfileAvatar" src={userRetrievedData?.profileImage} />
+            <Avatar
+              id="userProfileAvatar"
+              src={userRetrievedData?.profileImage}
+            />
           </div>
           <UserInfoContainer>
             <EditAndSettingsDiv>
@@ -94,11 +98,21 @@ function UserProfile() {
                 <span>6 </span>
                 posts
               </div>
-              <div>
+              <div
+                onClick={() => {
+                  setCurrentMethod("followers");
+                  return setShowFollowerModal(true);
+                }}
+              >
                 <span>268</span>
                 followers
               </div>
-              <div>
+              <div
+                onClick={() => {
+                  setCurrentMethod("following");
+                  return setShowFollowerModal(true);
+                }}
+              >
                 <span>244 </span>
                 following
               </div>
@@ -142,10 +156,15 @@ function UserProfile() {
             ) : (
               <p>No content</p>
             )}
-
           </ul>
         </AllPostImages>
       </UserProfileContainer>
+      <FollowerModal
+        show={showFollowerModal}
+        onHide={() => setShowFollowerModal(false)}
+        userId={user?.uid}
+        method = {currentMethod}
+      />
     </div>
   );
 }
