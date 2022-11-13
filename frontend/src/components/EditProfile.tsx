@@ -104,7 +104,7 @@ function EditProfile() {
               <InputDiv>
                 <p id="username">{userRetrievedData?.userName}</p>
                 <Link to="/updateProfileImage" style={{fontSize : "12px", border:"none", background:"none", margin : "0px 3px", display:"block"}}>update Profile</Link>
-              </InputDiv>
+              </InputDiv> 
             </div>
             <form onSubmit={handleFormSubmit}>
               <LabelDiv>

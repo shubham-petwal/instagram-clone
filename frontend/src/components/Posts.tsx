@@ -42,7 +42,7 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
   const [comment, setComment] = useState("");
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
-  const [liked,setLiked] = useState(false);
+  const [liked, setLiked] = useState(false);
   const [likesArrayDetails, setLikesArrayDetails] = useState<any>();
   const [modalState, setModalState] = useState(false);
   const [userRetrievedData, setRetrievedData] = useState<any>();
@@ -65,7 +65,7 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
     const collectionRef = query(
       collection(db, `post_interaction/${postId}/likes`)
     );
-    const unsubscribeLikesDetails = onSnapshot(collectionRef, (querySnapshot) => {
+    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
       const likesDetails: any = [];
       querySnapshot.forEach((doc) => {
         // console.log(doc.data())
@@ -73,6 +73,7 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
       });
       setLikesArrayDetails(likesDetails);
     });
+    return unsubscribe;
   };
 
   // if(user?.uid){
@@ -100,17 +101,19 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
       .catch((error) => {
         console.log(error);
       });
-      if(user?.uid){
-        const unsub = onSnapshot(doc(db, `post_interaction/${postId}/likes/${user?.uid}`), (doc) => {
+    if (user?.uid) {
+      const unsubscribe = onSnapshot(
+        doc(db, `post_interaction/${postId}/likes/${user?.uid}`),
+        (doc) => {
           // console.log("Current data: ", doc.data());
-          if(doc.data()){
-            setLiked(true)
+          if (doc.data()) {
+            setLiked(true);
+          } else {
+            setLiked(false);
           }
-          else{
-            setLiked(false)
-          }
-      });
-      }
+        }
+      );
+    }
     const unsubscribe = onSnapshot(
       doc(db, "post_interaction", postId),
       (doc) => {
@@ -118,8 +121,8 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
         setTotalLikes(doc.data()?.likes_count);
       }
     );
-  },[]);
-console.log(liked)
+    return unsubscribe;
+  }, []);
   function handlePostClick(event: React.MouseEvent<HTMLElement>) {
     setModalState((prev) => {
       return !prev;
@@ -131,7 +134,7 @@ console.log(liked)
       postId: postId,
     });
   };
-  return (  
+  return (
     <PostContainer>
       <PostHeader>
         <UserDetailsContainer>
@@ -149,13 +152,15 @@ console.log(liked)
       </PostImageDiv>
       <LikeCommentShareDiv>
         <ThreeIconsDiv>
-          {liked?
+          {liked ? (
             <img onClick={handleLikePost} src={redHeart} />
-         :
+          ) : (
             <FontAwesomeIcon onClick={handleLikePost} icon={faHeart} />
-          }
+          )}
 
-          <FontAwesomeIcon icon={faComment} />
+          <span onClick={handlePostClick}>
+            <FontAwesomeIcon icon={faComment} />
+          </span>
           <FontAwesomeIcon icon={faShareSquare} />
         </ThreeIconsDiv>
         <div>
@@ -163,7 +168,7 @@ console.log(liked)
         </div>
       </LikeCommentShareDiv>
       <LikesDiv>
-        <span>{totalLikes?totalLikes : 0} likes</span>
+        <span>{totalLikes ? totalLikes : 0} likes</span>
       </LikesDiv>
       <DescriptionDiv>
         <span id="userName">{userRetrievedData?.userName}</span>
@@ -195,7 +200,7 @@ console.log(liked)
         profileImage={userRetrievedData?.profileImage}
         caption={caption}
         userName={userRetrievedData?.userName}
-        liked = {liked}
+        liked={liked}
       />
     </PostContainer>
   );

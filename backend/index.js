@@ -196,7 +196,7 @@ app.get("/getPosts/:userId",async(req,res)=>{
 app.get("/getPosts/",async(req,res)=>{
   try {
     const resArr = [];
-    const collectionRef = query(collection(db, 'Posts'))
+    const collectionRef = query(collection(db, 'Posts'),orderBy("createdAt","desc"))
     const documentSnapshots = await getDocs(collectionRef)
     documentSnapshots.forEach(doc => {
       resArr.push(doc.data());
@@ -264,13 +264,15 @@ app.post("/addComment",async(req,res)=>{
     if (resArr.length == 0) {
       throw new Error("unable to find the user with provided userId");
     }
+    const newDate = new Date().toLocaleString();
    const data =  {
       commentBy_fullName: resArr[0].fullName,
       commentBy_userName: resArr[0].userName,
       commentBy_userId:userId,
       commentData:commentData,
       commentId:uuidv4(),
-      commentBy_profileImage:""
+      commentBy_profileImage:resArr[0].profileImage,
+      createdAt:newDate
     }
     const commentsDocumentRef =  collection(db, `post_interaction/${postId}/comments`);
     Promise.all([
@@ -293,30 +295,30 @@ app.post("/addComment",async(req,res)=>{
   }
 })
 
-app.get("/getComments/:postId",async(req,res)=>{
-  try {
-    const postId = req.params.postId;
-    const resArr = [];
-    const collectionRef = query(collection(db, `post_interaction/${postId}/comments`))
-    const documentSnapshots = await getDocs(collectionRef)
-    documentSnapshots.forEach(doc => {
-      resArr.push(doc.data());
-    })
-    if (resArr.length == 0) {
-      throw new Error("unable to find the comments with provided userId");
-    }
-    res.send({
-      success: true,
-      message: "request fetched successfully",
-      data: resArr,
-    });
-  } catch (error) {
-    res.send({
-      success: false,
-      message: error.message,
-    });
-  }
-})
+// app.get("/getComments/:postId",async(req,res)=>{
+//   try {
+//     const postId = req.params.postId;
+//     const resArr = [];
+//     const collectionRef = query(collection(db, `post_interaction/${postId}/comments`))
+//     const documentSnapshots = await getDocs(collectionRef)
+//     documentSnapshots.forEach(doc => {
+//       resArr.push(doc.data());
+//     })
+//     if (resArr.length == 0) {
+//       throw new Error("unable to find the comments with provided userId");
+//     }
+//     res.send({
+//       success: true,
+//       message: "request fetched successfully",
+//       data: resArr,
+//     });
+//   } catch (error) {
+//     res.send({
+//       success: false,
+//       message: error.message,
+//     });
+//   }
+// })
 
 app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
     const { userId } = req.body;
@@ -345,8 +347,6 @@ app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
   
 });
 
-app.get("/likedByUser",(req,res)=>{
-})
 
 
 app.post("/like", async (req, res) => {
@@ -654,6 +654,70 @@ app.get('/following/:userId', async (req,res)=>{
       success : false,
       message : err.message
     })
+  }
+})
+
+app.post(
+  "/addStory",
+  upload.single("file"), //the name we are using here in single("file")---should be in the input name  <input type="text" name=file"> than only we can get file
+  async (req, res) => {
+    const { userId } = req.body;
+    const newDate = new Date();
+  try {
+    const url = await uploadImageToBucket('Stories/'+req.file.filename,req.file.filename);
+    const userCollectionRef = collection(db, "users");
+    const q = query(userCollectionRef, where("userId", "==", userId.toString())); //created a query
+    const querySnapshot = await getDocs(q);
+    const resArr = [];
+    querySnapshot.forEach((doc) => {
+      resArr.push(doc.data());
+    });
+    const storiesDocRef = doc(db, `stories/${userId}`);
+    const postObj = {
+      userName: resArr[0].userName,
+      profileImage : resArr[0].profileImage,
+      image: url,
+      StoryId: uuidv4(),
+      createdAt: newDate,
+    };
+    setDoc(storiesDocRef, postObj).then(()=>{
+      console.log("Document Added")
+      fs.unlink("uploads/"+req.file.filename,function(err){
+        if(err) return console.log(err);
+        console.log('file deleted successfully');
+        res.send({ success: true, message: "Uploaded Successfully" });
+   });
+    })
+    } catch (error) {
+      console.log(error);
+      res.send({ success: false, message: error.message });
+    }
+  }
+);
+
+app.get("/getStories/",async(req,res)=>{
+  try {
+    const newDate = new Date();
+    var currentTime = parseInt(String(newDate.getTime()).slice(0,10));
+    const resArr = [];
+    const collectionRef = query(collection(db, 'stories'),orderBy("createdAt","desc"))
+    const documentSnapshots = await getDocs(collectionRef)
+    documentSnapshots.forEach(doc => {
+      if((doc.data().createdAt.seconds+60)>=currentTime){
+        resArr.push(doc.data());
+      }
+      console.log(currentTime)
+    })
+    res.send({
+      success: true,
+      message: "request fetched successfully",
+      data: resArr,
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      message: error.message,
+    });
   }
 })
 

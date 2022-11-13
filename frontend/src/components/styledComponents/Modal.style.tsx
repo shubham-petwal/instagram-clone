@@ -24,6 +24,7 @@ const imageWrapperDiv = `
     background-color: #c0c0c0;
     img{
         width: 100%;
+        object-fit: contain;
     }
 `;
 
@@ -121,6 +122,7 @@ export const CommentDiv = styled.div`
   }
   div.profile-img {
     ${imageWrapperDiv}
+    
   }
   span.userName {
     margin: 0 10px 0 0;

@@ -1,15 +1,24 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { StatusStoriesContainer } from './styledComponents/StatusStories.style'
 import shubh from "../assets/images/shubham.jpg"
 import ring from "../assets/images/storyRing.png"
-function StatusStories({ringImage,Ringwidth,Ringheight,width,height}:any) {
+import { useNavigate } from 'react-router-dom';
+
+
+function StatusStories({Ringwidth,Ringheight,width,height,storyImage,userName,profileImage,createdAt}:any) {
+  const navigate = useNavigate();
+  // console.log(createdAt.seconds-parseInt(last))
+  const toComponentB=()=>{
+    navigate('/showStory',{state:{url:storyImage,userName:userName,profileImage:profileImage}});
+      }
   return (
-    <StatusStoriesContainer>
-        <div style={{"position":"relative"}}>
-        <img src={ringImage} width={Ringwidth} height={Ringheight}/>
-        <img src={shubh} id="main_image" width={width} height={height}/>
+    <StatusStoriesContainer onClick={()=>{toComponentB()}} >
+        <div style={{"position":"relative"}} >
+        <img src={ring} width={Ringwidth} height={Ringheight}/>
+        <img src={storyImage} id="main_image" width={width} height={height}/>
         </div>
-        <p>Shubham_petwal_</p>
+        <p>{userName}</p>
+
     </StatusStoriesContainer>
   )
 }

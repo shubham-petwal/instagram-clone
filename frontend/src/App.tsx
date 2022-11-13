@@ -11,6 +11,7 @@ import EditProfile from "./components/EditProfile";
 import ChangPassword from "./components/ChangPassword";
 import UploadImage from "./components/UploadImage";
 import { PostDetailModal } from "./components/PostDetailModal";
+import ShowStory from "./components/ShowStory";
 
 function App() {
   return (
@@ -65,6 +66,22 @@ function App() {
             element={
               <ProtectedRoutes>
                 <UploadImage method="updateProfileImage"/>
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/addStory"
+            element={
+              <ProtectedRoutes>
+                <UploadImage method="addStory"/>
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/showStory"
+            element={
+              <ProtectedRoutes>
+                <ShowStory/>
               </ProtectedRoutes>
             }
           />
