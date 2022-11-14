@@ -14,9 +14,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import StatusStories from "./StatusStories";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { PostDetailModal } from "./PostDetailModal";
+import { AuthContext } from "../context/AuthContext";
+import { collection, doc, onSnapshot, query } from "firebase/firestore";
+import { db } from "../db";
 import FollowerModal from "./FollowerModal";
 import ProfilePosts from "./ProfilePosts";
 interface GetDataInterface {
@@ -24,8 +26,13 @@ interface GetDataInterface {
   caption: string;
   children: React.ReactNode;
 }
+interface SocialCount{
+  inbound_count : number,
+  outbound_count : number
+}
 function UserProfile() {
   const user = useContext(AuthContext);
+  const userId:string = user?.uid || "";
   const navigate = useNavigate();
 
   let rows = [];
@@ -45,10 +52,21 @@ function UserProfile() {
   const [userRetrievedData, setRetrievedData] = useState<any>();
   const [showFollowerModal, setShowFollowerModal] = useState<boolean>(false);
   const [currentMethod, setCurrentMethod] = useState<string>("");
+  const [socialCount, setSocialCount] = useState<SocialCount | null>(null);
 
   useEffect(() => {
     const getData = async () => {
       try {
+        const unsubscribe = onSnapshot(
+          doc(db, "social_graph",userId),
+          (doc) => {
+            setSocialCount({
+              inbound_count : (doc.data())?.inbound_count,
+              outbound_count : (doc.data())?.outbound_count
+            })
+          }
+        );
+
         const userData = await axios.get(
           `http://localhost:90/users/${user?.uid}`
         );
@@ -60,8 +78,9 @@ function UserProfile() {
         const Details = allPosts.data;
         if (Details) {
           setImageArray(Details.data);
-          return;
+          return unsubscribe;
         }
+        return unsubscribe;
       } catch (error: any) {
         console.log(error.message);
       }
@@ -104,7 +123,7 @@ function UserProfile() {
                   return setShowFollowerModal(true);
                 }}
               >
-                <span>268</span>
+                <span>{socialCount?.inbound_count} </span>
                 followers
               </div>
               <div
@@ -113,7 +132,7 @@ function UserProfile() {
                   return setShowFollowerModal(true);
                 }}
               >
-                <span>244 </span>
+                <span>{socialCount?.outbound_count} </span>
                 following
               </div>
             </EditAndSettingsDiv>

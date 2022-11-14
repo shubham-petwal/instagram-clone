@@ -12,7 +12,21 @@ export const FullNamePara = styled.p`
 `
 export const FollowBtn = styled.button`
     ${blueButtonStyles("90%")}
-    margin: 0px 0px 0px 0px;
+`
+export const FollowingBtn = styled.button`
+    ${blueButtonStyles("90%")}
+    border: 1px solid #8E8E8E;
+    background-color: transparent;
+    color: black;
+`
+export const FollowingDiv = styled.div`
+    ${blueButtonStyles("90%")}
+    border: 1px solid #B2B2B2;
+    background-color: transparent;
+    color: #B2B2B2;
+    &:hover{
+        cursor:default;
+    }
 `
 export const ProfileImage = styled.img`
     width: 35px;

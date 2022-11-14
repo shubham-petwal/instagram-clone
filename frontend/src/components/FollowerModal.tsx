@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import Modal from "react-bootstrap/Modal";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -13,7 +13,10 @@ import {
   FullNamePara,
   UserNamePara,
   LoadingDiv,
+  FollowingBtn,
+  FollowingDiv,
 } from "./styledComponents/FollowerModal.style";
+import { AuthContext } from "../context/AuthContext";
 
 import "../styles/FollowerModal.scss";
 
@@ -24,8 +27,115 @@ interface FollowersInterface {
   userId: string;
   document_id: string;
 }
+interface ButtonProps {
+  targetUserId: string;
+}
+interface UserDetailProps {
+  profileImage: string;
+  userName: string;
+  fullName: string;
+  method: "followers" | "following";
+  followerUserId: string;
+}
 
-function UserDetails(props: any) {
+function RemoveButton(props: ButtonProps) {
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isFollowing, setFollowing] = useState<boolean>(true);
+  const user = useContext(AuthContext);
+  const userId = user?.uid;
+  const targetUserId = props.targetUserId;
+  async function handleButtonClick() {
+    try {
+      // to remove user from followers list is equivalent of unfollowing of that user to you
+      setLoading(true);
+      const result = await axios.post("http://localhost:90/follow", {
+        userId: targetUserId,
+        target_userId: userId,
+      });
+      setLoading(false);
+      setFollowing(!isFollowing);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+    }
+  }
+  return (
+    <>
+      {isFollowing ? (
+        isLoading ? (
+          <FollowingBtn>
+            <Spinner animation="border" role="status" size="sm">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </FollowingBtn>
+        ) : (
+          <FollowingBtn onClick={handleButtonClick}>Remove</FollowingBtn>
+        )
+      ) : (
+        <FollowingDiv>Remove</FollowingDiv>
+      )}
+    </>
+  );
+}
+
+function FollowingButton(props: ButtonProps) {
+  const user = useContext(AuthContext);
+  const userId = user?.uid;
+  const targetUserId = props.targetUserId;
+  const [isFollowing, setFollowing] = useState<boolean>(true);
+  const [isLoading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    setLoading(true);
+    axios
+      .get(`http://localhost:90/${userId}/isFollowing/${targetUserId}`)
+      .then((result) => {
+        setFollowing(result.data.data.isFollowing);
+      });
+    setLoading(false);
+  }, [isFollowing]);
+
+  async function handleButtonClick() {
+    try {
+      setLoading(true);
+      const result = await axios.post("http://localhost:90/follow", {
+        userId,
+        target_userId: targetUserId,
+      });
+      setFollowing(!isFollowing);
+      setLoading(false);
+    } catch (err) {
+      setLoading(false);
+      console.log(err);
+    }
+  }
+
+  return (
+    <>
+      {isFollowing ? (
+        isLoading ? (
+          <FollowingBtn>
+            <Spinner animation="border" role="status" size="sm">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </FollowingBtn>
+        ) : (
+          <FollowingBtn onClick={handleButtonClick}>following</FollowingBtn>
+        )
+      ) : isLoading ? (
+        <FollowBtn>
+          <Spinner animation="border" role="status" size="sm">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </FollowBtn>
+      ) : (
+        <FollowBtn onClick={handleButtonClick}>follow</FollowBtn>
+      )}
+    </>
+  );
+}
+
+function UserDetails(props: UserDetailProps) {
   return (
     <>
       <Row style={{ minHeight: "50px", padding: "4px 0" }}>
@@ -54,7 +164,11 @@ function UserDetails(props: any) {
           className="p-0"
           style={{ margin: "0px", display: "flex", alignItems: "center" }}
         >
-          <FollowBtn>Follow</FollowBtn>
+          {props.method == "followers" ? (
+            <RemoveButton targetUserId={props.followerUserId} />
+          ) : (
+            <FollowingButton targetUserId={props.followerUserId} />
+          )}
         </Col>
       </Row>
     </>
@@ -68,7 +182,6 @@ function FollowerModal(props: any) {
   useEffect(() => {
     const userId = props.userId;
     const method = props.method;
-    setFollowers([]);
     axios
       .get(`http://localhost:90/${props.method}/${userId}`)
       .then((response) => {
@@ -80,6 +193,10 @@ function FollowerModal(props: any) {
       .catch((err) => {
         console.log(err);
       });
+    return () => {
+      setFollowers([]);
+      setLastDoc("");
+    };
   }, [props.show]);
 
   async function handleLoaderClick() {
@@ -120,12 +237,14 @@ function FollowerModal(props: any) {
       <Modal.Body>
         <div style={{ minHeight: "340px", maxHeight: "340px" }}>
           <Container>
-            {followers.map((user) => {
+            {followers.map((follower) => {
               return (
                 <UserDetails
-                  userName={user.userName}
-                  fullName={user.fullName}
-                  profileImage={user.profileImage}
+                  followerUserId={follower.userId}
+                  userName={follower.userName}
+                  fullName={follower.fullName}
+                  profileImage={follower.profileImage}
+                  method={props.method}
                 />
               );
             })}
@@ -134,16 +253,16 @@ function FollowerModal(props: any) {
                 <Spinner animation="border" role="status">
                   <span className="visually-hidden">Loading...</span>
                 </Spinner>
-              ) : (
+              ) : lastDoc ? (
                 <FontAwesomeIcon
                   onClick={handleLoaderClick}
                   icon={faSquarePlus}
                   style={{
                     fontSize: "24px",
-                    cursor:"pointer"
+                    cursor: "pointer",
                   }}
                 />
-              )}
+              ) : null}
             </LoadingDiv>
           </Container>
         </div>
