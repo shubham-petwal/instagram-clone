@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import StatusStories from "./StatusStories";
 import { StatusBarContainer } from "./styledComponents/StatusBar.style";
 
 import axios from "axios";
+import { AuthContext } from "../context/AuthContext";
 
 interface StoryInterface {
   image: string;
@@ -13,11 +14,14 @@ interface StoryInterface {
   children: React.ReactNode;
 }
 function StatusBar() {
+  const user = useContext(AuthContext);
   const [storyArray, setStoryArray] = useState<Array<StoryInterface>>([]);
   useEffect(() => {
     const getData = async () => {
+      const self=false
+      const userId = false
       try {
-        const allStories = await axios.get("http://localhost:90/getStories");
+        const allStories = await axios.get(`http://localhost:90/getStories/${self}/${userId}`);
         const storyData = allStories.data;
         if (storyData) {
           setStoryArray(storyData.data);
@@ -51,6 +55,7 @@ function StatusBar() {
                 userName={item.userName}
                 storyImage={item.image}
                 createdAt = {item.createdAt}
+
               />
             ))
           ) : (

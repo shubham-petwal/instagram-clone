@@ -9,7 +9,7 @@ function StatusStories({Ringwidth,Ringheight,width,height,storyImage,userName,pr
   const navigate = useNavigate();
   // console.log(createdAt.seconds-parseInt(last))
   const toComponentB=()=>{
-    navigate('/showStory',{state:{url:storyImage,userName:userName,profileImage:profileImage}});
+    navigate('/showStory',{state:{url:storyImage,userName,profileImage,createdAt}});
       }
   return (
     <StatusStoriesContainer onClick={()=>{toComponentB()}} >

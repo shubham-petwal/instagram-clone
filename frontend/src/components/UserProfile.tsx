@@ -29,32 +29,27 @@ function UserProfile() {
   const user = useContext(AuthContext);
   const navigate = useNavigate();
 
-  let rows = [];
-  for (let i = 0; i <= 10; i++) {
-    rows.push(
-      <StatusStories
-        ringImage={WhiteRing}
-        key={Math.random()}
-        Ringwidth="85"
-        Ringheight="85"
-        width="80"
-        height="80"
-      />
-    );
-  }
+
   const [imageArray, setImageArray] = useState<Array<GetDataInterface>>([]);
   const [userRetrievedData, setRetrievedData] = useState<any>();
+  const [storyArray, setStoryArray] = useState<any>();
 
   useEffect(() => {
     const getData = async () => {
+      const self= true;
+      const userId = user?.uid
       try {
+        const storyData = await axios.get(`http://localhost:90/getStories/${self}/${userId}`)
+        setStoryArray(storyData.data.data)
+
         const userData = await axios.get(
           `http://localhost:90/users/${user?.uid}`
         );
         setRetrievedData(userData.data.data);
 
+
         const allPosts = await axios.get(
-          `http://localhost:90/getPosts/${user?.uid}`
+          `http://localhost:90/getPosts/${self}/${user?.uid}`
         );
         const Details = allPosts.data;
         if (Details) {
@@ -111,7 +106,31 @@ function UserProfile() {
 
         <UserHighlightSection>
           <div id="userProfileHighlight">
-            <ul>{rows.map((item) => item)}</ul>
+          <ul>
+        {storyArray ? (
+          storyArray.length > 0 ? (
+            storyArray.map((item: any) => (
+              //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
+              <StatusStories
+                key={Math.random()}
+                Ringwidth="85"
+                Ringheight="85"
+                width="80"
+                height="80"
+                profileImage={item.profileImage}
+                storyId={item.storyId}
+                userName={item.userName}
+                storyImage={item.image}
+                createdAt = {item.createdAt}
+              />
+            ))
+          ) : (
+            <p>No content</p>
+          )
+        ) : (
+          <p>No content</p>
+        )}
+      </ul>
           </div>
         </UserHighlightSection>
         <AllPostImages>

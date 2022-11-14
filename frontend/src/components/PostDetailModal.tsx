@@ -89,6 +89,7 @@ export function PostDetailModal(props: any) {
     getData();
     getTotalLikesAndComments();
   }, []);
+  
   useEffect(()=>{
     chatRef.current?.scrollIntoView();
   },[commentsArray])

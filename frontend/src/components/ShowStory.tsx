@@ -7,16 +7,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 function ShowStory() {
     const location = useLocation();
     const navigate = useNavigate()
+    var currentTime = Math.round(new Date().getTime()/1000); //milliSeconds to seconds
+    const createdTime = location.state.createdAt.seconds
+    const createdAtMinutes = Math.round((currentTime-createdTime)/60)
+    const createdAtHrs = Math.round(createdAtMinutes/60)
     const [stories, setStories] = useState([{ url: location.state.url,header: {
         heading: location.state.userName,
-        subheading: 'Posted 30m ago',
+        subheading: createdAtMinutes<60?`${createdAtMinutes} min ago `:`${createdAtHrs} hour ago`,
         profileImage: location.state.profileImage,
-    },storyStyles: {margin:"100px"}
+    }
      }])
   return (
     <ShowStoryContainer>
       <Stories
-        defaultInterval={1500}
+        defaultInterval={2000}
         stories={stories}
         isPaused={true}
         onAllStoriesEnd={()=>navigate("/")}

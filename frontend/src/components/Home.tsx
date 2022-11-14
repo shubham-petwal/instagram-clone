@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { auth } from "../firebaseSetup";
 import Navbar from "./Navbar";
 import Posts from "./Posts";
@@ -14,7 +14,6 @@ import BlueButton from "../assets/images/blueButton.png";
 import { Avatar } from "@material-ui/core";
 import { Link } from "react-router-dom";
 
-
 interface DataInterface {
   image: string;
   caption: string;
@@ -23,16 +22,31 @@ interface DataInterface {
   children: React.ReactNode;
 }
 
-
 function Home() {
+  const chatRef = useRef<any>(null);
   const user = useContext(AuthContext);
   const [imageArray, setImageArray] = useState<Array<DataInterface>>([]);
   const [userRetrievedData, setRetrievedData] = useState<any>();
+  const [pagination,setPagination] = useState(3);
+  const getData = async () => {
+    try {
+      setPagination(pagination+1)
+      chatRef.current?.scrollIntoView()
+      const self = false;
+      const userId = pagination;
+      const res = await axios.get(`http://localhost:90/getPosts/${self}/${userId}`);
+      setImageArray(res.data.data)
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const getData = async () => {
       try {
-        const allPosts = await axios.get("http://localhost:90/getPosts");
+        const self = false;
+        const userId = pagination;
+        const allPosts = await axios.get(`http://localhost:90/getPosts/${self}/${userId}`);
         const Details = allPosts.data;
         if (Details) {
           setImageArray(Details.data);
@@ -44,21 +58,19 @@ function Home() {
           `http://localhost:90/users/${user?.uid}`
         );
         setRetrievedData(userData.data.data);
+        setPagination(pagination+1)
       } catch (error: any) {
         console.log(error.message);
       }
     };
     getData();
   }, []);
-
-  // console.log(imageArray)
   return (
     <>
       <Navbar profileImage={userRetrievedData?.profileImage} />
       <HomePageContainer>
         <div id="all_posts">
-          <StatusBar/>
-        
+          <StatusBar />
 
           {imageArray ? (
             imageArray.length > 0 ? (
@@ -89,6 +101,7 @@ function Home() {
                 />
                 <img src={BlueButton} id="bluBtn" width="20px" height="20px" />
               </Link>
+              <button onClick={getData}>Call</button>
               <div>
                 <span id="username">{userRetrievedData?.userName}</span>
                 <br />
@@ -101,6 +114,7 @@ function Home() {
           </SuggestionUserDetailsdiv>
         </SuggestionContainer>
       </HomePageContainer>
+        <div ref={chatRef}/>
     </>
   );
 }
