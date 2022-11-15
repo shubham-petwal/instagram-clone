@@ -9,6 +9,7 @@ export const UserProfileContainer = styled.div`
   padding-top: 80px;
   background: ${pageBgColor};
   min-height: 100vh;
+  min-width: 100vw;
 `;
 export const UserDataSection = styled.div`
   margin-top: 15px;

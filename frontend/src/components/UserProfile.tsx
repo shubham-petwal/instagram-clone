@@ -9,24 +9,30 @@ import {
 } from "./styledComponents/UserProfile.style";
 import Navbar from "./Navbar";
 import { Avatar } from "@material-ui/core";
-import subh from "../assets/images/shubham.jpg";
 import WhiteRing from "../assets/images/UserHighlightRing.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import StatusStories from "./StatusStories";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
-import { string } from "yup";
 import { PostDetailModal } from "./PostDetailModal";
+import { AuthContext } from "../context/AuthContext";
+import { collection, doc, onSnapshot, query } from "firebase/firestore";
+import { db } from "../db";
+import FollowerModal from "./FollowerModal";
 import ProfilePosts from "./ProfilePosts";
 interface GetDataInterface {
   image: string;
   caption: string;
   children: React.ReactNode;
 }
+interface SocialCount{
+  inbound_count : number,
+  outbound_count : number
+}
 function UserProfile() {
   const user = useContext(AuthContext);
+  const userId:string = user?.uid || "";
   const navigate = useNavigate();
 
   let rows = [];
@@ -44,10 +50,23 @@ function UserProfile() {
   }
   const [imageArray, setImageArray] = useState<Array<GetDataInterface>>([]);
   const [userRetrievedData, setRetrievedData] = useState<any>();
+  const [showFollowerModal, setShowFollowerModal] = useState<boolean>(false);
+  const [currentMethod, setCurrentMethod] = useState<string>("");
+  const [socialCount, setSocialCount] = useState<SocialCount | null>(null);
 
   useEffect(() => {
     const getData = async () => {
       try {
+        const unsubscribe = onSnapshot(
+          doc(db, "social_graph",userId),
+          (doc) => {
+            setSocialCount({
+              inbound_count : (doc.data())?.inbound_count,
+              outbound_count : (doc.data())?.outbound_count
+            })
+          }
+        );
+
         const userData = await axios.get(
           `http://localhost:90/users/${user?.uid}`
         );
@@ -59,8 +78,9 @@ function UserProfile() {
         const Details = allPosts.data;
         if (Details) {
           setImageArray(Details.data);
-          return;
+          return unsubscribe;
         }
+        return unsubscribe;
       } catch (error: any) {
         console.log(error.message);
       }
@@ -77,7 +97,10 @@ function UserProfile() {
       <UserProfileContainer>
         <UserDataSection>
           <div>
-            <Avatar id="userProfileAvatar" src={userRetrievedData?.profileImage} />
+            <Avatar
+              id="userProfileAvatar"
+              src={userRetrievedData?.profileImage}
+            />
           </div>
           <UserInfoContainer>
             <EditAndSettingsDiv>
@@ -94,12 +117,22 @@ function UserProfile() {
                 <span>6 </span>
                 posts
               </div>
-              <div>
-                <span>268</span>
+              <div
+                onClick={() => {
+                  setCurrentMethod("followers");
+                  return setShowFollowerModal(true);
+                }}
+              >
+                <span>{socialCount?.inbound_count} </span>
                 followers
               </div>
-              <div>
-                <span>244 </span>
+              <div
+                onClick={() => {
+                  setCurrentMethod("following");
+                  return setShowFollowerModal(true);
+                }}
+              >
+                <span>{socialCount?.outbound_count} </span>
                 following
               </div>
             </EditAndSettingsDiv>
@@ -142,10 +175,15 @@ function UserProfile() {
             ) : (
               <p>No content</p>
             )}
-
           </ul>
         </AllPostImages>
       </UserProfileContainer>
+      <FollowerModal
+        show={showFollowerModal}
+        onHide={() => setShowFollowerModal(false)}
+        userId={user?.uid}
+        method = {currentMethod}
+      />
     </div>
   );
 }
