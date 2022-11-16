@@ -139,7 +139,7 @@ console.log(liked)
         <UserDetailsContainer>
           <Avatar src={userRetrievedData?.profileImage} />
           <div>
-            <span style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userId}`)}}>{userRetrievedData?.userName}</span>
+            <span style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userRetrievedData?.userName}`)}}>{userRetrievedData?.userName}</span>
           </div>
         </UserDetailsContainer>
         <div>
@@ -168,7 +168,7 @@ console.log(liked)
         <span>{totalLikes?totalLikes : 0} likes</span>
       </LikesDiv>
       <DescriptionDiv>
-        <span id="userName" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userId}`)}}>{userRetrievedData?.userName}</span>
+        <span id="userName" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userRetrievedData?.userName}`)}}>{userRetrievedData?.userName}</span>
         <span>{caption}</span>
       </DescriptionDiv>
       <CommentsDiv>

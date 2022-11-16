@@ -123,7 +123,7 @@ export function PostDetailModal(props: any) {
                     <img src={props.profileImage} alt="profile image" />
                   </div>
                   <div className="description">
-                    <p className="user-name" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${props.userId}`)}}>{props.userName}</p>
+                    <p className="user-name" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${props.userName}`)}}>{props.userName}</p>
                     <p>Lucknow</p>
                   </div>
                   <div className="ellipsis">
@@ -137,7 +137,7 @@ export function PostDetailModal(props: any) {
                     </div>
                     <div>
                       <p className="comment-data">
-                        <span className="userName" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${props.userId}`)}} >{props.userName}</span>
+                        <span className="userName" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${props.userName}`)}} >{props.userName}</span>
                         {props.caption}
                       </p>
                       <p className="comment-info">
@@ -160,7 +160,7 @@ export function PostDetailModal(props: any) {
                           </div>
                           <div>
                             <p className="comment-data">
-                              <span style={{cursor:"pointer"}} className="userName" onClick={()=>{navigate(`/userProfile/${commentDoc.commentBy_userId}`)}}>
+                              <span style={{cursor:"pointer"}} className="userName" onClick={()=>{navigate(`/userProfile/${commentDoc.commentBy_userName}`)}}>
                                 {commentDoc.commentBy_userName}
                               </span>
                               {commentDoc.commentData}

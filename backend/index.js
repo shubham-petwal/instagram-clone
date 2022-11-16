@@ -72,10 +72,38 @@ dotenv.config();
 
 //endpoints are described below
 
+// this endpoint to allow/deny user to register if the userName exists or not, since the authentication is done with firebase/authentication
+app.get('/allowedRegistration/:userName',async(req,res)=>{
+  const {userName} = req.params;
+  const collectionRef = collection(db, "users");
+  const q = query(collectionRef, where("userName", "==", userName));
+  const querySnapshot = await getDocs(q);
+  const resArr = [];
+  querySnapshot.forEach((doc) => {
+    resArr.push({ ...doc.data(), id: doc.id });
+  });
+  if(resArr.length!=0){
+    res.send({
+      success : true,
+      message : "Already a user Exists with choosed UserName, choose unique UserName",
+      isAllowed : false
+    })
+    return;
+  }
+  else{
+    res.send({
+      success : true,
+      message : "no user exists with provided userName",
+      isAllowed : true
+    })
+    return;
+  }
+})
+
 app.post("/register", async (req, res) => {
   const { userId, userName, fullName, email, password } = req.body;
-  const collectionRef = collection(db, "users");
   try {
+    const collectionRef = collection(db, "users");
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
     //need to initialise "profileImage" as some dummy image and then store in the database, can be updated afterwards
@@ -713,7 +741,7 @@ app.get('/getUserId/:userName',async(req,res)=>{
       res.send({
         success : true,
         message : "no user exist with given userName",
-        data : null
+        data : ""
       })
       return;
     }

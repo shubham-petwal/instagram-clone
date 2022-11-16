@@ -164,7 +164,7 @@ function UserDetails(props: UserDetailProps) {
                 className="p-0"
                 onClick={() => {
                   props.onHide();
-                  navigate(`/userProfile/${props.followerUserId}`);
+                  navigate(`/userProfile/${props.userName}`);
                 }}
               >
                 {props.userName}

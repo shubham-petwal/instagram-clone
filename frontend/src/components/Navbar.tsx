@@ -136,7 +136,8 @@ function Navbar() {
                   </Dropdown.Toggle>
                 </DropdownProfile>
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={()=>navigate(`/userProfile/${user?.uid}`)}>
+                  {/* <Dropdown.Item onClick={()=>navigate(`/userProfile/${user?.uid}`)}> */}
+                  <Dropdown.Item onClick={()=>navigate(`/userProfile/${userData.userName}`)}>
                     <FontAwesomeIcon icon={faCircleUser} />
                     Profile
                   </Dropdown.Item>

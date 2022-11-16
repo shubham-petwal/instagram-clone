@@ -33,8 +33,18 @@ interface SocialCount {
 function UserProfile() {
   const params = useParams();
   const user = useContext(AuthContext);
-  const userId:string = params?.userId || "";
   const navigate = useNavigate();
+  // const userId:string = params?.userId || "";
+
+  const [userId, setUserId] = useState<string>("");
+  async function getUserId(){
+    try{
+      const result = await axios.get(`http://localhost:90/getUserId/${params?.userId}`);
+      setUserId(result.data.data);
+    }catch(error){
+      console.log(error)
+    }
+  }
 
   let rows = [];
   for (let i = 0; i <= 10; i++) {
@@ -57,11 +67,13 @@ function UserProfile() {
     inbound_count: 0,
     outbound_count: 0,
   });
-
+  
+  useEffect(()=>{
+    getUserId();
+    return ()=>{setUserId("")};
+  },[params])
 
   useEffect(() => {
-    console.log("rerendered UserProfile component");
-    console.log("--");
 
     if (!userId || userId=="") {
       return;
@@ -79,9 +91,9 @@ function UserProfile() {
         .then((userData) => {
           setRetrievedData(userData.data.data);
         })
-        .then(() => {
-          console.log("userProfile retrieved data : ", userRetrievedData);
-        });
+        .catch((err)=>{
+          console.log(err.message);
+        })
 
       axios.get(`http://localhost:90/getPosts/${userId}`).then((allPosts) => {
         const Details = allPosts.data;
@@ -93,7 +105,7 @@ function UserProfile() {
     } catch (error: any) {
       console.log(error.message);
     }
-  }, [params]);
+  }, [params,userId]);
 
   return (
     <div>

@@ -64,12 +64,16 @@ function SignUp() {
   const user = useContext(AuthContext);
   const createAccount = async () => {
     try {
+      const checkResponse = await axios.get(`http://localhost:90/allowedRegistration/${userNameRef.current?.value}`);
+      if(!checkResponse.data.isAllowed){
+        throw new Error(checkResponse.data.message);
+      }
       const response = await auth.createUserWithEmailAndPassword(
         emailRef.current!.value,
         passwordRef.current!.value
       );
-      //sending post request to server to store the user in the firestore cloud database
-      //@types-ignore
+        //sending post request to server to store the user in the firestore cloud database
+        //@types-ignore
       const userId = response.user?.uid;
       const registerObject = {
         userId : userId,
@@ -81,7 +85,6 @@ function SignUp() {
       const result = await axios.post('http://localhost:90/register', registerObject)
       navigate("/home");
     } catch (error:any) {
-      console.error(error);
       window.alert(error.message);
     }
   };
