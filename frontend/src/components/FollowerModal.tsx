@@ -5,6 +5,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import { Spinner } from "react-bootstrap";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import { Avatar } from "@material-ui/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSquarePlus } from "@fortawesome/free-regular-svg-icons";
@@ -36,6 +37,8 @@ interface UserDetailProps {
   fullName: string;
   method: "followers" | "following";
   followerUserId: string;
+  onHide: any;
+  userId: string;
 }
 
 function RemoveButton(props: ButtonProps) {
@@ -104,6 +107,9 @@ function FollowingButton(props: ButtonProps) {
       });
       setFollowing(!isFollowing);
       setLoading(false);
+      if (result.data.success == false) {
+        console.log(result.data.message);
+      }
     } catch (err) {
       setLoading(false);
       console.log(err);
@@ -136,6 +142,8 @@ function FollowingButton(props: ButtonProps) {
 }
 
 function UserDetails(props: UserDetailProps) {
+  const navigate = useNavigate();
+  const user = useContext(AuthContext);
   return (
     <>
       <Row style={{ minHeight: "50px", padding: "4px 0" }}>
@@ -152,24 +160,38 @@ function UserDetails(props: UserDetailProps) {
         <Col sm={7}>
           <Container>
             <Row style={{ maxHeight: "24px" }}>
-              <UserNamePara className="p-0">{props.userName}</UserNamePara>
+              <UserNamePara
+                className="p-0"
+                onClick={() => {
+                  props.onHide();
+                  navigate(`/userProfile/${props.followerUserId}`);
+                }}
+              >
+                {props.userName}
+              </UserNamePara>
             </Row>
             <Row style={{ maxHeight: "22px" }}>
               <FullNamePara className="p-0">{props.fullName}</FullNamePara>
             </Row>
           </Container>
         </Col>
-        <Col
-          sm={4}
-          className="p-0"
-          style={{ margin: "0px", display: "flex", alignItems: "center" }}
-        >
-          {props.method == "followers" ? (
-            <RemoveButton targetUserId={props.followerUserId} />
-          ) : (
-            <FollowingButton targetUserId={props.followerUserId} />
-          )}
-        </Col>
+        {user?.uid == props.followerUserId ? null : (
+          <Col
+            sm={4}
+            className="p-0"
+            style={{ margin: "0px", display: "flex", alignItems: "center" }}
+          >
+            {props.method == "followers" ? (
+              user?.uid == props.userId ? ( // checking if passed userId is similar to logged in userId
+                <RemoveButton targetUserId={props.followerUserId} />
+              ) : (
+                <FollowingButton targetUserId={props.followerUserId} />
+              )
+            ) : (
+              <FollowingButton targetUserId={props.followerUserId} />
+            )}
+          </Col>
+        )}
       </Row>
     </>
   );
@@ -240,11 +262,14 @@ function FollowerModal(props: any) {
             {followers.map((follower) => {
               return (
                 <UserDetails
+                  onHide={props.onHide}
                   followerUserId={follower.userId}
                   userName={follower.userName}
                   fullName={follower.fullName}
                   profileImage={follower.profileImage}
                   method={props.method}
+                  userId={props.userId}
+                  key={follower.userId}
                 />
               );
             })}

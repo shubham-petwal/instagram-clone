@@ -4,6 +4,9 @@ import { blueButtonStyles } from "./utilityFiles/styledFunctions";
 export const UserNamePara = styled.p`
     font-size: 16px;
     font-weight: 500;
+    &:hover{
+        cursor:pointer;
+    }
 `
 export const FullNamePara = styled.p`
     font-size: 14px;

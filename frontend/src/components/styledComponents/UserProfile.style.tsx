@@ -39,12 +39,6 @@ export const UserInfoContainer = styled.div`
 `;
 export const EditAndSettingsDiv = styled.div`
   display: flex;
-  /* @media screen and (max-width: 400px) {
-    margin-top:10px;
-      flex-direction: column;
-      overflow-x: hidden;
-      height: 14vh;
-    }; */
     div {
     @media screen and (max-width: 400px) {
       display: flex;

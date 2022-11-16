@@ -12,6 +12,7 @@ import {
   CommentDiv,
 } from "./styledComponents/Modal.style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate } from "react-router-dom";
 import {
   faXmarkCircle,
   faHeart,
@@ -29,6 +30,7 @@ import { db } from "../db";
 import redHeart from "../assets/images/red-heart-icon.svg";
 
 export function PostDetailModal(props: any) {
+  const navigate = useNavigate();
   const postData = {
     useName: "Yt_ 09090",
     caption: "Dream Super Bike 🔥🔥",
@@ -121,7 +123,7 @@ export function PostDetailModal(props: any) {
                     <img src={props.profileImage} alt="profile image" />
                   </div>
                   <div className="description">
-                    <p className="user-name">{props.userName}</p>
+                    <p className="user-name" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${props.userId}`)}}>{props.userName}</p>
                     <p>Lucknow</p>
                   </div>
                   <div className="ellipsis">
@@ -131,11 +133,11 @@ export function PostDetailModal(props: any) {
                 <CommentsWrapperDiv>
                   <CommentDiv>
                     <div className="profile-img">
-                      <img src={postData.profileImage} alt="profile image" />
+                      <img src={props.profileImage} alt="profile image" />
                     </div>
                     <div>
                       <p className="comment-data">
-                        <span className="userName">{props.userName}</span>
+                        <span className="userName" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${props.userId}`)}} >{props.userName}</span>
                         {props.caption}
                       </p>
                       <p className="comment-info">
@@ -158,7 +160,7 @@ export function PostDetailModal(props: any) {
                           </div>
                           <div>
                             <p className="comment-data">
-                              <span className="userName">
+                              <span style={{cursor:"pointer"}} className="userName" onClick={()=>{navigate(`/userProfile/${commentDoc.commentBy_userId}`)}}>
                                 {commentDoc.commentBy_userName}
                               </span>
                               {commentDoc.commentData}
