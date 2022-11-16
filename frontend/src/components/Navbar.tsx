@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Grid } from "@material-ui/core";
 // import "../styles/Navbar.scss";
 import logo from "../assets/images/instagram_logo.png";
@@ -33,16 +33,40 @@ import {
   NavLogo,
   ProfileAvatar,
 } from "./styledComponents/Navbar.style";
+import axios from "axios";
 interface NavInterFace {
   profileImage: string;
 }
-function Navbar({profileImage}:NavInterFace) {
+interface UserDataInterface{
+  profileImage : string;
+  fullName : string;
+  userName : string;
+}
+function Navbar() {
+  const [userData , setUserData] = useState<UserDataInterface>({
+    profileImage : "",
+    fullName : "",
+    userName : "",
+  });
   const user = useContext(AuthContext);
   let navigate = useNavigate();
   const signOut = async () => {
     await auth.signOut();
     navigate("/");
   };
+  useEffect(()=>{
+    const userID = user?.uid;
+    axios.get(`http://localhost:90/users/${userID}`).then((result)=>{
+      console.log("navbar useEffect : ",result.data.data);
+      setUserData({
+        profileImage : result.data.data.profileImage,
+        fullName : result.data.data.fullName,
+        userName : result.data.data.userName,
+      })
+    }).catch((err)=>{
+      console.log(err);
+    })
+  },[])
   return !user ? (
     <div>
       <NavContainer>
@@ -107,12 +131,13 @@ function Navbar({profileImage}:NavInterFace) {
                 <DropdownProfile>
                   <Dropdown.Toggle>
                     <ProfileAvatar>
-                      <Avatar id="avatar" src={profileImage} />
+                      <Avatar id="avatar" src={userData.profileImage} />
                     </ProfileAvatar>
                   </Dropdown.Toggle>
                 </DropdownProfile>
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={()=>navigate("/userProfile")}>
+                  {/* <Dropdown.Item onClick={()=>navigate(`/userProfile/${user?.uid}`)}> */}
+                  <Dropdown.Item onClick={()=>navigate(`/userProfile/${userData.userName}`)}>
                     <FontAwesomeIcon icon={faCircleUser} />
                     Profile
                   </Dropdown.Item>

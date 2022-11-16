@@ -48,7 +48,7 @@ function Home() {
   // console.log(imageArray)
   return (
     <>
-      <Navbar profileImage={userRetrievedData?.profileImage}/>
+      <Navbar />
       <HomePageContainer>
         <div id='all_posts' >
           <StatusBar/>

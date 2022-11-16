@@ -15,6 +15,7 @@ import {
 } from "./styledComponents/Posts.style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 import {
   faComment,
   faHeart,
@@ -39,6 +40,7 @@ interface PostInterFace {
 }
 
 function Posts({ postImage, caption, postId, userId }: PostInterFace) {
+  const navigate = useNavigate();
   const [comment, setComment] = useState("");
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
@@ -137,7 +139,7 @@ console.log(liked)
         <UserDetailsContainer>
           <Avatar src={userRetrievedData?.profileImage} />
           <div>
-            <span>{userRetrievedData?.userName}</span>
+            <span style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userRetrievedData?.userName}`)}}>{userRetrievedData?.userName}</span>
           </div>
         </UserDetailsContainer>
         <div>
@@ -166,7 +168,7 @@ console.log(liked)
         <span>{totalLikes?totalLikes : 0} likes</span>
       </LikesDiv>
       <DescriptionDiv>
-        <span id="userName">{userRetrievedData?.userName}</span>
+        <span id="userName" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userRetrievedData?.userName}`)}}>{userRetrievedData?.userName}</span>
         <span>{caption}</span>
       </DescriptionDiv>
       <CommentsDiv>
@@ -196,6 +198,7 @@ console.log(liked)
         caption={caption}
         userName={userRetrievedData?.userName}
         liked = {liked}
+        userId = {userId}
       />
     </PostContainer>
   );

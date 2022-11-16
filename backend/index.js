@@ -72,10 +72,38 @@ dotenv.config();
 
 //endpoints are described below
 
+// this endpoint to allow/deny user to register if the userName exists or not, since the authentication is done with firebase/authentication
+app.get('/allowedRegistration/:userName',async(req,res)=>{
+  const {userName} = req.params;
+  const collectionRef = collection(db, "users");
+  const q = query(collectionRef, where("userName", "==", userName));
+  const querySnapshot = await getDocs(q);
+  const resArr = [];
+  querySnapshot.forEach((doc) => {
+    resArr.push({ ...doc.data(), id: doc.id });
+  });
+  if(resArr.length!=0){
+    res.send({
+      success : true,
+      message : "Already a user Exists with choosed UserName, choose unique UserName",
+      isAllowed : false
+    })
+    return;
+  }
+  else{
+    res.send({
+      success : true,
+      message : "no user exists with provided userName",
+      isAllowed : true
+    })
+    return;
+  }
+})
+
 app.post("/register", async (req, res) => {
   const { userId, userName, fullName, email, password } = req.body;
-  const collectionRef = collection(db, "users");
   try {
+    const collectionRef = collection(db, "users");
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
     //need to initialise "profileImage" as some dummy image and then store in the database, can be updated afterwards
@@ -434,6 +462,13 @@ app.post("/follow", async (req, res) => {
     });
     return;
   }
+  if(target_userId == userId){
+    res.send({
+      success : false,
+      message : "you can not follow yourself"
+    });
+    return;
+  }
   try {
     // on clicking follow button inbound of target user increases and outbound of current use increases
     const inboundDocRef = doc( db,`social_graph/${target_userId}/inbound_users`,userId);  
@@ -554,9 +589,9 @@ app.get('/followers/:userId', async (req,res)=>{
     else{
       // if we are fetching userData with some lastDocId
       const followersArr = [];
-      // below query to check if documents after the lastDocId exists or not
-      const checkSnapshot = await getDocs(query(followersCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(1) ));
-      if(checkSnapshot.docs.length == 0){
+      const nextFollowers = query(followersCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(2));
+      const snapshot = await getDocs(nextFollowers);
+      if(snapshot.docs.length == 0){
           res.send({
               success : true,
               message : "you have reached the end of the follower's list",
@@ -564,8 +599,6 @@ app.get('/followers/:userId', async (req,res)=>{
             })
             return;
       }
-      const nextFollowers = query(followersCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(2));
-      const snapshot = await getDocs(nextFollowers);
       snapshot.forEach((doc) => {
         followersArr.push({...doc.data(), document_id : doc.id});
       });
@@ -626,9 +659,10 @@ app.get('/following/:userId', async (req,res)=>{
     else{
       // if we are fetching userData with some lastDocId
       const followingArray = [];
-      // below query to check if documents after the lastDocId exists or not
-      const checkSnapshot = await getDocs(query(followingCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(1) ));
-      if(checkSnapshot.docs.length == 0){
+      const nextFollowing = query(followingCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(2));
+      const snapshot = await getDocs(nextFollowing);
+      // check if documents after the lastDocId exists or not
+      if(snapshot.docs.length == 0){
           res.send({
               success : true,
               message : "you have reached the end of the following user's list",
@@ -636,8 +670,6 @@ app.get('/following/:userId', async (req,res)=>{
             })
             return;
       }
-      const nextFollowing = query(followingCollectionRef,orderBy(documentId()),startAfter(lastDocId),limit(2));
-      const snapshot = await getDocs(nextFollowing);
       snapshot.forEach((doc) => {
         followingArray.push({...doc.data(), document_id : doc.id});
       });
@@ -690,6 +722,40 @@ app.get("/:userId/isFollowing/:targetId",async (req,res)=>{
   }catch(err){
     res.send({
       success: false,
+      message : err.message
+    })
+  }
+})
+
+app.get('/getUserId/:userName',async(req,res)=>{
+  const {userName} = req.params;
+  try{
+    const collectionRef = collection(db, "users");
+    const q = query(collectionRef, where("userName", "==", userName));
+    const querySnapshot = await getDocs(q);
+    const resArr = [];
+    querySnapshot.forEach((doc) => {
+      resArr.push({ ...doc.data(), id: doc.id });
+    });
+    if(resArr.length==0){
+      res.send({
+        success : true,
+        message : "no user exist with given userName",
+        data : ""
+      })
+      return;
+    }
+    else{
+      res.send({
+        success:true,
+        message :"successfully fetched the userId",
+        data : resArr[0].userId
+      })
+      return;
+    }
+  }catch(err){
+    res.send({
+      success : false,
       message : err.message
     })
   }

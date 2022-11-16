@@ -13,7 +13,7 @@ import WhiteRing from "../assets/images/UserHighlightRing.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import StatusStories from "./StatusStories";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { PostDetailModal } from "./PostDetailModal";
 import { AuthContext } from "../context/AuthContext";
@@ -26,14 +26,25 @@ interface GetDataInterface {
   caption: string;
   children: React.ReactNode;
 }
-interface SocialCount{
-  inbound_count : number,
-  outbound_count : number
+interface SocialCount {
+  inbound_count: number;
+  outbound_count: number;
 }
 function UserProfile() {
+  const params = useParams();
   const user = useContext(AuthContext);
-  const userId:string = user?.uid || "";
   const navigate = useNavigate();
+  // const userId:string = params?.userId || "";
+
+  const [userId, setUserId] = useState<string>("");
+  async function getUserId(){
+    try{
+      const result = await axios.get(`http://localhost:90/getUserId/${params?.userId}`);
+      setUserId(result.data.data);
+    }catch(error){
+      console.log(error)
+    }
+  }
 
   let rows = [];
   for (let i = 0; i <= 10; i++) {
@@ -52,48 +63,53 @@ function UserProfile() {
   const [userRetrievedData, setRetrievedData] = useState<any>();
   const [showFollowerModal, setShowFollowerModal] = useState<boolean>(false);
   const [currentMethod, setCurrentMethod] = useState<string>("");
-  const [socialCount, setSocialCount] = useState<SocialCount | null>(null);
+  const [socialCount, setSocialCount] = useState<SocialCount>({
+    inbound_count: 0,
+    outbound_count: 0,
+  });
+  
+  useEffect(()=>{
+    getUserId();
+    return ()=>{setUserId("")};
+  },[params])
 
   useEffect(() => {
-    const getData = async () => {
-      try {
-        const unsubscribe = onSnapshot(
-          doc(db, "social_graph",userId),
-          (doc) => {
-            setSocialCount({
-              inbound_count : (doc.data())?.inbound_count,
-              outbound_count : (doc.data())?.outbound_count
-            })
-          }
-        );
 
-        const userData = await axios.get(
-          `http://localhost:90/users/${user?.uid}`
-        );
-        setRetrievedData(userData.data.data);
+    if (!userId || userId=="") {
+      return;
+    }
+    try {
+      const unsubscribe = onSnapshot(doc(db, "social_graph", userId), (doc) => {
+        setSocialCount({
+          inbound_count: doc.data()?.inbound_count,
+          outbound_count: doc.data()?.outbound_count,
+        });
+      });
 
-        const allPosts = await axios.get(
-          `http://localhost:90/getPosts/${user?.uid}`
-        );
+      axios
+        .get(`http://localhost:90/users/${userId}`)
+        .then((userData) => {
+          setRetrievedData(userData.data.data);
+        })
+        .catch((err)=>{
+          console.log(err.message);
+        })
+
+      axios.get(`http://localhost:90/getPosts/${userId}`).then((allPosts) => {
         const Details = allPosts.data;
         if (Details) {
           setImageArray(Details.data);
-          return unsubscribe;
         }
-        return unsubscribe;
-      } catch (error: any) {
-        console.log(error.message);
-      }
-    };
-    if (user?.uid) {
-      getData();
-    } else {
-      alert("Cannot find user ID");
+      });
+      return unsubscribe;
+    } catch (error: any) {
+      console.log(error.message);
     }
-  }, []);
+  }, [params,userId]);
+
   return (
     <div>
-      <Navbar profileImage={userRetrievedData?.profileImage} />
+      <Navbar />
       <UserProfileContainer>
         <UserDataSection>
           <div>
@@ -105,15 +121,17 @@ function UserProfile() {
           <UserInfoContainer>
             <EditAndSettingsDiv>
               <p>{userRetrievedData?.userName}</p>
-
-              <button onClick={() => navigate("/editProfile")}>
-                Edit Profile
-              </button>
+              {user?.uid == userId ? (
+                <button onClick={() => navigate("/editProfile")}>
+                  Edit Profile
+                </button>
+              ) : null}
 
               <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
               <div>
+                {/* did not implemented post count dynamically as imageArray.length, because we will be getting 3 posts at a time so it will dependent upont post fetched */}
                 <span>6 </span>
                 posts
               </div>
@@ -138,6 +156,10 @@ function UserProfile() {
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
               <span>{userRetrievedData?.fullName}</span>
+              <p style={{ fontSize: "16px", display: "block" }}>
+                {" "}
+                {userRetrievedData?.bioData}{" "}
+              </p>
             </EditAndSettingsDiv>
           </UserInfoContainer>
         </UserDataSection>
@@ -163,6 +185,7 @@ function UserProfile() {
                       postImage={item.image}
                       caption={item.caption}
                       userName={userRetrievedData?.userName}
+                      userId={userId}
                       height="280px"
                       width="300px"
                       role="button"
@@ -181,8 +204,8 @@ function UserProfile() {
       <FollowerModal
         show={showFollowerModal}
         onHide={() => setShowFollowerModal(false)}
-        userId={user?.uid}
-        method = {currentMethod}
+        userId={userId}
+        method={currentMethod}
       />
     </div>
   );

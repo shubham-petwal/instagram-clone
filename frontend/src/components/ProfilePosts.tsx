@@ -30,6 +30,7 @@ function ProfilePosts(props: any) {
         profileImage={props.profileImage}
         caption={props.caption}
         userName={props.userName}
+        userId = {props.userId}
       />
     </div>
   );
