@@ -43,6 +43,7 @@ export function PostDetailModal(props: any) {
   };
   const handleAddComments = async () => {
     try {
+      // chatRef.current?.scrollIntoView();
       const result = await axios.post("http://localhost:90/addComment", data);
       setComment("");
     } catch (error) {
@@ -92,7 +93,7 @@ export function PostDetailModal(props: any) {
   
   useEffect(()=>{
     chatRef.current?.scrollIntoView();
-  },[commentsArray])
+  },[handleAddComments])
   return (
     <>
       {/* <button onClick={handleClick}>Click</button> */}

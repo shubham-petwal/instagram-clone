@@ -15,11 +15,13 @@ import {
   GenderRadioWrapperDiv
 } from "./styledComponents/EditProfile.style";
 import { auth } from "../firebaseSetup";
+import UploadModal from "./UploadModal";
 
 function EditProfile() {
   const navigate = useNavigate();
   const [gender,setGender] = useState("NA")
   const [isActive, setIsActive] = useState(true);
+  const [modalIsOpen,setModalIsOpen] = useState(false);
   const [userRetrievedData, setRetrievedData] = useState<any>();
   const emailRef = useRef<HTMLInputElement>(null);
   const fullNameRef = useRef<HTMLInputElement>(null);
@@ -103,7 +105,7 @@ function EditProfile() {
               </LabelDiv>
               <InputDiv>
                 <p id="username">{userRetrievedData?.userName}</p>
-                <Link to="/updateProfileImage" style={{fontSize : "12px", border:"none", background:"none", margin : "0px 3px", display:"block"}}>update Profile</Link>
+                <span onClick={()=>setModalIsOpen(true)} style={{fontSize : "12px", border:"none", background:"none", margin : "0px 3px", display:"block",color:"#4086fe"}}>update Profile</span>
               </InputDiv> 
             </div>
             <form onSubmit={handleFormSubmit}>
@@ -209,6 +211,7 @@ function EditProfile() {
           </RightEditPage>
         </EditProfileContainer>
       </EditProfileMainContainer>
+      <UploadModal method={"updateProfileImage"} isModalOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} header={"Update profile Image"}/>
     </div>
   );
 }

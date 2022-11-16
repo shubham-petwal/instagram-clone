@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { Grid } from "@material-ui/core";
 // import "../styles/Navbar.scss";
 import logo from "../assets/images/instagram_logo.png";
@@ -33,11 +33,13 @@ import {
   NavLogo,
   ProfileAvatar,
 } from "./styledComponents/Navbar.style";
+import UploadModal from "./UploadModal";
 interface NavInterFace {
   profileImage: string;
 }
 function Navbar({profileImage}:NavInterFace) {
   const user = useContext(AuthContext);
+  const [modalIsOpen,setModalIsOpen] = useState(false);
   let navigate = useNavigate();
   const signOut = async () => {
     await auth.signOut();
@@ -94,7 +96,7 @@ function Navbar({profileImage}:NavInterFace) {
           <Grid item xs={2} id="icons_grid" style={{ display: "flex" }}>
             <NavIcons src={home} width="28px" alt="logo" />
             <NavIcons src={message} width="28px" alt="logo" />
-            <NavIcons src={plus} width="28px" height="20px" alt="logo" onClick={()=>navigate("/uploadImage")} />
+            <NavIcons src={plus} width="28px" height="20px" alt="logo" onClick={()=>setModalIsOpen(true)} />
             <NavIcons src={find} width="28px" alt="logo" />
             <NavIcons src={love} width="28px" alt="logo" />
 
@@ -141,6 +143,7 @@ function Navbar({profileImage}:NavInterFace) {
           <Grid item xs={2}></Grid>
         </Grid>
       </NavContainer>
+      <UploadModal method={"uploadPost"} isModalOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} header={"Create new post"}/>
     </div>
   );
 }

@@ -53,7 +53,7 @@ function App() {
               </ProtectedRoutes>
             }
           />
-          <Route
+          {/* <Route
             path="/uploadImage"
             element={
               <ProtectedRoutes>
@@ -76,7 +76,7 @@ function App() {
                 <UploadImage method="addStory"/>
               </ProtectedRoutes>
             }
-          />
+          /> */}
           <Route
             path="/showStory"
             element={

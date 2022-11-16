@@ -147,11 +147,25 @@ app.post(
         "Posts/" + req.file.filename,
         req.file.filename
       );
+
+      const userCollectionRef = collection(db, "users");
+      const q = query(
+        userCollectionRef,
+        where("userId", "==", userId.toString())
+      ); //created a query
+      const querySnapshot = await getDocs(q);
+      const resArr = [];
+      querySnapshot.forEach((doc) => {
+        resArr.push(doc.data());
+      });
+
       const collectionRef = collection(db, "Posts");
 
       const postObj = {
         userId: userId,
         image: url,
+        userName: resArr[0].userName,
+        profileImage: resArr[0].profileImage,
         caption: caption,
         postId: uuidv4(),
         createdAt: newDate,
@@ -171,43 +185,134 @@ app.post(
   }
 );
 
-app.get("/getPosts/:self/:userId", async (req, res) => {
-  const { self, userId } = req.params;
+app.get("/getPosts", async (req, res) => {
+  const { lastDocId, page, userId } = req.query;
   try {
-    if (self=="false"){
-      const resArr = [];
-      const collectionRef = query(
-        collection(db, "Posts"),
-        orderBy("createdAt", "desc"),
-        limit(parseInt(userId))
-      );
-      const documentSnapshots = await getDocs(collectionRef);
-      documentSnapshots.forEach((doc) => {
-        resArr.push(doc.data());
-      });
-      res.send({
-        success: true,
-        message: "request fetched successfully",
-        data: resArr,
-      });
-    } else {
-      const collectionRef = collection(db, "Posts");
-      const q = query(collectionRef, where("userId", "==", userId.toString()));
-      const querySnapshot = await getDocs(q);
-      const resArr = [];
-      querySnapshot.forEach((doc) => {
-        resArr.push(doc.data());
-      });
-      if (resArr.length == 0) {
-        throw new Error("unable to find the user with provided userId");
+    if (userId) {
+      if (lastDocId) {
+        // if we are fetching userData with some lastDocId
+        const postArr = [];
+        // below query to check if documents after the lastDocId exists or not
+        
+        const nextPost = query(
+          collection(db, "Posts"),
+          where("userId", "==", userId.toString()),
+          orderBy(documentId(), "asc"),
+          startAfter(lastDocId),
+          limit(parseInt(page))
+        );
+        const snapshot = await getDocs(nextPost);
+        console.log("Last DocId is=",lastDocId)
+        snapshot.forEach((doc) => {
+          postArr.push({ ...doc.data(), document_id: doc.id});
+        });
+        if (postArr.length == 0) {
+          // if first document fetch of the user contains no document
+          res.send({
+            success: true,
+            message: "followers list of this user is empty",
+            data: [],
+          });
+          return;
+        }
+        res.send({
+          success: true,
+          message: "fetched all the followers successfuly",
+          data: postArr,
+          lastDocId: postArr[postArr.length - 1].document_id,
+        });
+        return;
+      } else {
+        const postArr = [];
+        const nextPost = query(
+          collection(db, "Posts"),
+          where("userId", "==", userId.toString()),
+          orderBy(documentId(), "asc"),
+          limit(parseInt(page))
+        );
+        const snapshot = await getDocs(nextPost);
+        snapshot.forEach((doc) => {
+          postArr.push({ ...doc.data(), document_id: doc.id});
+          console.log(doc.data())
+        });
+        if (postArr.length == 0) {
+          res.send({
+            success: true,
+            message: "you have reached the end of the follower's list",
+            data: [],
+          });
+          return;
+        }
+        res.send({
+          success: true,
+          message: "fetched followers successfuly",
+          data: postArr,
+          lastDocId: postArr[postArr.length - 1].document_id,
+        });
+        return;
       }
-      res.send({
-        success: true,
-        message: "request fetched successfully",
-        data: resArr,
-      });
+    } else {
+      if (lastDocId) {
+        // if we are fetching userData with some lastDocId
+        const postArr = [];
+        const nextPost = query(
+          collection(db, "Posts"),
+          orderBy("createdAt", "desc"),
+          startAfter(lastDocId),
+          limit(parseInt(page))
+        );
+        const snapshot = await getDocs(nextPost);
+        snapshot.forEach((doc) => {
+          postArr.push({ ...doc.data(), document_id: doc.data().createdAt });
+        });
+        if (postArr.length == 0) {
+          res.send({
+            success: true,
+            message: "you have reached the end of the follower's list",
+            data: [],
+          });
+          return;
+        }
+        res.send({
+          success: true,
+          message: "fetched all the followers successfuly",
+          data: postArr,
+          lastDocId: postArr[postArr.length - 1].document_id,
+        });
+        return;
+      } else {
+        // if we fetching userData for the first time
+
+        const postArr = [];
+        const nextPost = query(
+          collection(db, "Posts"),
+          orderBy("createdAt", "desc"),
+          limit(parseInt(page))
+        );
+        const snapshot = await getDocs(nextPost);
+        snapshot.forEach((doc) => {
+          postArr.push({ ...doc.data(), document_id: doc.data().createdAt });
+        });
+        if (postArr.length == 0) {
+          // if first document fetch of the user contains no document
+          res.send({
+            success: true,
+            message: "followers list of this user is empty",
+            data: [],
+          });
+          return;
+        }
+        res.send({
+          success: true,
+          message: "fetched followers successfuly",
+          data: postArr,
+          lastDocId: postArr[postArr.length - 1].document_id,
+        });
+        return;
+      }
     }
   } catch (error) {
+    console.log(error.message)
     res.send({
       success: false,
       message: error.message,
@@ -301,8 +406,6 @@ app.post("/addComment", async (req, res) => {
     res.send({ success: false, message: error.message });
   }
 });
-
-
 
 app.post("/updateProfileImage", upload.single("file"), async (req, res) => {
   const { userId } = req.body;
@@ -736,9 +839,8 @@ app.post(
     // const newDate = new Date();
     function addHours(numOfHours, date = new Date()) {
       date.setTime(date.getTime() + numOfHours * 60 * 60 * 1000);
-      return date;
+      return date.toLocaleString();
     }
-
     try {
       const url = await uploadImageToBucket(
         "Stories/" + req.file.filename,
@@ -754,8 +856,9 @@ app.post(
       querySnapshot.forEach((doc) => {
         resArr.push(doc.data());
       });
-      const storiesDocRef = doc(db, `stories/${userId}`);
+      const storiesCollectionRef = collection(db, "stories");
       const postObj = {
+        userId: userId,
         userName: resArr[0].userName,
         profileImage: resArr[0].profileImage,
         image: url,
@@ -763,7 +866,7 @@ app.post(
         deleteAt: addHours(1),
         createdAt: new Date(),
       };
-      setDoc(storiesDocRef, postObj).then(() => {
+      addDoc(storiesCollectionRef, postObj).then(() => {
         console.log("Document Added");
         fs.unlink("uploads/" + req.file.filename, function (err) {
           if (err) return console.log(err);
@@ -778,38 +881,152 @@ app.post(
   }
 );
 
-
-app.get("/getStories/:self/:userId", async (req, res) => {
-  const { self, userId } = req.params;
+app.get("/getStories", async (req, res) => {
+  const { lastDocId, page, userId } = req.query;
+  console.log("My userId number=",userId)
   try {
-    if (self=="false"){
-      var currentTime = new Date();
-      const resArr = [];
-      const collectionRef = query(
-        collection(db, "stories"),
-        where("deleteAt", ">=", currentTime),
-        orderBy("deleteAt", "desc")
-      );
-      const documentSnapshots = await getDocs(collectionRef);
-      documentSnapshots.forEach((doc) => {
-        resArr.push(doc.data());
-      });
-      res.send({
-        success: true,
-        message: "request fetched successfully",
-        data: resArr,
-      });
+    if (userId){
+      if (lastDocId) {
+        // if we are fetching userData with some lastDocId
+        const storiesArray = [];
+        const nextStories = query(
+          collection(db, "stories"),
+          orderBy(documentId(), "desc"),
+          startAfter(lastDocId),
+          limit(1)
+        );
+        const snapshot = await getDocs(nextStories);
+        snapshot.forEach((doc) => {
+          storiesArray.push({ ...doc.data(), document_id: doc.data().deleteAt });
+        });
+        if (storiesArray.length == 0) {
+          // if first document fetch of the user contains no document
+          res.send({
+            success: true,
+            message: "followers list of this user is empty",
+            data: [],
+          });
+          return;
+        }
+        res.send({
+          success: true,
+          message: "fetched all the followers successfuly",
+          data: storiesArray,
+          lastDocId: storiesArray[storiesArray.length - 1].document_id,
+        });
+        return;
+      } else {
+        const storiesArray = [];
+        const nextStories = query(
+          collection(db, "stories"),
+          where("userId", "==", userId.toString()),
+          orderBy(documentId(), "desc"),
+          // limit(parseInt(page))
+        );
+        const snapshot = await getDocs(nextStories);
+        snapshot.forEach((doc) => {
+          storiesArray.push({ ...doc.data(), document_id: doc.id});
+          console.log(doc.data())
+        });
+        if (storiesArray.length == 0) {
+          // if first document fetch of the user contains no document
+          res.send({
+            success: true,
+            message: "followers list of this user is empty",
+            data: [],
+          });
+          return;
+        }
+        res.send({
+          success: true,
+          message: "fetched followers successfuly",
+          data: storiesArray,
+          lastDocId: storiesArray[storiesArray.length - 1].document_id,
+        });
+
+        return;
+      }
     } else {
-      const docRef = doc(db, `stories/${userId}`);
-      const querySnapshot = await getDoc(docRef);
-      console.log(querySnapshot.data())
-      res.send({
-        success: true,
-        message: "request fetched successfully",
-        data: [querySnapshot.data()],
-      });
+      var currentTime = new Date().toLocaleString();
+      if (lastDocId) {
+        console.log("lastDocId is-:", lastDocId);
+        // if we are fetching userData with some lastDocId
+        const storiesArray = [];
+        const nextStories = query(
+          collection(db, "stories"),
+          where("deleteAt", ">=", currentTime),
+          orderBy("deleteAt"),
+          // orderBy("createdAt","asc"),
+          startAfter(lastDocId),
+          limit(parseInt(page))
+        );
+        const snapshot = await getDocs(nextStories);
+        snapshot.forEach((doc) => {
+          storiesArray.push({
+            ...doc.data(),
+            document_id: doc.data().deleteAt,
+          });
+        });
+        console.log(storiesArray)
+        if (storiesArray.length == 0) {
+          // if first document fetch of the user contains no document
+          res.send({
+            success: true,
+            message: "followers list of this user is empty",
+            data: [],
+          });
+          return;
+        }
+        res.send({
+          success: true,
+          message: "fetched all the followers successfuly",
+          data: storiesArray,
+          lastDocId: storiesArray[storiesArray.length - 1].document_id,
+        });
+        return;
+      } else {
+        console.log("reached else part");
+        // if we fetching userData for the first time
+        // console.log("My userId =",userId)
+        const storiesArray = [];
+        const nextStories = query(
+          collection(db, "stories"),
+          where("deleteAt", ">=", currentTime),
+          orderBy("deleteAt"),
+          // orderBy("createdAt","desc"),
+          orderBy(documentId()),
+          limit(1)
+        );
+        const snapshot = await getDocs(nextStories);
+        snapshot.forEach((doc) => {
+          storiesArray.push({
+            ...doc.data(),
+            document_id: doc.data().deleteAt,
+          });
+        });
+        console.log("My First Story Array=",storiesArray)
+        if (storiesArray.length == 0) {
+          // if first document fetch of the user contains no document
+          res.send({
+            success: true,
+            message: "followers list of this user is empty",
+            data: [],
+          });
+          return;
+        }
+        res.send({
+          success: true,
+          message: "fetched followers successfuly",
+          data: storiesArray,
+          lastDocId: storiesArray[storiesArray.length - 1].document_id,
+        });
+        return;
+      }
+
+
     }
   } catch (error) {
+    console.log(error.message);
     res.send({
       success: false,
       message: error.message,

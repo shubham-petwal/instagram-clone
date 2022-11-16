@@ -36,16 +36,17 @@ interface PostInterFace {
   caption: string;
   postId: string;
   userId: string;
+  profileImage:string;
+  userName:string
 }
 
-function Posts({ postImage, caption, postId, userId }: PostInterFace) {
+function Posts({ postImage, caption, postId, userId ,userName,profileImage}: PostInterFace) {
   const [comment, setComment] = useState("");
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [likesArrayDetails, setLikesArrayDetails] = useState<any>();
   const [modalState, setModalState] = useState(false);
-  const [userRetrievedData, setRetrievedData] = useState<any>();
   const user = useContext(AuthContext);
   const data = {
     userId: user?.uid,
@@ -76,31 +77,8 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
     return unsubscribe;
   };
 
-  // if(user?.uid){
-  //   const unsub = onSnapshot(doc(db, `post_interaction/${postId}/likes/${user?.uid}`), (doc) => {
-  //     // console.log("Current data: ", doc.data());
-  //     if(doc.data()){
-  //       setLiked(true)
-  //     }
-  //     else{
-  //       setLiked(false)
-  //     }
-  // });
-  // }
-
   useEffect(() => {
     getData();
-    let userData;
-    axios
-      .get(`http://localhost:90/users/${userId}`)
-      .then((res) => {
-        userData = res.data.data;
-        // imageUrl = userData.profileImage;
-        setRetrievedData(userData);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
     if (user?.uid) {
       const unsubscribe = onSnapshot(
         doc(db, `post_interaction/${postId}/likes/${user?.uid}`),
@@ -138,9 +116,9 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
     <PostContainer>
       <PostHeader>
         <UserDetailsContainer>
-          <Avatar src={userRetrievedData?.profileImage} />
+          <Avatar src={profileImage} />
           <div>
-            <span>{userRetrievedData?.userName}</span>
+            <span>{userName}</span>
           </div>
         </UserDetailsContainer>
         <div>
@@ -171,7 +149,7 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
         <span>{totalLikes ? totalLikes : 0} likes</span>
       </LikesDiv>
       <DescriptionDiv>
-        <span id="userName">{userRetrievedData?.userName}</span>
+        <span id="userName">{userName}</span>
         <span>{caption}</span>
       </DescriptionDiv>
       <CommentsDiv>
@@ -197,9 +175,9 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
         }}
         postId={postId}
         postImage={postImage}
-        profileImage={userRetrievedData?.profileImage}
+        profileImage={profileImage}
         caption={caption}
-        userName={userRetrievedData?.userName}
+        userName={userName}
         liked={liked}
       />
     </PostContainer>

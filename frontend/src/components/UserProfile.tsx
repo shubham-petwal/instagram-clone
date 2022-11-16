@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   UserProfileContainer,
   UserDataSection,
@@ -28,18 +28,34 @@ interface GetDataInterface {
 function UserProfile() {
   const user = useContext(AuthContext);
   const navigate = useNavigate();
+  const chatRef = useRef<any>(null);
+  const [lastDoc, setLastDoc] = useState<string>("");
 
 
   const [imageArray, setImageArray] = useState<Array<GetDataInterface>>([]);
   const [userRetrievedData, setRetrievedData] = useState<any>();
   const [storyArray, setStoryArray] = useState<any>();
+  const getNextData = async () => {
+    try {
+      chatRef.current?.scrollIntoView();
+      const res = await axios.get(
+        `http://localhost:90/getPosts/?userId=${user?.uid}&page=1&lastDocId=${lastDoc}`
+      );
+      setImageArray((prev)=>{
+        return [...prev, ...res.data.data]})
+        if(res.data.lastDocId){
+          setLastDoc(res.data.lastDocId)
+        }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const getData = async () => {
-      const self= true;
-      const userId = user?.uid
       try {
-        const storyData = await axios.get(`http://localhost:90/getStories/${self}/${userId}`)
+        const userId = user?.uid
+        const storyData = await axios.get(`http://localhost:90/getStories?page=3&userId=${userId}`)
         setStoryArray(storyData.data.data)
 
         const userData = await axios.get(
@@ -47,24 +63,22 @@ function UserProfile() {
         );
         setRetrievedData(userData.data.data);
 
-
         const allPosts = await axios.get(
-          `http://localhost:90/getPosts/${self}/${user?.uid}`
+          `http://localhost:90/getPosts?userId=${userId}&page=1`
         );
-        const Details = allPosts.data;
-        if (Details) {
-          setImageArray(Details.data);
-          return;
+        setLastDoc(allPosts.data.lastDocId)
+        
+        const details = allPosts.data;
+        if (details) {
+          setImageArray(details.data);
+        } else {
+          console.log("Post Details not found");
         }
       } catch (error: any) {
         console.log(error.message);
       }
     };
-    if (user?.uid) {
-      getData();
-    } else {
-      alert("Cannot find user ID");
-    }
+    getData();
   }, []);
   return (
     <div>
@@ -73,6 +87,7 @@ function UserProfile() {
         <UserDataSection>
           <div>
             <Avatar id="userProfileAvatar" src={userRetrievedData?.profileImage} />
+            <button onClick={getNextData}>Call Next</button>
           </div>
           <UserInfoContainer>
             <EditAndSettingsDiv>
@@ -122,6 +137,7 @@ function UserProfile() {
                 userName={item.userName}
                 storyImage={item.image}
                 createdAt = {item.createdAt}
+                nav={"/userProfile"}
               />
             ))
           ) : (
@@ -165,6 +181,7 @@ function UserProfile() {
           </ul>
         </AllPostImages>
       </UserProfileContainer>
+      <div ref={chatRef} />
     </div>
   );
 }

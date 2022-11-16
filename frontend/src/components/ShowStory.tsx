@@ -23,8 +23,7 @@ function ShowStory() {
         defaultInterval={2000}
         stories={stories}
         isPaused={true}
-        onAllStoriesEnd={()=>navigate("/")}
-        
+        onAllStoriesEnd={()=>navigate(`${location.state.nav}`)}
       />
       {/* <FontAwesomeIcon id="cross"  icon={faCircleXmark} /> */}
     </ShowStoryContainer>

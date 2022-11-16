@@ -11,17 +11,44 @@ interface StoryInterface {
   StoryId: string;
   profileImage: string;
   createdAt: any;
+  userId:string
   children: React.ReactNode;
 }
-function StatusBar() {
+function StatusBar(props:any) {
   const user = useContext(AuthContext);
   const [storyArray, setStoryArray] = useState<Array<StoryInterface>>([]);
+  const [lastDoc, setLastDoc] = useState<string>("");
+  const [hasMore, setHasMore] = useState<boolean>(true);
+
+  const getNextData = async () => {
+    try {
+      // chatRef.current?.scrollIntoView();
+      const res = await axios.get(
+        `http://localhost:90/getStories?page=1&lastDocId=${lastDoc}`
+      );
+      //have to use query params
+      if(res.data.data){
+        console.log(res.data.data)
+        setStoryArray((prev) => {
+          return [...prev, ...res.data.data];
+        });
+      }
+      setLastDoc(res.data.lastDocId);
+      if (res.data.data.length == 0) {
+        setHasMore(false);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+console.log("My Story=",lastDoc)
+
+
   useEffect(() => {
     const getData = async () => {
-      const self=false
-      const userId = false
       try {
-        const allStories = await axios.get(`http://localhost:90/getStories/${self}/${userId}`);
+        const allStories = await axios.get(`http://localhost:90/getStories?page=1`);
+        setLastDoc(allStories.data.lastDocId);
         const storyData = allStories.data;
         if (storyData) {
           setStoryArray(storyData.data);
@@ -34,9 +61,17 @@ function StatusBar() {
       }
     };
     
+    
     getData();
   }, []);
-
+  useEffect(()=>{
+    if(storyArray&&storyArray.length>0 && storyArray[0].userId==user?.uid){
+      props.setStoryState(true)
+    }
+    else{
+      props.setStoryState(false)
+    }
+  },[storyArray])
   return (
     <StatusBarContainer>
       <ul>
@@ -55,6 +90,7 @@ function StatusBar() {
                 userName={item.userName}
                 storyImage={item.image}
                 createdAt = {item.createdAt}
+                nav = {"/"}
 
               />
             ))
@@ -65,6 +101,7 @@ function StatusBar() {
           <p>No content</p>
         )}
       </ul>
+      <button onClick={getNextData}>Call Next Data</button>
     </StatusBarContainer>
   );
 }

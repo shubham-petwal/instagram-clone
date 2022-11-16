@@ -13,6 +13,10 @@ import { AuthContext } from "../context/AuthContext";
 import BlueButton from "../assets/images/blueButton.png";
 import { Avatar } from "@material-ui/core";
 import { Link } from "react-router-dom";
+import InfiniteScroll from "react-infinite-scroll-component";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"
+import UploadModal from "./UploadModal";
 
 interface DataInterface {
   image: string;
@@ -23,42 +27,57 @@ interface DataInterface {
 }
 
 function Home() {
-  const chatRef = useRef<any>(null);
   const user = useContext(AuthContext);
   const [imageArray, setImageArray] = useState<Array<DataInterface>>([]);
   const [userRetrievedData, setRetrievedData] = useState<any>();
-  const [pagination,setPagination] = useState(3);
-  const getData = async () => {
+  const [lastDoc, setLastDoc] = useState<string>("");
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [isStoryUploaded, setIsStoryUploaded] = useState<boolean>(true);
+  const [modalIsOpen,setModalIsOpen] = useState(false);
+
+  const handleSetStory = (bool: boolean) => {
+    return setIsStoryUploaded(bool);
+  };
+  console.log(isStoryUploaded);
+
+  const getNextData = async () => {
     try {
-      setPagination(pagination+1)
-      chatRef.current?.scrollIntoView()
-      const self = false;
-      const userId = pagination;
-      const res = await axios.get(`http://localhost:90/getPosts/${self}/${userId}`);
-      setImageArray(res.data.data)
+      // chatRef.current?.scrollIntoView();
+      const res = await axios.get(
+        `http://localhost:90/getPosts?page=3&lastDocId=${lastDoc}`
+      );
+      //have to use query params
+      setImageArray((prev) => {
+        return [...prev, ...res.data.data];
+      });
+      setLastDoc(res.data.lastDocId);
+      if (res.data.data.length == 0) {
+        setHasMore(false);
+      }
     } catch (error) {
       console.log(error);
     }
   };
+  console.log("My next PostId=",lastDoc)
 
   useEffect(() => {
     const getData = async () => {
       try {
-        const self = false;
-        const userId = pagination;
-        const allPosts = await axios.get(`http://localhost:90/getPosts/${self}/${userId}`);
-        const Details = allPosts.data;
-        if (Details) {
-          setImageArray(Details.data);
+        const allPosts = await axios.get(
+          `http://localhost:90/getPosts?page=3`
+        );
+        setLastDoc(allPosts.data.lastDocId);
+
+        const details = allPosts.data;
+        if (details) {
+          setImageArray(details.data);
         } else {
           console.log("Post Details not found");
         }
-
         const userData = await axios.get(
           `http://localhost:90/users/${user?.uid}`
         );
         setRetrievedData(userData.data.data);
-        setPagination(pagination+1)
       } catch (error: any) {
         console.log(error.message);
       }
@@ -67,41 +86,77 @@ function Home() {
   }, []);
   return (
     <>
+    
       <Navbar profileImage={userRetrievedData?.profileImage} />
       <HomePageContainer>
+        <ToastContainer position="top-center"/>
         <div id="all_posts">
-          <StatusBar />
-
-          {imageArray ? (
-            imageArray.length > 0 ? (
-              imageArray.map((item: any) => (
-                //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
-                <Posts
-                  key={Math.random()}
-                  postImage={item.image}
-                  caption={item.caption}
-                  postId={item.postId}
-                  userId={item.userId}
-                />
-              ))
+          <StatusBar setStoryState={handleSetStory} />
+          <InfiniteScroll
+            dataLength={imageArray ? imageArray.length : 0} //This is important field to render the next data
+            next={getNextData}
+            hasMore={hasMore}
+            loader={<h4>Loading...</h4>}
+            endMessage={
+              <p style={{ textAlign: "center" }}>
+                <b>Yay! You have seen it all</b>
+              </p>
+            }
+          >
+            {imageArray ? (
+              imageArray.length > 0 ? (
+                imageArray.map((item: any) => (
+                  //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
+                  <Posts
+                    key={Math.random()}
+                    postImage={item.image}
+                    caption={item.caption}
+                    postId={item.postId}
+                    userId={item.userId}
+                    userName = {item.userName}
+                    profileImage = {item.profileImage}
+                  />
+                ))
+              ) : (
+                <p>No content</p>
+              )
             ) : (
               <p>No content</p>
-            )
-          ) : (
-            <p>No content</p>
-          )}
+            )}
+          </InfiniteScroll>
         </div>
         <SuggestionContainer>
           <SuggestionUserDetailsdiv>
             <div id="details">
-              <Link to="/addStory">
-                <Avatar
-                  id="homeProfileImage"
-                  src={userRetrievedData?.profileImage}
-                />
-                <img src={BlueButton} id="bluBtn" width="20px" height="20px" />
-              </Link>
-              <button onClick={getData}>Call</button>
+              {isStoryUploaded ? (
+                <div onClick={()=>{toast("Story Already Uploaded")}}>
+                  <Avatar
+                    id="homeProfileImage"
+                    src={userRetrievedData?.profileImage}
+                  />
+                  <img
+                    src={BlueButton}
+                    id="bluBtn"
+                    width="20px"
+                    height="20px"
+                  />
+                </div>
+                
+              ) : (
+                <div onClick={()=>setModalIsOpen(true)}>
+                  <Avatar
+                    id="homeProfileImage"
+                    src={userRetrievedData?.profileImage}
+                  />
+                  <img
+                    src={BlueButton}
+                    id="bluBtn"
+                    width="20px"
+                    height="20px"
+                  />
+                </div>
+              )}
+              {/* <button onClick={getNextData}>Call</button> */}
               <div>
                 <span id="username">{userRetrievedData?.userName}</span>
                 <br />
@@ -114,7 +169,7 @@ function Home() {
           </SuggestionUserDetailsdiv>
         </SuggestionContainer>
       </HomePageContainer>
-        <div ref={chatRef}/>
+      <UploadModal method={"addStory"} isModalOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} header={"Add new story"}/>
     </>
   );
 }

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 
 interface PropsInterface {
   method: string;
+  isModalOpen:boolean
 }
 
 function UploadImage(props: PropsInterface) {
