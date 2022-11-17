@@ -168,10 +168,12 @@ app.post(
         profileImage: resArr[0].profileImage,
         caption: caption,
         postId: uuidv4(),
-        createdAt: newDate,
+        createdAt: Timestamp.now(),
       };
-      addDoc(collectionRef, postObj).then(() => {
+      addDoc(collectionRef, postObj).then((docRef) => {
         console.log("Document Added");
+        const documentRef = doc(db,`Posts/${docRef.id}`)
+        updateDoc(documentRef,{docId:docRef.id})
         fs.unlink("uploads/" + req.file.filename, function (err) {
           if (err) return console.log(err);
           console.log("file deleted successfully");
@@ -193,18 +195,17 @@ app.get("/getPosts", async (req, res) => {
         // if we are fetching userData with some lastDocId
         const postArr = [];
         // below query to check if documents after the lastDocId exists or not
-        
+        console.log("inside UserId lastDocId",lastDocId)
         const nextPost = query(
           collection(db, "Posts"),
           where("userId", "==", userId.toString()),
-          orderBy(documentId(), "asc"),
-          startAfter(lastDocId),
+          orderBy("createdAt", "desc"),
+          startAfter(Timestamp.fromMillis(lastDocId)),
           limit(parseInt(page))
         );
         const snapshot = await getDocs(nextPost);
-        console.log("Last DocId is=",lastDocId)
         snapshot.forEach((doc) => {
-          postArr.push({ ...doc.data(), document_id: doc.id});
+          postArr.push(doc.data());
         });
         if (postArr.length == 0) {
           // if first document fetch of the user contains no document
@@ -219,7 +220,6 @@ app.get("/getPosts", async (req, res) => {
           success: true,
           message: "fetched all the followers successfuly",
           data: postArr,
-          lastDocId: postArr[postArr.length - 1].document_id,
         });
         return;
       } else {
@@ -227,13 +227,12 @@ app.get("/getPosts", async (req, res) => {
         const nextPost = query(
           collection(db, "Posts"),
           where("userId", "==", userId.toString()),
-          orderBy(documentId(), "asc"),
+          orderBy("createdAt", "desc"),
           limit(parseInt(page))
         );
         const snapshot = await getDocs(nextPost);
         snapshot.forEach((doc) => {
-          postArr.push({ ...doc.data(), document_id: doc.id});
-          console.log(doc.data())
+          postArr.push(doc.data());
         });
         if (postArr.length == 0) {
           res.send({
@@ -247,7 +246,6 @@ app.get("/getPosts", async (req, res) => {
           success: true,
           message: "fetched followers successfuly",
           data: postArr,
-          lastDocId: postArr[postArr.length - 1].document_id,
         });
         return;
       }
@@ -258,12 +256,12 @@ app.get("/getPosts", async (req, res) => {
         const nextPost = query(
           collection(db, "Posts"),
           orderBy("createdAt", "desc"),
-          startAfter(lastDocId),
+          startAfter(Timestamp.fromMillis(lastDocId)),
           limit(parseInt(page))
         );
         const snapshot = await getDocs(nextPost);
         snapshot.forEach((doc) => {
-          postArr.push({ ...doc.data(), document_id: doc.data().createdAt });
+          postArr.push(doc.data());
         });
         if (postArr.length == 0) {
           res.send({
@@ -277,12 +275,10 @@ app.get("/getPosts", async (req, res) => {
           success: true,
           message: "fetched all the followers successfuly",
           data: postArr,
-          lastDocId: postArr[postArr.length - 1].document_id,
         });
         return;
       } else {
         // if we fetching userData for the first time
-
         const postArr = [];
         const nextPost = query(
           collection(db, "Posts"),
@@ -291,7 +287,7 @@ app.get("/getPosts", async (req, res) => {
         );
         const snapshot = await getDocs(nextPost);
         snapshot.forEach((doc) => {
-          postArr.push({ ...doc.data(), document_id: doc.data().createdAt });
+          postArr.push(doc.data());
         });
         if (postArr.length == 0) {
           // if first document fetch of the user contains no document
@@ -306,7 +302,6 @@ app.get("/getPosts", async (req, res) => {
           success: true,
           message: "fetched followers successfuly",
           data: postArr,
-          lastDocId: postArr[postArr.length - 1].document_id,
         });
         return;
       }
@@ -839,7 +834,7 @@ app.post(
     // const newDate = new Date();
     function addHours(numOfHours, date = new Date()) {
       date.setTime(date.getTime() + numOfHours * 60 * 60 * 1000);
-      return date.toLocaleString();
+      return date;
     }
     try {
       const url = await uploadImageToBucket(
@@ -864,9 +859,11 @@ app.post(
         image: url,
         StoryId: uuidv4(),
         deleteAt: addHours(1),
-        createdAt: new Date(),
+        createdAt: Timestamp.now(),
       };
-      addDoc(storiesCollectionRef, postObj).then(() => {
+      addDoc(storiesCollectionRef, postObj).then((docRef) => {
+        const documentRef = doc(db,`stories/${docRef.id}`)
+        updateDoc(documentRef,{docId:docRef.id})
         console.log("Document Added");
         fs.unlink("uploads/" + req.file.filename, function (err) {
           if (err) return console.log(err);
@@ -891,13 +888,14 @@ app.get("/getStories", async (req, res) => {
         const storiesArray = [];
         const nextStories = query(
           collection(db, "stories"),
-          orderBy(documentId(), "desc"),
-          startAfter(lastDocId),
-          limit(1)
+          where("userId", "==", userId.toString()),
+          orderBy("deleteAt","desc"),
+          startAfter(Timestamp.fromMillis(lastDocId)),
+          limit(parseInt(page))
         );
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
-          storiesArray.push({ ...doc.data(), document_id: doc.data().deleteAt });
+          storiesArray.push(doc.data());
         });
         if (storiesArray.length == 0) {
           // if first document fetch of the user contains no document
@@ -912,7 +910,6 @@ app.get("/getStories", async (req, res) => {
           success: true,
           message: "fetched all the followers successfuly",
           data: storiesArray,
-          lastDocId: storiesArray[storiesArray.length - 1].document_id,
         });
         return;
       } else {
@@ -920,12 +917,12 @@ app.get("/getStories", async (req, res) => {
         const nextStories = query(
           collection(db, "stories"),
           where("userId", "==", userId.toString()),
-          orderBy(documentId(), "desc"),
-          // limit(parseInt(page))
+          orderBy("deleteAt","desc"),
+          limit(parseInt(page))
         );
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
-          storiesArray.push({ ...doc.data(), document_id: doc.id});
+          storiesArray.push(doc.data());
           console.log(doc.data())
         });
         if (storiesArray.length == 0) {
@@ -941,13 +938,12 @@ app.get("/getStories", async (req, res) => {
           success: true,
           message: "fetched followers successfuly",
           data: storiesArray,
-          lastDocId: storiesArray[storiesArray.length - 1].document_id,
         });
 
         return;
       }
     } else {
-      var currentTime = new Date().toLocaleString();
+      const currentTime = new Date();
       if (lastDocId) {
         console.log("lastDocId is-:", lastDocId);
         // if we are fetching userData with some lastDocId
@@ -955,17 +951,13 @@ app.get("/getStories", async (req, res) => {
         const nextStories = query(
           collection(db, "stories"),
           where("deleteAt", ">=", currentTime),
-          orderBy("deleteAt"),
-          // orderBy("createdAt","asc"),
-          startAfter(lastDocId),
-          limit(parseInt(page))
+          orderBy("deleteAt","desc"),
+          startAfter(Timestamp.fromMillis(lastDocId)),
+          limit(parseInt(page)) 
         );
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
-          storiesArray.push({
-            ...doc.data(),
-            document_id: doc.data().deleteAt,
-          });
+          storiesArray.push(doc.data())
         });
         console.log(storiesArray)
         if (storiesArray.length == 0) {
@@ -981,7 +973,6 @@ app.get("/getStories", async (req, res) => {
           success: true,
           message: "fetched all the followers successfuly",
           data: storiesArray,
-          lastDocId: storiesArray[storiesArray.length - 1].document_id,
         });
         return;
       } else {
@@ -992,19 +983,15 @@ app.get("/getStories", async (req, res) => {
         const nextStories = query(
           collection(db, "stories"),
           where("deleteAt", ">=", currentTime),
-          orderBy("deleteAt"),
-          // orderBy("createdAt","desc"),
-          orderBy(documentId()),
+          orderBy("deleteAt","desc"),
           limit(1)
         );
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
-          storiesArray.push({
-            ...doc.data(),
-            document_id: doc.data().deleteAt,
-          });
-        });
-        console.log("My First Story Array=",storiesArray)
+          storiesArray.push(doc.data());
+        }
+        );
+        console.log("Time is",currentTime)
         if (storiesArray.length == 0) {
           // if first document fetch of the user contains no document
           res.send({
@@ -1018,7 +1005,6 @@ app.get("/getStories", async (req, res) => {
           success: true,
           message: "fetched followers successfuly",
           data: storiesArray,
-          lastDocId: storiesArray[storiesArray.length - 1].document_id,
         });
         return;
       }

@@ -11,18 +11,21 @@ import {
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import BlueButton from "../assets/images/blueButton.png";
+
 import { Avatar } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"
 import UploadModal from "./UploadModal";
+import { Timestamp } from "firebase/firestore";
 
 interface DataInterface {
   image: string;
   caption: string;
   postId: string;
   createdAt: any;
+  docId:string;
   children: React.ReactNode;
 }
 
@@ -30,7 +33,7 @@ function Home() {
   const user = useContext(AuthContext);
   const [imageArray, setImageArray] = useState<Array<DataInterface>>([]);
   const [userRetrievedData, setRetrievedData] = useState<any>();
-  const [lastDoc, setLastDoc] = useState<string>("");
+  // const [lastDoc, setLastDoc] = useState<string>("");
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isStoryUploaded, setIsStoryUploaded] = useState<boolean>(true);
   const [modalIsOpen,setModalIsOpen] = useState(false);
@@ -38,19 +41,18 @@ function Home() {
   const handleSetStory = (bool: boolean) => {
     return setIsStoryUploaded(bool);
   };
-  console.log(isStoryUploaded);
 
   const getNextData = async () => {
     try {
-      // chatRef.current?.scrollIntoView();
+      const lastDoc = imageArray[imageArray.length - 1].createdAt
+      const date = new Timestamp(lastDoc.seconds , lastDoc.nanoseconds).toMillis();
       const res = await axios.get(
-        `http://localhost:90/getPosts?page=3&lastDocId=${lastDoc}`
+        `http://localhost:90/getPosts?page=3&lastDocId=${date}`
       );
       //have to use query params
       setImageArray((prev) => {
         return [...prev, ...res.data.data];
       });
-      setLastDoc(res.data.lastDocId);
       if (res.data.data.length == 0) {
         setHasMore(false);
       }
@@ -58,7 +60,6 @@ function Home() {
       console.log(error);
     }
   };
-  console.log("My next PostId=",lastDoc)
 
   useEffect(() => {
     const getData = async () => {
@@ -66,8 +67,6 @@ function Home() {
         const allPosts = await axios.get(
           `http://localhost:90/getPosts?page=3`
         );
-        setLastDoc(allPosts.data.lastDocId);
-
         const details = allPosts.data;
         if (details) {
           setImageArray(details.data);

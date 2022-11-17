@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { StatusStoriesContainer } from './styledComponents/StatusStories.style'
-import shubh from "../assets/images/shubham.jpg"
 import ring from "../assets/images/storyRing.png"
 import { useNavigate } from 'react-router-dom';
 

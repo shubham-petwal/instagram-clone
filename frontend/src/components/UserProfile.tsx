@@ -13,6 +13,8 @@ import subh from "../assets/images/shubham.jpg";
 import WhiteRing from "../assets/images/UserHighlightRing.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
+import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
+
 import StatusStories from "./StatusStories";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
@@ -20,32 +22,58 @@ import axios from "axios";
 import { string } from "yup";
 import { PostDetailModal } from "./PostDetailModal";
 import ProfilePosts from "./ProfilePosts";
+import { Timestamp } from "firebase/firestore";
+import InfiniteScroll from "react-infinite-scroll-component";
 interface GetDataInterface {
   image: string;
   caption: string;
+  docId: string;
+  createdAt: any;
   children: React.ReactNode;
 }
 function UserProfile() {
   const user = useContext(AuthContext);
   const navigate = useNavigate();
   const chatRef = useRef<any>(null);
-  const [lastDoc, setLastDoc] = useState<string>("");
-
 
   const [imageArray, setImageArray] = useState<Array<GetDataInterface>>([]);
   const [userRetrievedData, setRetrievedData] = useState<any>();
+  const [hasMorePosts, setHasMorePosts] = useState<boolean>(true);
   const [storyArray, setStoryArray] = useState<any>();
-  const getNextData = async () => {
+  const getNextDataOfUserPost = async () => {
     try {
       chatRef.current?.scrollIntoView();
+      const lastDoc = imageArray[imageArray.length - 1].createdAt;
+      const date = new Timestamp(
+        lastDoc.seconds,
+        lastDoc.nanoseconds
+      ).toMillis();
       const res = await axios.get(
-        `http://localhost:90/getPosts/?userId=${user?.uid}&page=1&lastDocId=${lastDoc}`
+        `http://localhost:90/getPosts?userId=${user?.uid}&page=3&lastDocId=${date}`
       );
-      setImageArray((prev)=>{
-        return [...prev, ...res.data.data]})
-        if(res.data.lastDocId){
-          setLastDoc(res.data.lastDocId)
-        }
+      if (res.data.data.length == 0) {
+        setHasMorePosts(false);
+      }
+      setImageArray((prev) => {
+        return [...prev, ...res.data.data];
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const StoryNextData = async () => {
+    try {
+      const lastDoc = storyArray[storyArray.length - 1].deleteAt;
+      const date = new Timestamp(
+        lastDoc.seconds,
+        lastDoc.nanoseconds
+      ).toMillis();
+      const res = await axios.get(
+        `http://localhost:90/getStories?userId=${user?.uid}&page=1&lastDocId=${date}`
+      );
+      setStoryArray((prev: any) => {
+        return [...prev, ...res.data.data];
+      });
     } catch (error) {
       console.log(error);
     }
@@ -54,9 +82,11 @@ function UserProfile() {
   useEffect(() => {
     const getData = async () => {
       try {
-        const userId = user?.uid
-        const storyData = await axios.get(`http://localhost:90/getStories?page=3&userId=${userId}`)
-        setStoryArray(storyData.data.data)
+        const userId = user?.uid;
+        const storyData = await axios.get(
+          `http://localhost:90/getStories?page=1&userId=${userId}`
+        );
+        setStoryArray(storyData.data.data);
 
         const userData = await axios.get(
           `http://localhost:90/users/${user?.uid}`
@@ -64,10 +94,9 @@ function UserProfile() {
         setRetrievedData(userData.data.data);
 
         const allPosts = await axios.get(
-          `http://localhost:90/getPosts?userId=${userId}&page=1`
+          `http://localhost:90/getPosts?userId=${userId}&page=3`
         );
-        setLastDoc(allPosts.data.lastDocId)
-        
+
         const details = allPosts.data;
         if (details) {
           setImageArray(details.data);
@@ -86,8 +115,11 @@ function UserProfile() {
       <UserProfileContainer>
         <UserDataSection>
           <div>
-            <Avatar id="userProfileAvatar" src={userRetrievedData?.profileImage} />
-            <button onClick={getNextData}>Call Next</button>
+            <Avatar
+              id="userProfileAvatar"
+              src={userRetrievedData?.profileImage}
+            />
+
           </div>
           <UserInfoContainer>
             <EditAndSettingsDiv>
@@ -121,39 +153,48 @@ function UserProfile() {
 
         <UserHighlightSection>
           <div id="userProfileHighlight">
-          <ul>
-        {storyArray ? (
-          storyArray.length > 0 ? (
-            storyArray.map((item: any) => (
-              //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
-              <StatusStories
-                key={Math.random()}
-                Ringwidth="85"
-                Ringheight="85"
-                width="80"
-                height="80"
-                profileImage={item.profileImage}
-                storyId={item.storyId}
-                userName={item.userName}
-                storyImage={item.image}
-                createdAt = {item.createdAt}
-                nav={"/userProfile"}
-              />
-            ))
-          ) : (
-            <p>No content</p>
-          )
-        ) : (
-          <p>No content</p>
-        )}
-      </ul>
+            <ul>
+              {storyArray ? (
+                storyArray.length > 0 ? (
+                  storyArray.map((item: any) => (
+                    //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
+                    <StatusStories
+                      key={Math.random()}
+                      Ringwidth="85"
+                      Ringheight="85"
+                      width="80"
+                      height="80"
+                      profileImage={item.profileImage}
+                      storyId={item.storyId}
+                      userName={item.userName}
+                      storyImage={item.image}
+                      createdAt={item.createdAt}
+                      nav={"/userProfile"}
+                    />
+                  ))
+                ) : (
+                  <p>No content</p>
+                )
+              ) : (
+                <p>No content</p>
+              )}
+              <FontAwesomeIcon onClick={StoryNextData} icon={faCircleArrowRight}/>
+            </ul>
           </div>
         </UserHighlightSection>
         <AllPostImages>
+            <InfiniteScroll
+              dataLength={imageArray ? imageArray.length : 0} //This is important field to render the next data
+              next={getNextDataOfUserPost}
+              hasMore={hasMorePosts}
+              loader={<h4>Loading...</h4>}
+              endMessage={
+                <p style={{ textAlign: "center" }}>
+                  <b>Yay! You have seen it all</b>
+                </p>
+              }
+            >
           <ul>
-            {/* {randomPosts.map((item) => {
-              return item;
-            })} */}
             {imageArray ? (
               imageArray.length > 0 ? (
                 imageArray.map((item: any) => (
@@ -177,8 +218,8 @@ function UserProfile() {
             ) : (
               <p>No content</p>
             )}
-
           </ul>
+            </InfiniteScroll>
         </AllPostImages>
       </UserProfileContainer>
       <div ref={chatRef} />

@@ -44,7 +44,7 @@ export const EditAndSettingsDiv = styled.div`
       overflow-x: hidden;
       height: 14vh;
     }; */
-    div {
+  div {
     @media screen and (max-width: 400px) {
       display: flex;
       flex-direction: column;
@@ -79,6 +79,15 @@ export const EditAndSettingsDiv = styled.div`
 `;
 
 export const UserHighlightSection = styled.div`
+  svg {
+    height: 30px;
+    cursor: pointer;
+    padding-top: 25px;
+    opacity: 0.4;
+    :hover {
+      opacity: 0.5;
+    }
+  }
   #userProfileHighlight {
     @media screen and (max-width: 840px) {
       width: 620px;
@@ -98,9 +107,12 @@ export const UserHighlightSection = styled.div`
   }
   margin: 45px 0px 20px 0px;
   max-width: 950px;
-  float: left;
+
   ul {
     display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-content: right;
     list-style: none;
     overflow-y: scroll;
     -ms-overflow-style: none;
@@ -125,12 +137,12 @@ export const AllPostImages = styled.div`
     list-style: none;
     li {
       margin: 10px 10px 10px 8px;
-      img{
+      img {
         object-fit: cover;
       }
       @media screen and (max-width: 438px) {
         margin-left: -20px;
-    }
+      }
     }
     @media screen and (max-width: 670px) {
       flex-direction: column;

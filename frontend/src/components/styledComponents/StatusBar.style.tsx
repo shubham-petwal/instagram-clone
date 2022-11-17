@@ -27,4 +27,14 @@ export const StatusBarContainer = styled.div`
   ul::-webkit-scrollbar {
     display: none;
 }
+svg{
+  height: 30px;
+  cursor: pointer;
+  float: right;
+  justify-content: right;
+  opacity: 0.4;
+  :hover{
+    opacity: 0.5;
+  }
+}
 `;

@@ -4,6 +4,9 @@ import { StatusBarContainer } from "./styledComponents/StatusBar.style";
 
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
+import { Timestamp } from "firebase/firestore";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 interface StoryInterface {
   image: string;
@@ -11,29 +14,33 @@ interface StoryInterface {
   StoryId: string;
   profileImage: string;
   createdAt: any;
-  userId:string
+  deleteAt:any;
+  userId:string;
+  docId:string;
   children: React.ReactNode;
 }
 function StatusBar(props:any) {
   const user = useContext(AuthContext);
   const [storyArray, setStoryArray] = useState<Array<StoryInterface>>([]);
-  const [lastDoc, setLastDoc] = useState<string>("");
+  // const [lastDoc, setLastDoc] = useState<string>("");
   const [hasMore, setHasMore] = useState<boolean>(true);
 
   const getNextData = async () => {
     try {
       // chatRef.current?.scrollIntoView();
+      const lastDoc = storyArray[storyArray.length - 1].deleteAt
+      const date = new Timestamp(lastDoc.seconds , lastDoc.nanoseconds).toMillis();
       const res = await axios.get(
-        `http://localhost:90/getStories?page=1&lastDocId=${lastDoc}`
+        `http://localhost:90/getStories?page=1&lastDocId=${date}`
       );
       //have to use query params
       if(res.data.data){
-        console.log(res.data.data)
+        // console.log(res.data.data)
         setStoryArray((prev) => {
           return [...prev, ...res.data.data];
         });
       }
-      setLastDoc(res.data.lastDocId);
+      console.log("lastDoc Id is",lastDoc)
       if (res.data.data.length == 0) {
         setHasMore(false);
       }
@@ -41,14 +48,13 @@ function StatusBar(props:any) {
       console.log(error);
     }
   };
-console.log("My Story=",lastDoc)
+  // console.log("Story Array is=",storyArray)
 
 
   useEffect(() => {
     const getData = async () => {
       try {
         const allStories = await axios.get(`http://localhost:90/getStories?page=1`);
-        setLastDoc(allStories.data.lastDocId);
         const storyData = allStories.data;
         if (storyData) {
           setStoryArray(storyData.data);
@@ -101,7 +107,7 @@ console.log("My Story=",lastDoc)
           <p>No content</p>
         )}
       </ul>
-      <button onClick={getNextData}>Call Next Data</button>
+      <FontAwesomeIcon onClick={getNextData} icon={faCircleArrowRight}/>
     </StatusBarContainer>
   );
 }
