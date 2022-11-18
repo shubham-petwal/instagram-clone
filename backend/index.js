@@ -33,6 +33,7 @@ const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 const fs = require("fs");
 const { async } = require("@firebase/util");
+const algoliasearch = require('algoliasearch');
 
 // DiskSotrage function accepts an object with two values which is {destination:"", filename:""}
 
@@ -71,7 +72,38 @@ app.use(bodyParser.urlencoded({ extended: true })); //it will provide posted dat
 dotenv.config();
 
 //endpoints are described below
+app.get('/check',async (req,res)=>{
+  try{
+    const searchClient = algoliasearch(
+      process.env.ALOGOLIA_APP_ID,
+      process.env.ALOGOLIA_ADMIN_API_KEY
+    );
+    const instaIndex = searchClient.initIndex("instagram_users")
+    // console.log("/check : ",response);
+    instaIndex.findObject(hit => hit.fullName == "test 10" ).then(async(obj)=>{
+      console.log("found object : ",obj);
+      const actors = {
+        fullName : "test 10",
+        userName : "test_10",
+        profileImage : "https://pokemonletsgo.pokemon.com/assets/img/common/char-pikachu.png",
+        objectID: obj.object.objectID,
+      };
+      instaIndex.saveObject(actors).then(()=>{
+        console.log("done updating the insta index")
+      }).catch((err)=>{
+        console.log("updation error : ",err.message);
+      })
 
+    })
+    res.send({
+      message : "completed",
+    })
+  }catch(err){
+    res.send({
+      message : err.message
+    })
+  }
+})
 // this endpoint to allow/deny user to register if the userName exists or not, since the authentication is done with firebase/authentication
 app.get('/allowedRegistration/:userName',async(req,res)=>{
   const {userName} = req.params;
@@ -117,6 +149,17 @@ app.post("/register", async (req, res) => {
       postCount: 0,
       profileImage : ""
     });
+    const searchClient = algoliasearch(
+      process.env.ALOGOLIA_APP_ID,
+      process.env.ALOGOLIA_ADMIN_API_KEY
+    );
+    const instaIndex = searchClient.initIndex("instagram_users")
+    const actors = [{
+      fullName : fullName,
+      userName : userName,
+      profileImage : ""
+    }] 
+    await instaIndex.saveObjects(actors,{'autoGenerateObjectIDIfNotExist': true})
     res.send({ success: true, message: "user Registered Successfully" });
   } catch (error) {
     console.log(error);
@@ -264,6 +307,30 @@ app.post('/updateUser',async (req,res)=>{
     // updating user document
     const documentRef = doc(db,"users",resArr[0].id)
     const updateDocResponse = await updateDoc(documentRef,data);
+
+    const searchClient = algoliasearch(
+      process.env.ALOGOLIA_APP_ID,
+      process.env.ALOGOLIA_ADMIN_API_KEY
+    );
+    const instaIndex = searchClient.initIndex("instagram_users")
+    
+    instaIndex.findObject(hit => hit.userName == resArr[0].userName ).then(async(obj)=>{
+      console.log("found object : ",obj);
+      const actors = {
+        fullName : fullName,
+        userName : userName,
+        profileImage : resArr[0].profileImage,
+        objectID: obj.object.objectID,
+      };
+      instaIndex.saveObject(actors,{}).then(()=>{
+        console.log("done updating user data in the instaIndex")
+      }).catch((err)=>{
+        console.log("updation error : ",err.message);
+      })
+    }).catch((err)=>{
+      console.log(err);
+    })
+
     //sending response once user is updated
     res.send({
       success : true,
@@ -364,6 +431,30 @@ app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
       profileImage : url
     };
     await updateDoc(documentRef,postObj);
+
+    const searchClient = algoliasearch(
+      process.env.ALOGOLIA_APP_ID,
+      process.env.ALOGOLIA_ADMIN_API_KEY
+    );
+    const instaIndex = searchClient.initIndex("instagram_users")
+    
+    instaIndex.findObject(hit => hit.userName == resArr[0].userName ).then(async(obj)=>{
+      console.log("found object : ",obj);
+      const actors = {
+        fullName : resArr[0].fullName,
+        userName : resArr[0].userName,
+        profileImage : url,
+        objectID: obj.object.objectID,
+      };
+      instaIndex.saveObject(actors,{}).then(()=>{
+        console.log("done updating the profile image in instaIndex")
+      }).catch((err)=>{
+        console.log("updation error : ",err.message);
+      })
+    }).catch((err)=>{
+      console.log(err);
+    })
+
     res.send({success : true, message : "updated profile picture"})
   } 
   catch (error) {

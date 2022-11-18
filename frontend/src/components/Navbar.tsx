@@ -7,10 +7,11 @@ import find from "../assets/images/find.svg";
 import love from "../assets/images/love.svg";
 import message from "../assets/images/message.svg";
 import plus from "../assets/images/plus.svg";
+import search from "../assets/images/search-svgrepo-com.svg"
 import subh from "../assets/images/shubham.jpg";
 import Avatar from "@material-ui/core/Avatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleUser, faBookmark } from "@fortawesome/free-regular-svg-icons";
+import { faCircleUser, faBookmark,  } from "@fortawesome/free-regular-svg-icons";
 import {
   faPlaneCircleExclamation,
   faRepeat,
@@ -33,6 +34,7 @@ import {
   NavLogo,
   ProfileAvatar,
 } from "./styledComponents/Navbar.style";
+import SearchModal from "./SearchModal";
 import axios from "axios";
 interface NavInterFace {
   profileImage: string;
@@ -48,6 +50,7 @@ function Navbar() {
     fullName : "",
     userName : "",
   });
+  const [showSearchModal, setModal]=useState<boolean>(false);
   const user = useContext(AuthContext);
   let navigate = useNavigate();
   const signOut = async () => {
@@ -113,13 +116,13 @@ function Navbar() {
           </Grid>
 
           <Grid item xs={3} id="input_grid">
-            <NavInput type="text" placeholder="Search" />
+            <NavInput type="text" placeholder="Search"  onClick={()=>setModal(true)} />
           </Grid>
           <Grid item xs={2} id="icons_grid" style={{ display: "flex" }}>
-            <NavIcons src={home} width="28px" alt="logo" />
+            <NavIcons src={home} width="28px" alt="logo" onClick={()=>navigate("/home")}  />
             <NavIcons src={message} width="28px" alt="logo" />
-            <NavIcons src={plus} width="28px" height="20px" alt="logo" onClick={()=>navigate("/uploadImage")} />
-            <NavIcons src={find} width="28px" alt="logo" />
+            <NavIcons src={plus} width="28px" height="20px"  alt="logo" onClick={()=>navigate("/uploadImage")} />
+            <NavIcons src={search} width="28px" height="20px" alt="logo"  onClick={()=>setModal(true)} />
             <NavIcons src={love} width="28px" alt="logo" />
 
             {/* <img className="nav_icons" src={home} width="28px" alt="logo" />
@@ -166,6 +169,10 @@ function Navbar() {
           <Grid item xs={2}></Grid>
         </Grid>
       </NavContainer>
+      <SearchModal 
+        show={showSearchModal}
+        onHide = {()=>setModal(false)}
+      />
     </div>
   );
 }

@@ -126,7 +126,6 @@ function UserProfile() {
                   Edit Profile
                 </button>
               ) : null}
-
               <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
@@ -141,7 +140,7 @@ function UserProfile() {
                   return setShowFollowerModal(true);
                 }}
               >
-                <span>{socialCount?.inbound_count} </span>
+                <span>{socialCount?.inbound_count || 0} </span>
                 followers
               </div>
               <div
@@ -150,7 +149,7 @@ function UserProfile() {
                   return setShowFollowerModal(true);
                 }}
               >
-                <span>{socialCount?.outbound_count} </span>
+                <span>{socialCount?.outbound_count || 0} </span>
                 following
               </div>
             </EditAndSettingsDiv>
@@ -171,9 +170,6 @@ function UserProfile() {
         </UserHighlightSection>
         <AllPostImages>
           <ul>
-            {/* {randomPosts.map((item) => {
-              return item;
-            })} */}
             {imageArray ? (
               imageArray.length > 0 ? (
                 imageArray.map((item: any) => (
