@@ -51,7 +51,6 @@ const fileStoragePath = multer.diskStorage({
 });
 
 const collectionQueryForNextData = (collectionName,queryItems,pageSize,orderRef,lastDocId)=>{
-  console.log("my order clause",orderRef)
   const queryRef = query(
     collection(db, collectionName),
     where(queryItems[0],queryItems[1],queryItems[2]),
@@ -892,7 +891,6 @@ app.post(
 
 app.get("/getStories", async (req, res) => {
   const { lastDocId, page, userId } = req.query;
-  console.log("My userId number=",userId)
   try {
     if (userId){
       if (lastDocId) {
@@ -926,7 +924,6 @@ app.get("/getStories", async (req, res) => {
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
           storiesArray.push(doc.data());
-          console.log(doc.data())
         });
         if (storiesArray.length == 0) {
           res.send({
@@ -970,7 +967,6 @@ app.get("/getStories", async (req, res) => {
         });
         return;
       } else {
-        console.log("reached else part");
         const storiesArray = [];
         const whereClause = ["deleteAt",">=",currentTime]
         const orderByClause = ["deleteAt","desc"]
@@ -980,7 +976,6 @@ app.get("/getStories", async (req, res) => {
           storiesArray.push(doc.data());
         }
         );
-        console.log("Time is",currentTime)
         if (storiesArray.length == 0) {
           // if first document fetch of the user contains no document
           res.send({

@@ -3,16 +3,18 @@ import { borderColor, pageBgColor } from "./utilityFiles/variables";
 
 export const UserProfileContainer = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   flex-direction: column;
   padding-top: 80px;
   background: ${pageBgColor};
   min-height: 100vh;
-  .align_center {
+  /* .align_center {
     display: flex;
     align-items: center;
     justify-content: center;
-  }
+  } */
 `;
 export const UserDataSection = styled.div`
   margin-top: 15px;
@@ -121,10 +123,8 @@ export const UserHighlightSection = styled.div`
 `;
 
 export const AllPostImages = styled.div`
-  max-width: 69vw;
+  max-width: 62rem;
   display: flex;
-  align-items: center;
-  justify-content: center;
   ul {
     display: flex;
     flex-wrap: wrap;
