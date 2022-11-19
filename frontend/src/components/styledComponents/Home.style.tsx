@@ -6,6 +6,7 @@ export const HomePageContainer = styled.div`
   padding-top: 80px;
   justify-content: center;
   background:${pageBgColor};
+  width: 100vw;
 `;
 
 export const SuggestionContainer = styled.div`

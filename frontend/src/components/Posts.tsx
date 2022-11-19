@@ -121,7 +121,6 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
       }
     );
   },[]);
-console.log(liked)
   function handlePostClick(event: React.MouseEvent<HTMLElement>) {
     setModalState((prev) => {
       return !prev;

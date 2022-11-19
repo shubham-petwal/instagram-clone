@@ -33,6 +33,7 @@ const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 const fs = require("fs");
 const { async } = require("@firebase/util");
+const algoliasearch = require('algoliasearch');
 
 // DiskSotrage function accepts an object with two values which is {destination:"", filename:""}
 
@@ -117,6 +118,22 @@ app.post("/register", async (req, res) => {
       postCount: 0,
       profileImage : ""
     });
+    const searchClient = algoliasearch(
+      process.env.ALOGOLIA_APP_ID,
+      process.env.ALOGOLIA_ADMIN_API_KEY
+    );
+    const instaIndex = searchClient.initIndex("instagram_users")
+    const actors = [{
+      objectID : userId,
+      fullName : fullName,
+      userName : userName,
+      profileImage : ""
+    }] 
+    instaIndex.saveObjects(actors).then((response)=>{
+      console.log("successfully registered user into algolia")
+    }).catch((err)=>{
+      console.log("unable to register user into algolia");
+    })
     res.send({ success: true, message: "user Registered Successfully" });
   } catch (error) {
     console.log(error);
@@ -264,6 +281,25 @@ app.post('/updateUser',async (req,res)=>{
     // updating user document
     const documentRef = doc(db,"users",resArr[0].id)
     const updateDocResponse = await updateDoc(documentRef,data);
+
+    const searchClient = algoliasearch(
+      process.env.ALOGOLIA_APP_ID,
+      process.env.ALOGOLIA_ADMIN_API_KEY
+    );
+    const instaIndex = searchClient.initIndex("instagram_users")
+    
+    const actor = {
+      fullName : fullName,
+      userName : userName,
+      profileImage : resArr[0].profileImage,
+      objectID: resArr[0].userId,
+    };
+    instaIndex.saveObject(actor).then(()=>{
+      console.log("done updating user data in the instaIndex")
+    }).catch((err)=>{
+      console.log("updation error : ",err.message);
+    })
+
     //sending response once user is updated
     res.send({
       success : true,
@@ -364,6 +400,24 @@ app.post('/updateProfileImage',upload.single("file"),async (req, res) => {
       profileImage : url
     };
     await updateDoc(documentRef,postObj);
+
+    const searchClient = algoliasearch(
+      process.env.ALOGOLIA_APP_ID,
+      process.env.ALOGOLIA_ADMIN_API_KEY
+    );
+    
+    const actors = {
+      fullName : resArr[0].fullName,
+      userName : resArr[0].userName,
+      profileImage : url,
+      objectID: resArr[0].userId,
+    };
+    instaIndex.saveObject(actors).then(()=>{
+      console.log("done updating the profile image in instaIndex")
+    }).catch((err)=>{
+      console.log("updation error : ",err.message);
+    })
+
     res.send({success : true, message : "updated profile picture"})
   } 
   catch (error) {
