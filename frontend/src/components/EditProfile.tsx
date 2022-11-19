@@ -105,7 +105,7 @@ function EditProfile() {
               </LabelDiv>
               <InputDiv>
                 <p id="username">{userRetrievedData?.userName}</p>
-                <span onClick={()=>setModalIsOpen(true)} style={{fontSize : "12px", border:"none", background:"none", margin : "0px 3px", display:"block",color:"#4086fe"}}>update Profile</span>
+                <span onClick={()=>setModalIsOpen(true)} style={{fontSize : "12px", border:"none", background:"none", margin : "0px 3px", display:"block",color:"#4086fe"}}>Update profile</span>
               </InputDiv> 
             </div>
             <form onSubmit={handleFormSubmit}>
@@ -211,7 +211,7 @@ function EditProfile() {
           </RightEditPage>
         </EditProfileContainer>
       </EditProfileMainContainer>
-      <UploadModal method={"updateProfileImage"} isModalOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} header={"Update profile Image"}/>
+      <UploadModal method={"updateProfileImage"} isModalOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} header={"Update profile image"}/>
     </div>
   );
 }

@@ -16,27 +16,36 @@ import { Avatar } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"
+import "react-toastify/dist/ReactToastify.css";
 import UploadModal from "./UploadModal";
 import { Timestamp } from "firebase/firestore";
+import ShowStory from "./ShowStory";
 
 interface DataInterface {
   image: string;
   caption: string;
   postId: string;
   createdAt: any;
-  docId:string;
+  docId: string;
+  children: React.ReactNode;
+}
+interface StoryInterface {
+  image: string;
+  createdAt: any;
+  userName: string;
+  profileImage: string;
   children: React.ReactNode;
 }
 
 function Home() {
   const user = useContext(AuthContext);
   const [imageArray, setImageArray] = useState<Array<DataInterface>>([]);
+
   const [userRetrievedData, setRetrievedData] = useState<any>();
   // const [lastDoc, setLastDoc] = useState<string>("");
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isStoryUploaded, setIsStoryUploaded] = useState<boolean>(true);
-  const [modalIsOpen,setModalIsOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
 
   const handleSetStory = (bool: boolean) => {
     return setIsStoryUploaded(bool);
@@ -44,10 +53,13 @@ function Home() {
 
   const getNextData = async () => {
     try {
-      const lastDoc = imageArray[imageArray.length - 1].createdAt
-      const date = new Timestamp(lastDoc.seconds , lastDoc.nanoseconds).toMillis();
+      const lastDoc = imageArray[imageArray.length - 1].createdAt;
+      const lastDocInMillis = new Timestamp(
+        lastDoc.seconds,
+        lastDoc.nanoseconds
+      ).toMillis();
       const res = await axios.get(
-        `http://localhost:90/getPosts?page=3&lastDocId=${date}`
+        `http://localhost:90/getPosts?page=3&lastDocId=${lastDocInMillis}`
       );
       //have to use query params
       setImageArray((prev) => {
@@ -60,13 +72,10 @@ function Home() {
       console.log(error);
     }
   };
-
   useEffect(() => {
     const getData = async () => {
       try {
-        const allPosts = await axios.get(
-          `http://localhost:90/getPosts?page=3`
-        );
+        const allPosts = await axios.get(`http://localhost:90/getPosts?page=3`);
         const details = allPosts.data;
         if (details) {
           setImageArray(details.data);
@@ -85,10 +94,9 @@ function Home() {
   }, []);
   return (
     <>
-    
       <Navbar profileImage={userRetrievedData?.profileImage} />
       <HomePageContainer>
-        <ToastContainer position="top-center"/>
+        <ToastContainer position="top-center" />
         <div id="all_posts">
           <StatusBar setStoryState={handleSetStory} />
           <InfiniteScroll
@@ -112,8 +120,8 @@ function Home() {
                     caption={item.caption}
                     postId={item.postId}
                     userId={item.userId}
-                    userName = {item.userName}
-                    profileImage = {item.profileImage}
+                    userName={item.userName}
+                    profileImage={item.profileImage}
                   />
                 ))
               ) : (
@@ -128,7 +136,11 @@ function Home() {
           <SuggestionUserDetailsdiv>
             <div id="details">
               {isStoryUploaded ? (
-                <div onClick={()=>{toast("Story Already Uploaded")}}>
+                <div
+                  onClick={() => {
+                    toast("Story Already Uploaded");
+                  }}
+                >
                   <Avatar
                     id="homeProfileImage"
                     src={userRetrievedData?.profileImage}
@@ -140,9 +152,8 @@ function Home() {
                     height="20px"
                   />
                 </div>
-                
               ) : (
-                <div onClick={()=>setModalIsOpen(true)}>
+                <div onClick={() => setModalIsOpen(true)}>
                   <Avatar
                     id="homeProfileImage"
                     src={userRetrievedData?.profileImage}
@@ -162,13 +173,16 @@ function Home() {
                 <span id="fullName">{userRetrievedData?.fullName}</span>
               </div>
             </div>
-            <div>
-              <button>Switch</button>
-            </div>
+            <div></div>
           </SuggestionUserDetailsdiv>
         </SuggestionContainer>
       </HomePageContainer>
-      <UploadModal method={"addStory"} isModalOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} header={"Add new story"}/>
+      <UploadModal
+        method={"addStory"}
+        isModalOpen={modalIsOpen}
+        setModalIsOpen={setModalIsOpen}
+        header={"Add new story"}
+      />
     </>
   );
 }

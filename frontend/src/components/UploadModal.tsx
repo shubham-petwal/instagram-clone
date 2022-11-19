@@ -4,6 +4,7 @@ import Modal from 'react-bootstrap/Modal';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
+import { UploadModalBodyDiv } from './styledComponents/UploadModal.style';
 
 interface PropsInterface {
     method: string;
@@ -49,8 +50,9 @@ function UploadModal(props:PropsInterface) {
             <Modal.Title>{props.header}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-          <input type="file" id="file" name="file" onChange={handleInputChange} />
-      {/* conditionally Text Area render */}
+            <UploadModalBodyDiv> 
+          <input type="file" className="custom-file-input" name="file"  onChange={handleInputChange} />
+            </UploadModalBodyDiv>
       <br/>
       {props.method == "uploadPost" ? (
         <textarea
@@ -66,7 +68,7 @@ function UploadModal(props:PropsInterface) {
 
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={handleUpload}>
+            <Button style={{"background":"#0095f6","color":"white"}} onClick={handleUpload}>
               Upload
             </Button>
           </Modal.Footer>

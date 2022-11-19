@@ -1,6 +1,11 @@
 import styled, { css } from "styled-components";
 
 export const NavContainer = styled.div`
+#last_grid{
+  @media screen and (max-width: 750px) {
+    margin-left: 8%;
+    }
+}
   .MuiGrid-item {
     height: 60px !important;
   }
@@ -13,18 +18,22 @@ export const NavContainer = styled.div`
   top: 0;
   width: 100%;
   #nav_first_grid {
-    @media screen and (max-width: 970px) {
-      display: none;
+    @media screen and (max-width: 750px) {
+      visibility: hidden;
     }
   }
   #input_grid {
-    @media screen and (max-width: 540px) {
-      display: none;
+    @media screen and (max-width: 750px) {
+      /* display: none; */
     }
   }
   #icons_grid{
-    @media screen and (max-width: 540px) {
-      margin-left:50px;
+    @media screen and (max-width: 750px) {
+      /* margin-left:50px; */
+      display: none !important;
+    }
+    @media screen and (max-width: 970px) {
+      margin-left:-30px;
     }
   }
   .show {
@@ -40,15 +49,14 @@ export const NavContainer = styled.div`
       margin-right: 6px;
     }
   }
+
 `;
 export const NavLogo = styled.img`
   height: 1.9rem;
   width: 6.8rem;
   margin-top: 15px;
+  margin-left: -55px;
   cursor: pointer;
-  @media screen and (max-width: 960px) and (min-width: 480px) {
-    margin-left:40px;
-    }
 `;
 export const NavInput = styled.input`
   height: 35px;
@@ -73,16 +81,16 @@ export const NavInput = styled.input`
 export const NavIcons = styled.img`
   margin: 15px 10px;
   cursor: pointer;
-  @media screen and (max-width: 580px) {
+  /* @media screen and (max-width: 580px) {
     margin: 15px 2px 0px 10px;
-  }
+  } */
 `;
 export const DropdownProfile = styled.div`
   button {
     margin: 13px 7px;
     border-radius: 50%;
     font-size: 0px;
-    width: 25px;
+    max-width: 25px;
     height: 25px;
     border: none;
     background: none;
@@ -100,3 +108,12 @@ export const ProfileAvatar = styled.div`
     max-height: 27px;
   }
 `;
+export const HamburgerDiv = styled.div`
+display: none;
+@media screen and (max-width: 750px) {
+    display: flex;
+    margin-left: 35px;
+    /* align-items: flex-end; */
+  }
+`;
+

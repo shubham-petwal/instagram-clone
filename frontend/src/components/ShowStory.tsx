@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Stories from 'react-insta-stories'
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, Router, useLocation, useNavigate } from "react-router-dom";
 import { ShowStoryContainer } from "./styledComponents/ShowStory.style";
 import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 function ShowStory() {
     const location = useLocation();
     const navigate = useNavigate()
+    const locationRef = useRef<any>()
     var currentTime = Math.round(new Date().getTime()/1000); //milliSeconds to seconds
     const createdTime = location.state.createdAt.seconds
     const createdAtMinutes = Math.round((currentTime-createdTime)/60)
@@ -23,9 +24,10 @@ function ShowStory() {
         defaultInterval={2000}
         stories={stories}
         isPaused={true}
-        onAllStoriesEnd={()=>navigate(`${location.state.nav}`)}
+        onAllStoriesEnd={()=>locationRef.current.click()}
       />
       {/* <FontAwesomeIcon id="cross"  icon={faCircleXmark} /> */}
+      <Link ref={locationRef} to={`${location.state.nav}`}/>
     </ShowStoryContainer>
   );
 }

@@ -111,10 +111,8 @@ export function PostDetailModal(props: any) {
                   </div>
                   <div className="description">
                     <p className="user-name">{props.userName}</p>
-                    <p>Lucknow</p>
                   </div>
                   <div className="ellipsis">
-                    <FontAwesomeIcon icon={faEllipsis} />
                   </div>
                 </AuthorProfileDiv>
                 <CommentsWrapperDiv>
@@ -177,10 +175,8 @@ export function PostDetailModal(props: any) {
                         />
                       )}
                       <FontAwesomeIcon icon={faComment} />
-                      <FontAwesomeIcon icon={faShareFromSquare} />
                     </div>
                     <div className="bookmark-icon">
-                      <FontAwesomeIcon icon={faBookmark} />
                     </div>
                   </div>
                   <div className="likes-wrapper">

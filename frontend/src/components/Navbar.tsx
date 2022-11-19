@@ -2,15 +2,16 @@ import React, { useContext, useState } from "react";
 import { Grid } from "@material-ui/core";
 // import "../styles/Navbar.scss";
 import logo from "../assets/images/instagram_logo.png";
+import hamIcon from "../assets/images/icons8-bulleted-list-100.png";
 import home from "../assets/images/home.svg";
 import find from "../assets/images/find.svg";
 import love from "../assets/images/love.svg";
 import message from "../assets/images/message.svg";
 import plus from "../assets/images/plus.svg";
-import subh from "../assets/images/shubham.jpg";
 import Avatar from "@material-ui/core/Avatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleUser, faBookmark } from "@fortawesome/free-regular-svg-icons";
+import { faCircleUser } from "@fortawesome/free-regular-svg-icons";
+import { faListUl } from "@fortawesome/free-solid-svg-icons";
 import {
   faPlaneCircleExclamation,
   faRepeat,
@@ -27,6 +28,7 @@ import { auth } from "../firebaseSetup";
 import type {} from "styled-components/cssprop";
 import {
   DropdownProfile,
+  HamburgerDiv,
   NavContainer,
   NavIcons,
   NavInput,
@@ -37,9 +39,10 @@ import UploadModal from "./UploadModal";
 interface NavInterFace {
   profileImage: string;
 }
-function Navbar({profileImage}:NavInterFace) {
+function Navbar({ profileImage }: NavInterFace) {
   const user = useContext(AuthContext);
-  const [modalIsOpen,setModalIsOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [showMediaIcons, setShowMediaIcons] = useState(false);
   let navigate = useNavigate();
   const signOut = async () => {
     await auth.signOut();
@@ -69,7 +72,7 @@ function Navbar({profileImage}:NavInterFace) {
             <NavLink to="/home">
               <NavLogo src={logo} alt="logo" />
             </NavLink>
-            <Dropdown>
+            {/* <Dropdown>
               <Dropdown.Toggle
                 style={{
                   background: "none",
@@ -87,7 +90,7 @@ function Navbar({profileImage}:NavInterFace) {
                   <FontAwesomeIcon icon={faStar} /> Favourites
                 </Dropdown.Item>
               </Dropdown.Menu>
-            </Dropdown>
+            </Dropdown> */}
           </Grid>
 
           <Grid item xs={3} id="input_grid">
@@ -96,7 +99,13 @@ function Navbar({profileImage}:NavInterFace) {
           <Grid item xs={2} id="icons_grid" style={{ display: "flex" }}>
             <NavIcons src={home} width="28px" alt="logo" />
             <NavIcons src={message} width="28px" alt="logo" />
-            <NavIcons src={plus} width="28px" height="20px" alt="logo" onClick={()=>setModalIsOpen(true)} />
+            <NavIcons
+              src={plus}
+              width="28px"
+              height="20px"
+              alt="logo"
+              onClick={() => setModalIsOpen(true)}
+            />
             <NavIcons src={find} width="28px" alt="logo" />
             <NavIcons src={love} width="28px" alt="logo" />
 
@@ -104,7 +113,6 @@ function Navbar({profileImage}:NavInterFace) {
             <img className="nav_icons" src={find} width="28px" alt="logo" />
             <img className="nav_icons" src={love} width="28px" alt="logo" />
             <img className="nav_icons" src={message} width="28px" alt="logo" /> */}
-            <div style={{ position: "relative" }}>
               <Dropdown>
                 <DropdownProfile>
                   <Dropdown.Toggle>
@@ -114,12 +122,12 @@ function Navbar({profileImage}:NavInterFace) {
                   </Dropdown.Toggle>
                 </DropdownProfile>
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={()=>navigate("/userProfile")}>
+                  <Dropdown.Item onClick={() => navigate("/userProfile")}>
                     <FontAwesomeIcon icon={faCircleUser} />
                     Profile
                   </Dropdown.Item>
 
-                  <Dropdown.Item href="/">
+                  {/* <Dropdown.Item href="/">
                     <FontAwesomeIcon icon={faBookmark} /> Saved
                   </Dropdown.Item>
                   <Dropdown.Item href="/">
@@ -131,19 +139,67 @@ function Navbar({profileImage}:NavInterFace) {
                   </Dropdown.Item>
                   <Dropdown.Item href="/">
                     <FontAwesomeIcon icon={faRepeat} /> Switch accounts
-                  </Dropdown.Item>
+                  </Dropdown.Item> */}
 
                   <Dropdown.Item href="/" id="logout" onClick={signOut}>
                     Log out
                   </Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-            </div>
           </Grid>
-          <Grid item xs={2}></Grid>
+          <Grid item xs={3} id="last_grid">
+          <HamburgerDiv >
+            <Dropdown>
+              <DropdownProfile>
+                <Dropdown.Toggle>
+                  <img id="avatar" width="30px" src={hamIcon} />
+                </Dropdown.Toggle>
+              </DropdownProfile>
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => navigate("/userProfile")}>
+                  <NavIcons src={profileImage} width="25px" height="22px" alt="logo" /> Profile
+                </Dropdown.Item>
+                <Dropdown.Item>
+                  <NavIcons src={home} width="25px" height="22px" alt="logo" />{" "}
+                  Home
+                </Dropdown.Item>
+                <Dropdown.Item>
+                  <NavIcons
+                    src={message}
+                    width="25px"
+                    height="22px"
+                    alt="logo"
+                  />{" "}
+                  Messages
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => setModalIsOpen(true)}>
+                  <NavIcons src={plus} width="25px" height="22px" alt="logo" />{" "}
+                  Create
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => navigate("/userProfile")}>
+                  <NavIcons src={find} width="25px" height="22px" alt="logo" />{" "}
+                  Search
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => navigate("/userProfile")}>
+                  <NavIcons src={love} width="25px" height="22px" alt="logo" />{" "}
+                  Notifications
+                </Dropdown.Item>
+
+                <Dropdown.Item href="/" id="logout" onClick={signOut}>
+                  Log out
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </HamburgerDiv>
+          </Grid>
         </Grid>
       </NavContainer>
-      <UploadModal method={"uploadPost"} isModalOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} header={"Create new post"}/>
+      <UploadModal
+        method={"uploadPost"}
+        isModalOpen={modalIsOpen}
+        setModalIsOpen={setModalIsOpen}
+        header={"Create new post"}
+      />
     </div>
   );
 }

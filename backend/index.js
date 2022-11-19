@@ -38,7 +38,6 @@ const storage = require("./storage");
 const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 const fs = require("fs");
-const { async } = require("@firebase/util");
 
 // DiskSotrage function accepts an object with two values which is {destination:"", filename:""}
 

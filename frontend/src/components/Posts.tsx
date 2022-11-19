@@ -122,7 +122,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
           </div>
         </UserDetailsContainer>
         <div>
-          <FontAwesomeIcon icon={faEllipsis} />
+  
         </div>
       </PostHeader>
       <PostImageDiv>
@@ -139,10 +139,10 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
           <span onClick={handlePostClick}>
             <FontAwesomeIcon icon={faComment} />
           </span>
-          <FontAwesomeIcon icon={faShareSquare} />
+          {/* <FontAwesomeIcon icon={faShareSquare} /> */}
         </ThreeIconsDiv>
         <div>
-          <FontAwesomeIcon icon={faBookmark} />
+          {/* <FontAwesomeIcon icon={faBookmark} /> */}
         </div>
       </LikeCommentShareDiv>
       <LikesDiv>

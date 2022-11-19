@@ -44,12 +44,12 @@ function UserProfile() {
     try {
       chatRef.current?.scrollIntoView();
       const lastDoc = imageArray[imageArray.length - 1].createdAt;
-      const date = new Timestamp(
+      const lastDocInMillis = new Timestamp(
         lastDoc.seconds,
         lastDoc.nanoseconds
       ).toMillis();
       const res = await axios.get(
-        `http://localhost:90/getPosts?userId=${user?.uid}&page=3&lastDocId=${date}`
+        `http://localhost:90/getPosts?userId=${user?.uid}&page=3&lastDocId=${lastDocInMillis}`
       );
       if (res.data.data.length == 0) {
         setHasMorePosts(false);
@@ -113,6 +113,7 @@ function UserProfile() {
     <div>
       <Navbar profileImage={userRetrievedData?.profileImage} />
       <UserProfileContainer>
+        <div className="align_center">
         <UserDataSection>
           <div>
             <Avatar
@@ -128,8 +129,6 @@ function UserProfile() {
               <button onClick={() => navigate("/editProfile")}>
                 Edit Profile
               </button>
-
-              <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
               <div>
@@ -150,7 +149,8 @@ function UserProfile() {
             </EditAndSettingsDiv>
           </UserInfoContainer>
         </UserDataSection>
-
+        </div>
+        <div className="align_center">
         <UserHighlightSection>
           <div id="userProfileHighlight">
             <ul>
@@ -178,10 +178,15 @@ function UserProfile() {
               ) : (
                 <p>No content</p>
               )}
+              {storyArray&&storyArray.length>0 ?
               <FontAwesomeIcon onClick={StoryNextData} icon={faCircleArrowRight}/>
+              :null}
             </ul>
           </div>
         </UserHighlightSection>
+        </div>
+
+        <div className="align_center">
         <AllPostImages>
             <InfiniteScroll
               dataLength={imageArray ? imageArray.length : 0} //This is important field to render the next data
@@ -221,6 +226,7 @@ function UserProfile() {
           </ul>
             </InfiniteScroll>
         </AllPostImages>
+        </div>
       </UserProfileContainer>
       <div ref={chatRef} />
     </div>

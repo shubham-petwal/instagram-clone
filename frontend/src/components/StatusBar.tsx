@@ -24,14 +24,15 @@ function StatusBar(props:any) {
   const [storyArray, setStoryArray] = useState<Array<StoryInterface>>([]);
   // const [lastDoc, setLastDoc] = useState<string>("");
   const [hasMore, setHasMore] = useState<boolean>(true);
+  
 
   const getNextData = async () => {
     try {
       // chatRef.current?.scrollIntoView();
       const lastDoc = storyArray[storyArray.length - 1].deleteAt
-      const date = new Timestamp(lastDoc.seconds , lastDoc.nanoseconds).toMillis();
+      const lastDocInMillis = new Timestamp(lastDoc.seconds , lastDoc.nanoseconds).toMillis();
       const res = await axios.get(
-        `http://localhost:90/getStories?page=1&lastDocId=${date}`
+        `http://localhost:90/getStories?page=1&lastDocId=${lastDocInMillis}`
       );
       //have to use query params
       if(res.data.data){
@@ -97,7 +98,6 @@ function StatusBar(props:any) {
                 storyImage={item.image}
                 createdAt = {item.createdAt}
                 nav = {"/"}
-
               />
             ))
           ) : (
@@ -107,7 +107,9 @@ function StatusBar(props:any) {
           <p>No content</p>
         )}
       </ul>
+      {storyArray.length>0?
       <FontAwesomeIcon onClick={getNextData} icon={faCircleArrowRight}/>
+      :null}
     </StatusBarContainer>
   );
 }
