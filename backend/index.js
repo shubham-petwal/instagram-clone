@@ -50,6 +50,30 @@ const fileStoragePath = multer.diskStorage({
   },
 });
 
+const collectionQueryForNextData = (collectionName,queryItems,pageSize,orderRef,lastDocId)=>{
+  console.log("my order clause",orderRef)
+  const queryRef = query(
+    collection(db, collectionName),
+    where(queryItems[0],queryItems[1],queryItems[2]),
+    orderBy(orderRef[0],orderRef[1]),
+    startAfter(Timestamp.fromMillis(lastDocId)),
+    limit(parseInt(pageSize))
+  )
+  return queryRef;
+
+}
+const collectionQuery = (collectionName,queryItems,orderRef,pageSize)=>{
+  const queryRef = query(
+    collection(db, collectionName),
+    where(queryItems[0],queryItems[1],queryItems[2]),
+    orderBy(orderRef[0],orderRef[1]),
+    limit(parseInt(pageSize))
+  )
+  return queryRef;
+
+}
+
+
 async function uploadImageToBucket(destination, fileName) {
   await bucket.upload("./uploads/" + fileName, {
     destination: destination,
@@ -191,23 +215,15 @@ app.get("/getPosts", async (req, res) => {
   try {
     if (userId) {
       if (lastDocId) {
-        // if we are fetching userData with some lastDocId
         const postArr = [];
-        // below query to check if documents after the lastDocId exists or not
-        console.log("inside UserId lastDocId",lastDocId)
-        const nextPost = query(
-          collection(db, "Posts"),
-          where("userId", "==", userId.toString()),
-          orderBy("createdAt", "desc"),
-          startAfter(Timestamp.fromMillis(lastDocId)),
-          limit(parseInt(page))
-        );
+        const whereClause = ["userId","==",userId.toString()]
+        const orderByClause = ["createdAt","desc"]
+        const nextPost = collectionQueryForNextData("Posts",whereClause,page,orderByClause,lastDocId)
         const snapshot = await getDocs(nextPost);
         snapshot.forEach((doc) => {
           postArr.push(doc.data());
         });
         if (postArr.length == 0) {
-          // if first document fetch of the user contains no document
           res.send({
             success: true,
             message: "followers list of this user is empty",
@@ -223,12 +239,9 @@ app.get("/getPosts", async (req, res) => {
         return;
       } else {
         const postArr = [];
-        const nextPost = query(
-          collection(db, "Posts"),
-          where("userId", "==", userId.toString()),
-          orderBy("createdAt", "desc"),
-          limit(parseInt(page))
-        );
+        const whereClause = ["userId","==",userId.toString()]
+        const orderByClause = ["createdAt","desc"]
+        const nextPost = collectionQuery("Posts",whereClause,orderByClause,page)
         const snapshot = await getDocs(nextPost);
         snapshot.forEach((doc) => {
           postArr.push(doc.data());
@@ -883,21 +896,15 @@ app.get("/getStories", async (req, res) => {
   try {
     if (userId){
       if (lastDocId) {
-        // if we are fetching userData with some lastDocId
         const storiesArray = [];
-        const nextStories = query(
-          collection(db, "stories"),
-          where("userId", "==", userId.toString()),
-          orderBy("deleteAt","desc"),
-          startAfter(Timestamp.fromMillis(lastDocId)),
-          limit(parseInt(page))
-        );
+        const whereClause = ["userId","==",userId.toString()]
+        const orderByClause = ["deleteAt","desc"]
+        const nextStories = collectionQueryForNextData("stories",whereClause,page,orderByClause,lastDocId)
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
           storiesArray.push(doc.data());
         });
         if (storiesArray.length == 0) {
-          // if first document fetch of the user contains no document
           res.send({
             success: true,
             message: "followers list of this user is empty",
@@ -913,19 +920,15 @@ app.get("/getStories", async (req, res) => {
         return;
       } else {
         const storiesArray = [];
-        const nextStories = query(
-          collection(db, "stories"),
-          where("userId", "==", userId.toString()),
-          orderBy("deleteAt","desc"),
-          limit(parseInt(page))
-        );
+        const whereClause = ["userId","==",userId.toString()]
+        const orderByClause = ["deleteAt","desc"]
+        const nextStories = collectionQuery("stories",whereClause,orderByClause,page)
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
           storiesArray.push(doc.data());
           console.log(doc.data())
         });
         if (storiesArray.length == 0) {
-          // if first document fetch of the user contains no document
           res.send({
             success: true,
             message: "followers list of this user is empty",
@@ -944,23 +947,15 @@ app.get("/getStories", async (req, res) => {
     } else {
       const currentTime = new Date();
       if (lastDocId) {
-        console.log("lastDocId is-:", lastDocId);
-        // if we are fetching userData with some lastDocId
         const storiesArray = [];
-        const nextStories = query(
-          collection(db, "stories"),
-          where("deleteAt", ">=", currentTime),
-          orderBy("deleteAt","desc"),
-          startAfter(Timestamp.fromMillis(lastDocId)),
-          limit(parseInt(page)) 
-        );
+        const whereClause = ["deleteAt",">=",currentTime]
+        const orderByClause = ["deleteAt","desc"]
+        const nextStories = collectionQueryForNextData("stories",whereClause,page,orderByClause,lastDocId)
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
           storiesArray.push(doc.data())
         });
-        console.log(storiesArray)
         if (storiesArray.length == 0) {
-          // if first document fetch of the user contains no document
           res.send({
             success: true,
             message: "followers list of this user is empty",
@@ -976,15 +971,10 @@ app.get("/getStories", async (req, res) => {
         return;
       } else {
         console.log("reached else part");
-        // if we fetching userData for the first time
-        // console.log("My userId =",userId)
         const storiesArray = [];
-        const nextStories = query(
-          collection(db, "stories"),
-          where("deleteAt", ">=", currentTime),
-          orderBy("deleteAt","desc"),
-          limit(1)
-        );
+        const whereClause = ["deleteAt",">=",currentTime]
+        const orderByClause = ["deleteAt","desc"]
+        const nextStories = collectionQuery("stories",whereClause,orderByClause,page)
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
           storiesArray.push(doc.data());
