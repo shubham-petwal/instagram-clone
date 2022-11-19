@@ -60,7 +60,6 @@ function Navbar() {
   useEffect(()=>{
     const userID = user?.uid;
     axios.get(`http://localhost:90/users/${userID}`).then((result)=>{
-      console.log("navbar useEffect : ",result.data.data);
       setUserData({
         profileImage : result.data.data.profileImage,
         fullName : result.data.data.fullName,

@@ -28,9 +28,6 @@ const searchClient = algoliasearch(
 
 
 function SearchModal(props: any) {
-  useEffect(()=>{
-    console.log("seach modal env key : ",process.env.REACT_APP_ALGOLIA_APP_ID);
-  })
   return (
     <Modal
       {...props}
