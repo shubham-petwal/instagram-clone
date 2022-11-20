@@ -11,6 +11,7 @@ import EditProfile from "./components/EditProfile";
 import ChangPassword from "./components/ChangPassword";
 import UploadImage from "./components/UploadImage";
 import { PostDetailModal } from "./components/PostDetailModal";
+import ShowStory from "./components/ShowStory";
 import { AuthContext } from "./context/AuthContext";
 
 function App() {
@@ -20,8 +21,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/signup" element={<SignUp />} />
-          <Route path="/" element={<Login />} />
-          <Route path="/forgotPassword" element={<ForgotPassword />} />
+          <Route  path="/" element={<Login />} />
+          <Route path="/forgotPassword" element={<ForgotPassword />}/>
           <Route
             path="/home"
             element={
@@ -62,7 +63,7 @@ function App() {
               </ProtectedRoutes>
             }
           />
-          <Route
+          {/* <Route
             path="/uploadImage"
             element={
               <ProtectedRoutes>
@@ -75,6 +76,22 @@ function App() {
             element={
               <ProtectedRoutes>
                 <UploadImage method="updateProfileImage"/>
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/addStory"
+            element={
+              <ProtectedRoutes>
+                <UploadImage method="addStory"/>
+              </ProtectedRoutes>
+            }
+          /> */}
+          <Route
+            path="/showStory"
+            element={
+              <ProtectedRoutes>
+                <ShowStory/>
               </ProtectedRoutes>
             }
           />

@@ -3,9 +3,10 @@ import { borderColor, pageBgColor } from "./utilityFiles/variables";
 
 export const UserProfileContainer = styled.div`
   display: flex;
+  align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   flex-direction: column;
-  align-items: center;
   padding-top: 80px;
   background: ${pageBgColor};
   min-height: 100vh;
@@ -16,6 +17,7 @@ export const UserDataSection = styled.div`
   max-width: 950px;
   height: 150px;
   display: flex;
+
   flex-wrap: wrap;
 
   #userProfileAvatar {
@@ -74,35 +76,33 @@ export const EditAndSettingsDiv = styled.div`
 `;
 
 export const UserHighlightSection = styled.div`
-  #userProfileHighlight {
-    @media screen and (max-width: 840px) {
-      width: 620px;
+  svg {
+    height: 30px;
+    cursor: pointer;
+    padding: 55px 0 0 10px;
+    opacity: 0.4;
+    :hover {
+      opacity: 0.5;
     }
-    @media screen and (max-width: 984px) {
-      width: 620px;
-    }
-    @media screen and (max-width: 540px) {
-      width: 370px;
-    }
-    @media screen and (max-width: 620px) {
-      max-width: 510px;
-    }
-    /* @media screen and (max-width: 400px) {
-      margin-top:120px;
-    }; */
   }
+  #userProfileHighlight{
+    /* position: absolute; */
+  }
+  display: flex;
   margin: 45px 0px 20px 0px;
-  max-width: 950px;
-  float: left;
+  padding: 25px 0px 20px 0px;
+  max-width: 80vw;
+  overflow-y: hidden;
   ul {
+    width: 100%;
     display: flex;
     list-style: none;
-    overflow-y: scroll;
+    overflow-y: hidden;
     -ms-overflow-style: none;
     scrollbar-width: none;
     padding-bottom: 15px;
     li {
-      margin-right: 30px;
+      /* margin-right: 30px; */
       width: 100%;
     }
   }
@@ -113,19 +113,20 @@ export const UserHighlightSection = styled.div`
 `;
 
 export const AllPostImages = styled.div`
-  max-width: 1000px;
+  max-width: 62rem;
+  display: flex;
   ul {
     display: flex;
     flex-wrap: wrap;
     list-style: none;
     li {
       margin: 10px 10px 10px 8px;
-      img{
+      img {
         object-fit: cover;
       }
       @media screen and (max-width: 438px) {
         margin-left: -20px;
-    }
+      }
     }
     @media screen and (max-width: 670px) {
       flex-direction: column;

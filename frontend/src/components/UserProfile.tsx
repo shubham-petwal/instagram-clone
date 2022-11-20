@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   UserProfileContainer,
   UserDataSection,
@@ -12,6 +12,8 @@ import { Avatar } from "@material-ui/core";
 import WhiteRing from "../assets/images/UserHighlightRing.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
+import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
+
 import StatusStories from "./StatusStories";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -21,9 +23,13 @@ import { collection, doc, onSnapshot, query } from "firebase/firestore";
 import { db } from "../db";
 import FollowerModal from "./FollowerModal";
 import ProfilePosts from "./ProfilePosts";
+import { Timestamp } from "firebase/firestore";
+import InfiniteScroll from "react-infinite-scroll-component";
 interface GetDataInterface {
   image: string;
   caption: string;
+  docId: string;
+  createdAt: any;
   children: React.ReactNode;
 }
 interface SocialCount {
@@ -34,6 +40,7 @@ function UserProfile() {
   const params = useParams();
   const user = useContext(AuthContext);
   const navigate = useNavigate();
+  const chatRef = useRef<any>(null);
   // const userId:string = params?.userId || "";
 
   const [userId, setUserId] = useState<string>("");
@@ -46,19 +53,6 @@ function UserProfile() {
     }
   }
 
-  let rows = [];
-  for (let i = 0; i <= 10; i++) {
-    rows.push(
-      <StatusStories
-        ringImage={WhiteRing}
-        key={Math.random()}
-        Ringwidth="85"
-        Ringheight="85"
-        width="80"
-        height="80"
-      />
-    );
-  }
   const [imageArray, setImageArray] = useState<Array<GetDataInterface>>([]);
   const [userRetrievedData, setRetrievedData] = useState<any>();
   const [showFollowerModal, setShowFollowerModal] = useState<boolean>(false);
@@ -67,6 +61,46 @@ function UserProfile() {
     inbound_count: 0,
     outbound_count: 0,
   });
+  const [hasMorePosts, setHasMorePosts] = useState<boolean>(true);
+  const [storyArray, setStoryArray] = useState<any>();
+  const getNextDataOfUserPost = async () => {
+    try {
+      chatRef.current?.scrollIntoView();
+      const lastDoc = imageArray[imageArray.length - 1].createdAt;
+      const lastDocInMillis = new Timestamp(
+        lastDoc.seconds,
+        lastDoc.nanoseconds
+      ).toMillis();
+      const res = await axios.get(
+        `http://localhost:90/getPosts?userId=${user?.uid}&page=3&lastDocId=${lastDocInMillis}`
+      );
+      if (res.data.data.length == 0) {
+        setHasMorePosts(false);
+      }
+      setImageArray((prev) => {
+        return [...prev, ...res.data.data];
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const StoryNextData = async () => {
+    try {
+      const lastDoc = storyArray[storyArray.length - 1].deleteAt;
+      const date = new Timestamp(
+        lastDoc.seconds,
+        lastDoc.nanoseconds
+      ).toMillis();
+      const res = await axios.get(
+        `http://localhost:90/getStories?userId=${user?.uid}&page=1&lastDocId=${date}`
+      );
+      setStoryArray((prev: any) => {
+        return [...prev, ...res.data.data];
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   
   useEffect(()=>{
     getUserId();
@@ -86,6 +120,17 @@ function UserProfile() {
         });
       });
 
+      // const userId = user?.uid;
+      axios.get(
+        `http://localhost:90/getStories?page=1&userId=${userId}`
+      ).then((storyData)=>{
+        setStoryArray(storyData.data.data);
+      }).catch((err)=>{
+        console.log(err.message);
+      })
+
+
+
       axios
         .get(`http://localhost:90/users/${userId}`)
         .then((userData) => {
@@ -95,7 +140,7 @@ function UserProfile() {
           console.log(err.message);
         })
 
-      axios.get(`http://localhost:90/getPosts/${userId}`).then((allPosts) => {
+      axios.get(`http://localhost:90/getPosts?userId=${userId}&page=3`).then((allPosts) => {
         const Details = allPosts.data;
         if (Details) {
           setImageArray(Details.data);
@@ -111,6 +156,7 @@ function UserProfile() {
     <div>
       <Navbar />
       <UserProfileContainer>
+        <div className="align_center">
         <UserDataSection>
           <div>
             <Avatar
@@ -162,13 +208,56 @@ function UserProfile() {
             </EditAndSettingsDiv>
           </UserInfoContainer>
         </UserDataSection>
-
+        </div>
+        <div className="align_center">
         <UserHighlightSection>
           <div id="userProfileHighlight">
-            <ul>{rows.map((item) => item)}</ul>
+            <ul>
+              {storyArray ? (
+                storyArray.length > 0 ? (
+                  storyArray.map((item: any) => (
+                    //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
+                    <StatusStories
+                      key={Math.random()}
+                      Ringwidth="85"
+                      Ringheight="85"
+                      width="80"
+                      height="80"
+                      profileImage={item.profileImage}
+                      storyId={item.storyId}
+                      userName={item.userName}
+                      storyImage={item.image}
+                      createdAt={item.createdAt}
+                      nav={`/userProfile/${item.userName}`}
+                    />
+                  ))
+                ) : (
+                  <p>No content</p>
+                )
+              ) : (
+                <p>No content</p>
+              )}
+              {storyArray&&storyArray.length>0 ?
+              <FontAwesomeIcon onClick={StoryNextData} icon={faCircleArrowRight}/>
+              :null}
+            </ul>
           </div>
         </UserHighlightSection>
+        </div>
+
+        <div className="align_center">
         <AllPostImages>
+            <InfiniteScroll
+              dataLength={imageArray ? imageArray.length : 0} //This is important field to render the next data
+              next={getNextDataOfUserPost}
+              hasMore={hasMorePosts}
+              loader={<h4>Loading...</h4>}
+              endMessage={
+                <p style={{ textAlign: "center" }}>
+                  <b>Yay! You have seen it all</b>
+                </p>
+              }
+            >
           <ul>
             {imageArray ? (
               imageArray.length > 0 ? (
@@ -195,8 +284,11 @@ function UserProfile() {
               <p>No content</p>
             )}
           </ul>
+            </InfiniteScroll>
         </AllPostImages>
+        </div>
       </UserProfileContainer>
+      <div ref={chatRef} />
       <FollowerModal
         show={showFollowerModal}
         onHide={() => setShowFollowerModal(false)}

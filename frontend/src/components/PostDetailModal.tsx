@@ -25,34 +25,27 @@ import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { Avatar } from "@material-ui/core";
-import { collection, doc, onSnapshot, query } from "firebase/firestore";
+import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../db";
 import redHeart from "../assets/images/red-heart-icon.svg";
 
 export function PostDetailModal(props: any) {
   const navigate = useNavigate();
-  const postData = {
-    useName: "Yt_ 09090",
-    caption: "Dream Super Bike 🔥🔥",
-    profileImage:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxISbGKaOWbeQjagbw4mTs7ldZW2jbA7njbw&usqp=CAU",
-    location: "Lucknow",
-    likes: 455,
-    time: "4 week",
-  };
   const user = useContext(AuthContext);
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
   const [commentsArray, setcommentsArray] = useState<any[]>([]);
   const [comment, setComment] = useState("");
+  const chatRef = useRef<any>(null);
+
   const data = {
     userId: user?.uid,
     commentData: comment,
     postId: props.postId,
   };
-
   const handleAddComments = async () => {
     try {
+      // chatRef.current?.scrollIntoView();
       const result = await axios.post("http://localhost:90/addComment", data);
       setComment("");
     } catch (error) {
@@ -65,12 +58,15 @@ export function PostDetailModal(props: any) {
       likedBy_userId: user?.uid,
       postId: props.postId,
     });
-    console.log("Liked");
   };
+
+  function handleClick() {
+    props.setModal(props.modalState);
+  }
 
   const getData = async () => {
     const collectionRef = query(
-      collection(db, `post_interaction/${props.postId}/comments`)
+      collection(db, `post_interaction/${props.postId}/comments`),orderBy("createdAt","asc")
     );
     const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
       const commentsDetails: any = [];
@@ -79,11 +75,10 @@ export function PostDetailModal(props: any) {
         commentsDetails.push(doc.data());
       });
       setcommentsArray(commentsDetails);
+      
     });
   };
-
-  useEffect(() => {
-    getData();
+  const getTotalLikesAndComments = ()=>{
     const unsubscribe = onSnapshot(
       doc(db, "post_interaction", props.postId),
       (doc) => {
@@ -91,22 +86,16 @@ export function PostDetailModal(props: any) {
         setTotalLikes(doc.data()?.likes_count);
       }
     );
-    return unsubscribe;
-  }, []);
-  function handleClick() {
-    props.setModal(props.modalState);
   }
-  // useEffect(() => {
-  //   if (modalState) {
-  //     document.body.style.height = "100vh";
-  //     document.body.style.overflowY = "hidden";
-  //     // @ts-ignore
-  //     // document.getElementById("root").style.overflowY ="hidden";
-  //   } else {
-  //     //   document.body.style.height = "100vh";
-  //     document.body.style.overflowY = "scroll";
-  //   }
-  // }, [modalState]);
+
+  useEffect(() => {
+    getData();
+    getTotalLikesAndComments();
+  }, []);
+  
+  useEffect(()=>{
+    chatRef.current?.scrollIntoView();
+  },[handleAddComments])
   return (
     <>
       {/* <button onClick={handleClick}>Click</button> */}
@@ -127,7 +116,6 @@ export function PostDetailModal(props: any) {
                     <p>Lucknow</p>
                   </div>
                   <div className="ellipsis">
-                    <FontAwesomeIcon icon={faEllipsis} />
                   </div>
                 </AuthorProfileDiv>
                 <CommentsWrapperDiv>
@@ -141,21 +129,19 @@ export function PostDetailModal(props: any) {
                         {props.caption}
                       </p>
                       <p className="comment-info">
-                        <span>4 Week</span>
+                        <span></span>
                       </p>
                     </div>
                     <div className="like-icon">
-                      <FontAwesomeIcon icon={faHeart} />
                     </div>
                   </CommentDiv>
                   {commentsArray ? (
                     commentsArray.map((commentDoc) => {
                       return (
-                        <CommentDiv key={Math.random()}>
+                        <CommentDiv key={Math.random()} >
                           <div className="profile-img">
-                            <Avatar
+                            <img
                               src={commentDoc.commentBy_profileImage}
-                              alt="profile image"
                             />
                           </div>
                           <div>
@@ -166,13 +152,13 @@ export function PostDetailModal(props: any) {
                               {commentDoc.commentData}
                             </p>
                             <p className="comment-info">
-                              {/* <span>{commentDoc.time}</span>
-                            <span>{commentDoc.likes} likes</span> */}
+                              <span>{commentDoc.createdAt}</span>
                             </p>
                           </div>
                           <div className="like-icon">
-                            <FontAwesomeIcon icon={faHeart} />
+                            
                           </div>
+                          <div ref={chatRef}/>
                         </CommentDiv>
                       );
                     })
@@ -192,10 +178,8 @@ export function PostDetailModal(props: any) {
                         />
                       )}
                       <FontAwesomeIcon icon={faComment} />
-                      <FontAwesomeIcon icon={faShareFromSquare} />
                     </div>
                     <div className="bookmark-icon">
-                      <FontAwesomeIcon icon={faBookmark} />
                     </div>
                   </div>
                   <div className="likes-wrapper">

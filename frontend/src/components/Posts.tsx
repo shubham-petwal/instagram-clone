@@ -37,17 +37,18 @@ interface PostInterFace {
   caption: string;
   postId: string;
   userId: string;
+  profileImage:string;
+  userName:string
 }
 
-function Posts({ postImage, caption, postId, userId }: PostInterFace) {
+function Posts({ postImage, caption, postId, userId ,userName,profileImage}: PostInterFace) {
   const navigate = useNavigate();
   const [comment, setComment] = useState("");
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
-  const [liked,setLiked] = useState(false);
+  const [liked, setLiked] = useState(false);
   const [likesArrayDetails, setLikesArrayDetails] = useState<any>();
   const [modalState, setModalState] = useState(false);
-  const [userRetrievedData, setRetrievedData] = useState<any>();
   const user = useContext(AuthContext);
   const data = {
     userId: user?.uid,
@@ -67,7 +68,7 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
     const collectionRef = query(
       collection(db, `post_interaction/${postId}/likes`)
     );
-    const unsubscribeLikesDetails = onSnapshot(collectionRef, (querySnapshot) => {
+    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
       const likesDetails: any = [];
       querySnapshot.forEach((doc) => {
         // console.log(doc.data())
@@ -75,44 +76,24 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
       });
       setLikesArrayDetails(likesDetails);
     });
+    return unsubscribe;
   };
-
-  // if(user?.uid){
-  //   const unsub = onSnapshot(doc(db, `post_interaction/${postId}/likes/${user?.uid}`), (doc) => {
-  //     // console.log("Current data: ", doc.data());
-  //     if(doc.data()){
-  //       setLiked(true)
-  //     }
-  //     else{
-  //       setLiked(false)
-  //     }
-  // });
-  // }
 
   useEffect(() => {
     getData();
-    let userData;
-    axios
-      .get(`http://localhost:90/users/${userId}`)
-      .then((res) => {
-        userData = res.data.data;
-        // imageUrl = userData.profileImage;
-        setRetrievedData(userData);
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-      if(user?.uid){
-        const unsub = onSnapshot(doc(db, `post_interaction/${postId}/likes/${user?.uid}`), (doc) => {
+    if (user?.uid) {
+      const unsubscribe = onSnapshot(
+        doc(db, `post_interaction/${postId}/likes/${user?.uid}`),
+        (doc) => {
           // console.log("Current data: ", doc.data());
-          if(doc.data()){
-            setLiked(true)
+          if (doc.data()) {
+            setLiked(true);
+          } else {
+            setLiked(false);
           }
-          else{
-            setLiked(false)
-          }
-      });
-      }
+        }
+      );
+    }
     const unsubscribe = onSnapshot(
       doc(db, "post_interaction", postId),
       (doc) => {
@@ -132,17 +113,17 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
       postId: postId,
     });
   };
-  return (  
+  return (
     <PostContainer>
       <PostHeader>
         <UserDetailsContainer>
-          <Avatar src={userRetrievedData?.profileImage} />
+          <Avatar src={profileImage} />
           <div>
-            <span style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userRetrievedData?.userName}`)}}>{userRetrievedData?.userName}</span>
+            <span style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userName}`)}}>{userName}</span>
           </div>
         </UserDetailsContainer>
         <div>
-          <FontAwesomeIcon icon={faEllipsis} />
+  
         </div>
       </PostHeader>
       <PostImageDiv>
@@ -150,24 +131,26 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
       </PostImageDiv>
       <LikeCommentShareDiv>
         <ThreeIconsDiv>
-          {liked?
+          {liked ? (
             <img onClick={handleLikePost} src={redHeart} />
-         :
+          ) : (
             <FontAwesomeIcon onClick={handleLikePost} icon={faHeart} />
-          }
+          )}
 
-          <FontAwesomeIcon icon={faComment} />
-          <FontAwesomeIcon icon={faShareSquare} />
+          <span onClick={handlePostClick}>
+            <FontAwesomeIcon icon={faComment} />
+          </span>
+          {/* <FontAwesomeIcon icon={faShareSquare} /> */}
         </ThreeIconsDiv>
         <div>
-          <FontAwesomeIcon icon={faBookmark} />
+          {/* <FontAwesomeIcon icon={faBookmark} /> */}
         </div>
       </LikeCommentShareDiv>
       <LikesDiv>
-        <span>{totalLikes?totalLikes : 0} likes</span>
+        <span>{totalLikes ? totalLikes : 0} likes</span>
       </LikesDiv>
       <DescriptionDiv>
-        <span id="userName" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userRetrievedData?.userName}`)}}>{userRetrievedData?.userName}</span>
+        <span id="userName" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userName}`)}}>{userName}</span>
         <span>{caption}</span>
       </DescriptionDiv>
       <CommentsDiv>
@@ -193,9 +176,9 @@ function Posts({ postImage, caption, postId, userId }: PostInterFace) {
         }}
         postId={postId}
         postImage={postImage}
-        profileImage={userRetrievedData?.profileImage}
+        profileImage={profileImage}
         caption={caption}
-        userName={userRetrievedData?.userName}
+        userName={userName}
         liked = {liked}
         userId = {userId}
       />

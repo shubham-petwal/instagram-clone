@@ -68,6 +68,9 @@ export const LikeCommentShareDiv = styled.div`
       opacity: 0.4;
     }
   }
+  span{
+    padding-top: 5px;
+  }
 `;
 export const ThreeIconsDiv = styled.div`
   display: flex;
