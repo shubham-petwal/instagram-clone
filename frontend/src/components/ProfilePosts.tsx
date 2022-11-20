@@ -50,6 +50,7 @@ function ProfilePosts(props: any) {
         caption={props.caption}
         userName={props.userName}
         liked = {liked}
+        userId = {props.userId}
       />
     </div>
   );

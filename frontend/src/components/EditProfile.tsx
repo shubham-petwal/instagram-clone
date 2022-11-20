@@ -78,7 +78,7 @@ function EditProfile() {
 
   return (
     <div>
-      <Navbar profileImage={userRetrievedData?.profileImage}/>
+      <Navbar />
       <EditProfileMainContainer>
         <EditProfileContainer>
           <LeftEditPage>

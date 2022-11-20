@@ -12,6 +12,7 @@ export const HomePageContainer = styled.div`
   justify-content: center;
   background: ${pageBgColor};
   min-height: 100vh;
+  width: 100vw;
 `;
 
 export const SuggestionContainer = styled.div`

@@ -94,7 +94,7 @@ function Home() {
   }, []);
   return (
     <>
-      <Navbar profileImage={userRetrievedData?.profileImage} />
+      <Navbar />
       <HomePageContainer>
         <ToastContainer position="top-center" />
         <div id="all_posts">

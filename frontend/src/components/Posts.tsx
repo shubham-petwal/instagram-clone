@@ -15,6 +15,7 @@ import {
 } from "./styledComponents/Posts.style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 import {
   faComment,
   faHeart,
@@ -41,6 +42,7 @@ interface PostInterFace {
 }
 
 function Posts({ postImage, caption, postId, userId ,userName,profileImage}: PostInterFace) {
+  const navigate = useNavigate();
   const [comment, setComment] = useState("");
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
@@ -99,8 +101,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         setTotalLikes(doc.data()?.likes_count);
       }
     );
-    return unsubscribe;
-  }, []);
+  },[]);
   function handlePostClick(event: React.MouseEvent<HTMLElement>) {
     setModalState((prev) => {
       return !prev;
@@ -118,7 +119,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         <UserDetailsContainer>
           <Avatar src={profileImage} />
           <div>
-            <span>{userName}</span>
+            <span style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userName}`)}}>{userName}</span>
           </div>
         </UserDetailsContainer>
         <div>
@@ -149,7 +150,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         <span>{totalLikes ? totalLikes : 0} likes</span>
       </LikesDiv>
       <DescriptionDiv>
-        <span id="userName">{userName}</span>
+        <span id="userName" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userName}`)}}>{userName}</span>
         <span>{caption}</span>
       </DescriptionDiv>
       <CommentsDiv>
@@ -178,7 +179,8 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         profileImage={profileImage}
         caption={caption}
         userName={userName}
-        liked={liked}
+        liked = {liked}
+        userId = {userId}
       />
     </PostContainer>
   );

@@ -10,11 +10,7 @@ export const UserProfileContainer = styled.div`
   padding-top: 80px;
   background: ${pageBgColor};
   min-height: 100vh;
-  /* .align_center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  } */
+  min-width: 100vw;
 `;
 export const UserDataSection = styled.div`
   margin-top: 15px;
@@ -45,13 +41,7 @@ export const UserInfoContainer = styled.div`
 `;
 export const EditAndSettingsDiv = styled.div`
   display: flex;
-  /* @media screen and (max-width: 400px) {
-    margin-top:10px;
-      flex-direction: column;
-      overflow-x: hidden;
-      height: 14vh;
-    }; */
-  div {
+    div {
     @media screen and (max-width: 400px) {
       display: flex;
       flex-direction: column;

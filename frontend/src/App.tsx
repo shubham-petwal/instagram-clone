@@ -12,8 +12,10 @@ import ChangPassword from "./components/ChangPassword";
 import UploadImage from "./components/UploadImage";
 import { PostDetailModal } from "./components/PostDetailModal";
 import ShowStory from "./components/ShowStory";
+import { AuthContext } from "./context/AuthContext";
 
 function App() {
+  const user = useContext(AuthContext);
   return (
     <>
       <BrowserRouter>
@@ -29,11 +31,19 @@ function App() {
               </ProtectedRoutes>
             }
           />
-          <Route
+          {/* <Route
             path="/userProfile"
             element={
               <ProtectedRoutes>
-                <UserProfile />
+                <UserProfile/>
+              </ProtectedRoutes>
+            }
+          /> */}
+          <Route
+            path="/userProfile/:userId"
+            element={
+              <ProtectedRoutes>
+                <UserProfile/>
               </ProtectedRoutes>
             }
           />

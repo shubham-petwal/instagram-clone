@@ -4,7 +4,6 @@ import { globalFacebookColor } from "./utilityFiles/variables";
 const modalDivisions = `
     min-width: 50%;
     height: 100%;
-    padding: 20px;
 `;
 const detailsWrapperDivisions = `
     width: 100%;
@@ -49,6 +48,13 @@ export const ModalWrapperDiv = styled.div`
   height: 80%;
   border-radius: 10px;
   overflow: hidden;
+  @media screen and (max-width: 700px) {
+    flex-direction: column;
+    height: 90%;
+    width: 90%;
+    top: 4%;
+    left: 4%;
+  }
 `;
 export const ImageWrapperDiv = styled.div`
   ${modalDivisions}
@@ -56,6 +62,9 @@ export const ImageWrapperDiv = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  @media screen and (max-width: 700px){
+    height: 50%;
+  }
   img {
     /* display: block; */
     max-width: 100%;
