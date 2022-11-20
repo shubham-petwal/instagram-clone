@@ -228,7 +228,7 @@ function UserProfile() {
                       userName={item.userName}
                       storyImage={item.image}
                       createdAt={item.createdAt}
-                      nav={"/userProfile"}
+                      nav={`/userProfile/${item.userName}`}
                     />
                   ))
                 ) : (
