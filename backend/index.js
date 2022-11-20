@@ -50,28 +50,31 @@ const fileStoragePath = multer.diskStorage({
   },
 });
 
-const collectionQueryForNextData = (collectionName,queryItems,pageSize,orderRef,lastDocId)=>{
+const collectionQueryForNextData = (
+  collectionName,
+  queryItems,
+  pageSize,
+  orderRef,
+  lastDocId
+) => {
   const queryRef = query(
     collection(db, collectionName),
-    where(queryItems[0],queryItems[1],queryItems[2]),
-    orderBy(orderRef[0],orderRef[1]),
+    where(queryItems[0], queryItems[1], queryItems[2]),
+    orderBy(orderRef[0], orderRef[1]),
     startAfter(Timestamp.fromMillis(lastDocId)),
     limit(parseInt(pageSize))
-  )
+  );
   return queryRef;
-
-}
-const collectionQuery = (collectionName,queryItems,orderRef,pageSize)=>{
+};
+const collectionQuery = (collectionName, queryItems, orderRef, pageSize) => {
   const queryRef = query(
     collection(db, collectionName),
-    where(queryItems[0],queryItems[1],queryItems[2]),
-    orderBy(orderRef[0],orderRef[1]),
+    where(queryItems[0], queryItems[1], queryItems[2]),
+    orderBy(orderRef[0], orderRef[1]),
     limit(parseInt(pageSize))
-  )
+  );
   return queryRef;
-
-}
-
+};
 
 async function uploadImageToBucket(destination, fileName) {
   await bucket.upload("./uploads/" + fileName, {
@@ -194,8 +197,8 @@ app.post(
       };
       addDoc(collectionRef, postObj).then((docRef) => {
         console.log("Document Added");
-        const documentRef = doc(db,`Posts/${docRef.id}`)
-        updateDoc(documentRef,{docId:docRef.id})
+        const documentRef = doc(db, `Posts/${docRef.id}`);
+        updateDoc(documentRef, { docId: docRef.id });
         fs.unlink("uploads/" + req.file.filename, function (err) {
           if (err) return console.log(err);
           console.log("file deleted successfully");
@@ -215,9 +218,15 @@ app.get("/getPosts", async (req, res) => {
     if (userId) {
       if (lastDocId) {
         const postArr = [];
-        const whereClause = ["userId","==",userId.toString()]
-        const orderByClause = ["createdAt","desc"]
-        const nextPost = collectionQueryForNextData("Posts",whereClause,page,orderByClause,lastDocId)
+        const whereClause = ["userId", "==", userId.toString()];
+        const orderByClause = ["createdAt", "desc"];
+        const nextPost = collectionQueryForNextData(
+          "Posts",
+          whereClause,
+          page,
+          orderByClause,
+          lastDocId
+        );
         const snapshot = await getDocs(nextPost);
         snapshot.forEach((doc) => {
           postArr.push(doc.data());
@@ -238,9 +247,14 @@ app.get("/getPosts", async (req, res) => {
         return;
       } else {
         const postArr = [];
-        const whereClause = ["userId","==",userId.toString()]
-        const orderByClause = ["createdAt","desc"]
-        const nextPost = collectionQuery("Posts",whereClause,orderByClause,page)
+        const whereClause = ["userId", "==", userId.toString()];
+        const orderByClause = ["createdAt", "desc"];
+        const nextPost = collectionQuery(
+          "Posts",
+          whereClause,
+          orderByClause,
+          page
+        );
         const snapshot = await getDocs(nextPost);
         snapshot.forEach((doc) => {
           postArr.push(doc.data());
@@ -318,7 +332,7 @@ app.get("/getPosts", async (req, res) => {
       }
     }
   } catch (error) {
-    console.log(error.message)
+    console.log(error.message);
     res.send({
       success: false,
       message: error.message,
@@ -873,8 +887,8 @@ app.post(
         createdAt: Timestamp.now(),
       };
       addDoc(storiesCollectionRef, postObj).then((docRef) => {
-        const documentRef = doc(db,`stories/${docRef.id}`)
-        updateDoc(documentRef,{docId:docRef.id})
+        const documentRef = doc(db, `stories/${docRef.id}`);
+        updateDoc(documentRef, { docId: docRef.id });
         console.log("Document Added");
         fs.unlink("uploads/" + req.file.filename, function (err) {
           if (err) return console.log(err);
@@ -892,12 +906,18 @@ app.post(
 app.get("/getStories", async (req, res) => {
   const { lastDocId, page, userId } = req.query;
   try {
-    if (userId){
+    if (userId) {
       if (lastDocId) {
         const storiesArray = [];
-        const whereClause = ["userId","==",userId.toString()]
-        const orderByClause = ["deleteAt","desc"]
-        const nextStories = collectionQueryForNextData("stories",whereClause,page,orderByClause,lastDocId)
+        const whereClause = ["userId", "==", userId.toString()];
+        const orderByClause = ["deleteAt", "desc"];
+        const nextStories = collectionQueryForNextData(
+          "stories",
+          whereClause,
+          page,
+          orderByClause,
+          lastDocId
+        );
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
           storiesArray.push(doc.data());
@@ -918,9 +938,14 @@ app.get("/getStories", async (req, res) => {
         return;
       } else {
         const storiesArray = [];
-        const whereClause = ["userId","==",userId.toString()]
-        const orderByClause = ["deleteAt","desc"]
-        const nextStories = collectionQuery("stories",whereClause,orderByClause,page)
+        const whereClause = ["userId", "==", userId.toString()];
+        const orderByClause = ["deleteAt", "desc"];
+        const nextStories = collectionQuery(
+          "stories",
+          whereClause,
+          orderByClause,
+          page
+        );
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
           storiesArray.push(doc.data());
@@ -945,12 +970,18 @@ app.get("/getStories", async (req, res) => {
       const currentTime = new Date();
       if (lastDocId) {
         const storiesArray = [];
-        const whereClause = ["deleteAt",">=",currentTime]
-        const orderByClause = ["deleteAt","desc"]
-        const nextStories = collectionQueryForNextData("stories",whereClause,page,orderByClause,lastDocId)
+        const whereClause = ["deleteAt", ">=", currentTime];
+        const orderByClause = ["deleteAt", "desc"];
+        const nextStories = collectionQueryForNextData(
+          "stories",
+          whereClause,
+          page,
+          orderByClause,
+          lastDocId
+        );
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
-          storiesArray.push(doc.data())
+          storiesArray.push(doc.data());
         });
         if (storiesArray.length == 0) {
           res.send({
@@ -968,14 +999,18 @@ app.get("/getStories", async (req, res) => {
         return;
       } else {
         const storiesArray = [];
-        const whereClause = ["deleteAt",">=",currentTime]
-        const orderByClause = ["deleteAt","desc"]
-        const nextStories = collectionQuery("stories",whereClause,orderByClause,page)
+        const whereClause = ["deleteAt", ">=", currentTime];
+        const orderByClause = ["deleteAt", "desc"];
+        const nextStories = collectionQuery(
+          "stories",
+          whereClause,
+          orderByClause,
+          page
+        );
         const snapshot = await getDocs(nextStories);
         snapshot.forEach((doc) => {
           storiesArray.push(doc.data());
-        }
-        );
+        });
         if (storiesArray.length == 0) {
           // if first document fetch of the user contains no document
           res.send({
@@ -992,8 +1027,6 @@ app.get("/getStories", async (req, res) => {
         });
         return;
       }
-
-
     }
   } catch (error) {
     console.log(error.message);

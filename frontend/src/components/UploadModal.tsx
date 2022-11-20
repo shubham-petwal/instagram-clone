@@ -60,7 +60,7 @@ function UploadModal(props:PropsInterface) {
           onChange={(e) => setPostCaption(e.target.value)}
           id="caption"
           name="caption"
-          rows={11}
+          rows={7}
           cols={45}
           placeholder="Add Caption"
         />
