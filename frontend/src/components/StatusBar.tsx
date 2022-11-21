@@ -32,7 +32,7 @@ function StatusBar(props:any) {
       const lastDoc = storyArray[storyArray.length - 1].deleteAt
       const lastDocInMillis = new Timestamp(lastDoc.seconds , lastDoc.nanoseconds).toMillis();
       const res = await axios.get(
-        `http://localhost:90/getStories?page=1&lastDocId=${lastDocInMillis}`
+        `http://localhost:90/getStories?page=3&lastDocId=${lastDocInMillis}`
       );
       //have to use query params
       if(res.data.data){
@@ -55,7 +55,7 @@ function StatusBar(props:any) {
   useEffect(() => {
     const getData = async () => {
       try {
-        const allStories = await axios.get(`http://localhost:90/getStories?page=1`);
+        const allStories = await axios.get(`http://localhost:90/getStories?page=3`);
         const storyData = allStories.data;
         if (storyData) {
           setStoryArray(storyData.data);

@@ -13,7 +13,7 @@ import WhiteRing from "../assets/images/UserHighlightRing.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
-
+import LoadingBar from 'react-top-loading-bar'
 import StatusStories from "./StatusStories";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -38,18 +38,21 @@ interface SocialCount {
 }
 function UserProfile() {
   const params = useParams();
+  const [progress, setProgress] = useState(0)
   const user = useContext(AuthContext);
   const navigate = useNavigate();
   const chatRef = useRef<any>(null);
   // const userId:string = params?.userId || "";
 
   const [userId, setUserId] = useState<string>("");
-  async function getUserId(){
-    try{
-      const result = await axios.get(`http://localhost:90/getUserId/${params?.userId}`);
+  async function getUserId() {
+    try {
+      const result = await axios.get(
+        `http://localhost:90/getUserId/${params?.userId}`
+      );
       setUserId(result.data.data);
-    }catch(error){
-      console.log(error)
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -92,7 +95,7 @@ function UserProfile() {
         lastDoc.nanoseconds
       ).toMillis();
       const res = await axios.get(
-        `http://localhost:90/getStories?userId=${user?.uid}&page=1&lastDocId=${date}`
+        `http://localhost:90/getStories?userId=${user?.uid}&page=5&lastDocId=${date}`
       );
       setStoryArray((prev: any) => {
         return [...prev, ...res.data.data];
@@ -101,15 +104,17 @@ function UserProfile() {
       console.log(error);
     }
   };
-  
-  useEffect(()=>{
-    getUserId();
-    return ()=>{setUserId("")};
-  },[params])
 
   useEffect(() => {
+    getUserId();
+    return () => {
+      setUserId("");
+    };
+  }, [params]);
 
-    if (!userId || userId=="") {
+  useEffect(() => {
+    setProgress(100)
+    if (!userId || userId == "") {
       return;
     }
     try {
@@ -119,173 +124,185 @@ function UserProfile() {
           outbound_count: doc.data()?.outbound_count,
         });
       });
-
       // const userId = user?.uid;
-      axios.get(
-        `http://localhost:90/getStories?page=1&userId=${userId}`
-      ).then((storyData)=>{
-        setStoryArray(storyData.data.data);
-      }).catch((err)=>{
-        console.log(err.message);
-      })
-
-
+      axios
+        .get(`http://localhost:90/getStories?page=5&userId=${userId}`)
+        .then((storyData) => {
+          setStoryArray(storyData.data.data);
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
 
       axios
         .get(`http://localhost:90/users/${userId}`)
         .then((userData) => {
           setRetrievedData(userData.data.data);
         })
-        .catch((err)=>{
+        .catch((err) => {
           console.log(err.message);
-        })
+        });
 
-      axios.get(`http://localhost:90/getPosts?userId=${userId}&page=3`).then((allPosts) => {
-        const Details = allPosts.data;
-        if (Details) {
-          setImageArray(Details.data);
-        }
-      });
+      axios
+        .get(`http://localhost:90/getPosts?userId=${userId}&page=3`)
+        .then((allPosts) => {
+          const Details = allPosts.data;
+          if (Details) {
+            setImageArray(Details.data);
+          }
+        });
       return unsubscribe;
     } catch (error: any) {
       console.log(error.message);
     }
-  }, [params,userId]);
+  }, [params, userId]);
 
   return (
     <div>
+      <LoadingBar
+        color="#f11946"
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)}
+      />
       <Navbar />
       <UserProfileContainer>
         <div className="align_center">
-        <UserDataSection>
-          <div>
-            <Avatar
-              id="userProfileAvatar"
-              src={userRetrievedData?.profileImage}
-            />
-          </div>
-          <UserInfoContainer>
-            <EditAndSettingsDiv>
-              <p>{userRetrievedData?.userName}</p>
-              {user?.uid == userId ? (
-                <button onClick={() => navigate("/editProfile")}>
-                  Edit Profile
-                </button>
-              ) : null}
-              <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
-            </EditAndSettingsDiv>
-            <EditAndSettingsDiv>
-              <div>
-                {/* did not implemented post count dynamically as imageArray.length, because we will be getting 3 posts at a time so it will dependent upont post fetched */}
-                <span>6 </span>
-                posts
-              </div>
-              <div
-                onClick={() => {
-                  setCurrentMethod("followers");
-                  return setShowFollowerModal(true);
-                }}
-              >
-                <span>{socialCount?.inbound_count || 0} </span>
-                followers
-              </div>
-              <div
-                onClick={() => {
-                  setCurrentMethod("following");
-                  return setShowFollowerModal(true);
-                }}
-              >
-                <span>{socialCount?.outbound_count || 0} </span>
-                following
-              </div>
-            </EditAndSettingsDiv>
-            <EditAndSettingsDiv>
-              <span>{userRetrievedData?.fullName}</span>
-              <p style={{ fontSize: "16px", display: "block" }}>
-                {" "}
-                {userRetrievedData?.bioData}{" "}
-              </p>
-            </EditAndSettingsDiv>
-          </UserInfoContainer>
-        </UserDataSection>
+          <UserDataSection>
+            <div>
+              <Avatar
+                id="userProfileAvatar"
+                src={userRetrievedData?.profileImage}
+              />
+            </div>
+            <UserInfoContainer>
+              <EditAndSettingsDiv>
+                <p>{userRetrievedData?.userName}</p>
+                {user?.uid == userId ? (
+                  <button onClick={() => navigate("/editProfile")}>
+                    Edit Profile
+                  </button>
+                ) : null}
+                <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
+              </EditAndSettingsDiv>
+              <EditAndSettingsDiv>
+                <div>
+                  {/* did not implemented post count dynamically as imageArray.length, because we will be getting 3 posts at a time so it will dependent upont post fetched */}
+                  <span>6 </span>
+                  posts
+                </div>
+                <div
+                  onClick={() => {
+                    setCurrentMethod("followers");
+                    return setShowFollowerModal(true);
+                  }}
+                >
+                  <span>{socialCount?.inbound_count || 0} </span>
+                  followers
+                </div>
+                <div
+                  onClick={() => {
+                    setCurrentMethod("following");
+                    return setShowFollowerModal(true);
+                  }}
+                >
+                  <span>{socialCount?.outbound_count || 0} </span>
+                  following
+                </div>
+              </EditAndSettingsDiv>
+              <EditAndSettingsDiv>
+                <span>{userRetrievedData?.fullName}</span>
+                <p style={{ fontSize: "16px", display: "block" }}>
+                  {" "}
+                  {userRetrievedData?.bioData}{" "}
+                </p>
+              </EditAndSettingsDiv>
+            </UserInfoContainer>
+          </UserDataSection>
         </div>
         <div className="align_center">
-        <UserHighlightSection>
-          <div id="userProfileHighlight">
-            <ul>
-              {storyArray ? (
-                storyArray.length > 0 ? (
-                  storyArray.map((item: any) => (
-                    //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
-                    <StatusStories
-                      key={Math.random()}
-                      Ringwidth="85"
-                      Ringheight="85"
-                      width="80"
-                      height="80"
-                      profileImage={item.profileImage}
-                      storyId={item.storyId}
-                      userName={item.userName}
-                      storyImage={item.image}
-                      createdAt={item.createdAt}
-                      nav={`/userProfile/${item.userName}`}
-                    />
-                  ))
+          <UserHighlightSection>
+            <div id="userProfileHighlight">
+              <ul>
+                {storyArray ? (
+                  storyArray.length > 0 ? (
+                    storyArray.map((item: any) => (
+                      //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
+                      <StatusStories
+                        key={Math.random()}
+                        Ringwidth="85"
+                        Ringheight="85"
+                        width="80"
+                        height="80"
+                        profileImage={item.profileImage}
+                        storyId={item.storyId}
+                        userName={item.userName}
+                        storyImage={item.image}
+                        createdAt={item.createdAt}
+                        nav={`/userProfile/${item.userName}`}
+                      />
+                    ))
+                  ) : (
+                    <p>No content</p>
+                  )
                 ) : (
                   <p>No content</p>
-                )
-              ) : (
-                <p>No content</p>
-              )}
-              {storyArray&&storyArray.length>0 ?
-              <FontAwesomeIcon onClick={StoryNextData} icon={faCircleArrowRight}/>
-              :null}
-            </ul>
-          </div>
-        </UserHighlightSection>
+                )}
+                {storyArray && storyArray.length > 0 ? (
+                  <FontAwesomeIcon
+                    onClick={StoryNextData}
+                    icon={faCircleArrowRight}
+                  />
+                ) : null}
+              </ul>
+            </div>
+          </UserHighlightSection>
         </div>
 
         <div className="align_center">
-        <AllPostImages>
-            <InfiniteScroll
-              dataLength={imageArray ? imageArray.length : 0} //This is important field to render the next data
-              next={getNextDataOfUserPost}
-              hasMore={hasMorePosts}
-              loader={<h4>Loading...</h4>}
-              endMessage={
-                <p style={{ textAlign: "center" }}>
-                  <b>Yay! You have seen it all</b>
-                </p>
-              }
-            >
-          <ul>
-            {imageArray ? (
-              imageArray.length > 0 ? (
-                imageArray.map((item: any) => (
-                  <li key={Math.random()}>
-                    <ProfilePosts
-                      src={item.image}
-                      postId={item.postId}
-                      profileImage={userRetrievedData?.profileImage}
-                      postImage={item.image}
-                      caption={item.caption}
-                      userName={userRetrievedData?.userName}
-                      userId={userId}
-                      height="280px"
-                      width="300px"
-                      role="button"
-                    />
-                  </li>
-                ))
-              ) : (
-                <p>No content</p>
-              )
+          <AllPostImages>
+            {imageArray.length > 0 ? (
+              <InfiniteScroll
+                dataLength={imageArray ? imageArray.length : 0} //This is important field to render the next data
+                next={getNextDataOfUserPost}
+                hasMore={hasMorePosts}
+                loader={imageArray.length < 3 ? <h4>Loading...</h4> : null}
+                endMessage={
+                  <p style={{ textAlign: "center" }}>
+                    <b>Yay! You have seen it all</b>
+                  </p>
+                }
+              >
+                <ul>
+                  {imageArray ? (
+                    imageArray.length > 0 ? (
+                      imageArray.map((item: any) => (
+                        <li key={Math.random()}>
+                          <ProfilePosts
+                            src={item.image}
+                            postId={item.postId}
+                            profileImage={userRetrievedData?.profileImage}
+                            postImage={item.image}
+                            caption={item.caption}
+                            userName={userRetrievedData?.userName}
+                            userId={userId}
+                            height="280px"
+                            width="300px"
+                            role="button"
+                          />
+                        </li>
+                      ))
+                    ) : (
+                      <p>No content</p>
+                    )
+                  ) : (
+                    <p>No content</p>
+                  )}
+                </ul>
+              </InfiniteScroll>
             ) : (
               <p>No content</p>
             )}
-          </ul>
-            </InfiniteScroll>
-        </AllPostImages>
+          </AllPostImages>
         </div>
       </UserProfileContainer>
       <div ref={chatRef} />

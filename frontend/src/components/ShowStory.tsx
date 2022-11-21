@@ -24,7 +24,7 @@ function ShowStory() {
         defaultInterval={2000}
         stories={stories}
         isPaused={true}
-        onAllStoriesEnd={()=>locationRef.current.click()}
+        onAllStoriesEnd={()=>navigate(-1)}
       />
       {/* <FontAwesomeIcon id="cross"  icon={faCircleXmark} /> */}
       <Link ref={locationRef} to={`${location.state.nav}`}/>

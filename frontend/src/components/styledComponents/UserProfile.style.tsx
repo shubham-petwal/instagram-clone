@@ -4,12 +4,12 @@ import { borderColor, pageBgColor } from "./utilityFiles/variables";
 export const UserProfileContainer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   flex-wrap: wrap;
   flex-direction: column;
   padding-top: 80px;
   background: ${pageBgColor};
-  min-height: 100vh;
+  min-height: 110vh;
   min-width: 100vw;
 `;
 export const UserDataSection = styled.div`

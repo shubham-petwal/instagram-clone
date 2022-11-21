@@ -9,7 +9,6 @@ import ForgotPassword from "./components/ForgotPassword";
 import UserProfile from "./components/UserProfile";
 import EditProfile from "./components/EditProfile";
 import ChangPassword from "./components/ChangPassword";
-import UploadImage from "./components/UploadImage";
 import { PostDetailModal } from "./components/PostDetailModal";
 import ShowStory from "./components/ShowStory";
 import { AuthContext } from "./context/AuthContext";

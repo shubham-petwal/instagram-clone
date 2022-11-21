@@ -11,6 +11,7 @@ import {
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import BlueButton from "../assets/images/blueButton.png";
+import LoadingBar from 'react-top-loading-bar'
 
 import { Avatar } from "@material-ui/core";
 import { Link } from "react-router-dom";
@@ -38,6 +39,7 @@ interface StoryInterface {
 }
 
 function Home() {
+  const [progress, setProgress] = useState(0)
   const user = useContext(AuthContext);
   const [imageArray, setImageArray] = useState<Array<DataInterface>>([]);
 
@@ -73,6 +75,7 @@ function Home() {
     }
   };
   useEffect(() => {
+    setProgress(100)
     const getData = async () => {
       try {
         const allPosts = await axios.get(`http://localhost:90/getPosts?page=3`);
@@ -94,6 +97,11 @@ function Home() {
   }, []);
   return (
     <>
+          <LoadingBar
+        color='#f11946'
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)}
+      />
       <Navbar />
       <HomePageContainer>
         <ToastContainer position="top-center" />

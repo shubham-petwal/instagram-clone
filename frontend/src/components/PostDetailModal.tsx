@@ -13,6 +13,7 @@ import {
 } from "./styledComponents/Modal.style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
+import { Spinner } from "react-bootstrap";
 import {
   faXmarkCircle,
   faHeart,
@@ -31,6 +32,7 @@ import redHeart from "../assets/images/red-heart-icon.svg";
 
 export function PostDetailModal(props: any) {
   const navigate = useNavigate();
+  const [isLoading, setLoading] = useState<boolean>(false);
   const user = useContext(AuthContext);
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
@@ -46,10 +48,13 @@ export function PostDetailModal(props: any) {
   const handleAddComments = async () => {
     try {
       // chatRef.current?.scrollIntoView();
+      setLoading(true);
       const result = await axios.post("http://localhost:90/addComment", data);
+      setLoading(false);
       setComment("");
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
@@ -199,7 +204,12 @@ export function PostDetailModal(props: any) {
                     />
                   </div>
                   <div className="post-button">
+                    {isLoading?
+                    <button>
+                      <Spinner animation="border" role="status" size="sm"/>
+                    </button>:
                     <button onClick={handleAddComments}>Post</button>
+                  }
                   </div>
                 </CommentInput>
               </DetailsWrapperDiv>
