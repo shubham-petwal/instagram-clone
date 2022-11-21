@@ -518,7 +518,7 @@ app.post("/updateProfileImage", upload.single("file"), async (req, res) => {
       process.env.ALOGOLIA_APP_ID,
       process.env.ALOGOLIA_ADMIN_API_KEY
     );
-    
+    const instaIndex = searchClient.initIndex("instagram_users")
     const actors = {
       fullName : resArr[0].fullName,
       userName : resArr[0].userName,
