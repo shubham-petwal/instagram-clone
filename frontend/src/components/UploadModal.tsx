@@ -61,7 +61,8 @@ function UploadModal(props:PropsInterface) {
           id="caption"
           name="caption"
           rows={7}
-          cols={45}
+          cols={37}
+          style = {{padding : "10px"}}
           placeholder="Add Caption"
         />
       ) : null}

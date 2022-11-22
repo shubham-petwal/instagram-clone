@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import "./styles/App.scss";
 import SignUp from "./components/SignUp";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
 import Login from "./components/Login";
 import Home from "./components/Home";
 import ProtectedRoutes from "./components/ProtectedRoutes";
@@ -9,20 +9,40 @@ import ForgotPassword from "./components/ForgotPassword";
 import UserProfile from "./components/UserProfile";
 import EditProfile from "./components/EditProfile";
 import ChangPassword from "./components/ChangPassword";
-import UploadImage from "./components/UploadImage";
-import { PostDetailModal } from "./components/PostDetailModal";
 import ShowStory from "./components/ShowStory";
-import { AuthContext } from "./context/AuthContext";
+import { CometChat } from "@cometchat-pro/chat";
+import Chat from "./components/Chat";
+// import { usena } from 'react-router-dom'
 
 function App() {
-  const user = useContext(AuthContext);
+  useEffect(() => {
+    const appID = "225772fb85438ae5";
+    const region = "us";
+    const appSetting = new CometChat.AppSettingsBuilder()
+      .subscribePresenceForAllUsers()
+      .setRegion(region)
+      .build();
+    CometChat.init(appID, appSetting).then(
+      () => {
+        console.log("Initialization completed successfully");
+        // You can now call login function.
+      },
+      (error) => {
+        console.log("Initialization failed with error:", error);
+        // Check the reason for error and take appropriate action.
+      }
+    );
+  }, []);
+
+ 
+
   return (
     <>
       <BrowserRouter>
         <Routes>
           <Route path="/signup" element={<SignUp />} />
-          <Route  path="/" element={<Login />} />
-          <Route path="/forgotPassword" element={<ForgotPassword />}/>
+          <Route path="/" element={<Login />} />
+          <Route path="/forgotPassword" element={<ForgotPassword />} />
           <Route
             path="/home"
             element={
@@ -31,19 +51,27 @@ function App() {
               </ProtectedRoutes>
             }
           />
-          {/* <Route
-            path="/userProfile"
-            element={
-              <ProtectedRoutes>
-                <UserProfile/>
-              </ProtectedRoutes>
-            }
-          /> */}
           <Route
             path="/userProfile/:userId"
             element={
               <ProtectedRoutes>
-                <UserProfile/>
+                <UserProfile />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/chat/:targetUserName"
+            element={
+              <ProtectedRoutes>
+                <Chat />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoutes>
+                <Chat />
               </ProtectedRoutes>
             }
           />
@@ -59,39 +87,15 @@ function App() {
             path="/ChangePass"
             element={
               <ProtectedRoutes>
-                <ChangPassword/>
+                <ChangPassword />
               </ProtectedRoutes>
             }
           />
-          {/* <Route
-            path="/uploadImage"
-            element={
-              <ProtectedRoutes>
-                <UploadImage method="uploadPost"/>
-              </ProtectedRoutes>
-            }
-          />
-          <Route
-            path="/updateProfileImage"
-            element={
-              <ProtectedRoutes>
-                <UploadImage method="updateProfileImage"/>
-              </ProtectedRoutes>
-            }
-          />
-          <Route
-            path="/addStory"
-            element={
-              <ProtectedRoutes>
-                <UploadImage method="addStory"/>
-              </ProtectedRoutes>
-            }
-          /> */}
           <Route
             path="/showStory"
             element={
               <ProtectedRoutes>
-                <ShowStory/>
+                <ShowStory />
               </ProtectedRoutes>
             }
           />

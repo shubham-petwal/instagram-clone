@@ -12,6 +12,7 @@ import { Link, useNavigate, Navigate } from "react-router-dom";
 import { Formik } from "formik";
 import { signUpSchema } from "../schemas/validationSchema";
 import { links1, links3 } from "../utilities/links";
+import { CometChat } from "@cometchat-pro/chat";
 import { useSelector, useDispatch } from 'react-redux'
 import Footer from "./Footer";
 //importing styled components
@@ -82,7 +83,22 @@ function SignUp() {
         email : emailRef.current?.value,
         password : passwordRef.current?.value
       }
-      const result = await axios.post('http://localhost:90/register', registerObject)
+      const result = await axios.post('http://localhost:90/register', registerObject);
+
+      let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
+      var uid = userNameRef.current?.value || "";
+      var name = fullNameRef.current?.value || "";
+
+      var user = new CometChat.User(uid);
+      user.setName(name);
+      CometChat.createUser(user, authKey).then(
+          user => {
+              console.log("user created", user);
+          },error => {
+              console.log("error", error);
+          }
+      )
+
       navigate("/home");
     } catch (error:any) {
       window.alert(error.message);

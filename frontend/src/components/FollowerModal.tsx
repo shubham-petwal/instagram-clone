@@ -148,7 +148,7 @@ function UserDetails(props: UserDetailProps) {
     <>
       <Row style={{ minHeight: "50px", padding: "4px 0" }}>
         <Col
-          sm={1}
+          xs={1}
           className="p-0"
           style={{ display: "flex", alignItems: "center" }}
         >
@@ -157,7 +157,7 @@ function UserDetails(props: UserDetailProps) {
             src={props.profileImage}
           />
         </Col>
-        <Col sm={7}>
+        <Col xs={7}>
           <Container>
             <Row style={{ maxHeight: "24px" }}>
               <UserNamePara
@@ -177,7 +177,7 @@ function UserDetails(props: UserDetailProps) {
         </Col>
         {user?.uid == props.followerUserId ? null : (
           <Col
-            sm={4}
+            xs={4}
             className="p-0"
             style={{ margin: "0px", display: "flex", alignItems: "center" }}
           >
