@@ -38,18 +38,49 @@ interface PostInterFace {
   postId: string;
   userId: string;
   profileImage:string;
-  userName:string
+  currentUserName:string;
+  userName:string;
 }
 
-function Posts({ postImage, caption, postId, userId ,userName,profileImage}: PostInterFace) {
+function Posts({ postImage, caption, postId, userId ,userName,profileImage,currentUserName}: PostInterFace) {
   const navigate = useNavigate();
   const [comment, setComment] = useState("");
+  const [userRetrievedData, setRetrievedData] = useState<any>();
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [likesArrayDetails, setLikesArrayDetails] = useState<any>();
   const [modalState, setModalState] = useState(false);
   const user = useContext(AuthContext);
+
+
+  const sendNotification = (token:string,Notifi_title:string,Notifi_body:string)=>{
+    let body = {
+      to: token,
+      notification:{
+        title: Notifi_title,
+        body:Notifi_body,
+        icon:"",
+        click_action:"https://google.com"
+      }
+    }
+    
+    let options = {
+      method: "POST",
+      headers: new Headers({
+        Authorization: "key=AAAAfnSlWp8:APA91bH-KZ3UngzLMme_8e9vDt4jEw-HvSOI_BOX361qxxsJAOrkXM3ehUiadPywIqNqBeKnokDOVJmKO8jKLVhS5_8k0UzflLx4CuAin2SbTw_tsDYSdH3f9a37YJ6mGG3AxIXoWsZO",
+        "Content-Type":"application/json"
+      }),
+      body: JSON.stringify(body)
+    }
+    
+    fetch("https://fcm.googleapis.com/fcm/send", options).then(res=>{
+      console.log(res)
+      console.log("SENT")
+    }).catch((e)=>console.log(e))
+  }
+
+
   const data = {
     userId: user?.uid,
     commentData: comment,
@@ -61,6 +92,17 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
       setComment("");
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const getUserData = async () => {
+    try {
+      const userData = await axios.get(
+        `http://localhost:90/users/${userId}`
+      );
+      setRetrievedData(userData.data.data);
+    } catch (error: any) {
+      console.log(error.message);
     }
   };
 
@@ -101,6 +143,8 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         setTotalLikes(doc.data()?.likes_count);
       }
     );
+
+    getUserData()
   },[]);
   function handlePostClick(event: React.MouseEvent<HTMLElement>) {
     setModalState((prev) => {
@@ -111,13 +155,18 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
     const result = await axios.post("http://localhost:90/like", {
       likedBy_userId: user?.uid,
       postId: postId,
-    });
+    })
+    if(!liked){
+      const token = userRetrievedData?.fcm_token;
+      sendNotification(token,"Like Notification",`${currentUserName} has liked your post`)
+      console.log("Notification sent")
+    }
   };
   return (
     <PostContainer>
       <PostHeader>
         <UserDetailsContainer>
-          <Avatar src={profileImage} />
+          <Avatar src={userRetrievedData?.profileImage} />
           <div>
             <span style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userName}`)}}>{userName}</span>
           </div>
@@ -176,11 +225,14 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         }}
         postId={postId}
         postImage={postImage}
-        profileImage={profileImage}
+        profileImage={userRetrievedData?.profileImage}
         caption={caption}
         userName={userName}
         liked = {liked}
         userId = {userId}
+        fcm_token = {userRetrievedData?.fcm_token}
+        currentUserName={currentUserName}
+
       />
     </PostContainer>
   );

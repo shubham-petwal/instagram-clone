@@ -15,7 +15,7 @@ export const UserProfileContainer = styled.div`
 export const UserDataSection = styled.div`
   margin-top: 15px;
   max-width: 950px;
-  height: 150px;
+  min-height: 150px;
   display: flex;
 
   flex-wrap: wrap;
@@ -89,7 +89,7 @@ export const UserHighlightSection = styled.div`
     /* position: absolute; */
   }
   display: flex;
-  margin: 45px 0px 20px 0px;
+  /* margin: 45px 0px 20px 0px; */
   padding: 25px 0px 20px 0px;
   max-width: 80vw;
   overflow-y: hidden;

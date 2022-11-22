@@ -132,7 +132,7 @@ app.get('/allowedRegistration/:userName',async(req,res)=>{
 })
 
 app.post("/register", async (req, res) => {
-  const { userId, userName, fullName, email, password } = req.body;
+  const { userId, userName, fullName, email, password,fcm_token } = req.body;
   try {
     const collectionRef = collection(db, "users");
     const salt = await bcrypt.genSalt();
@@ -147,6 +147,7 @@ app.post("/register", async (req, res) => {
       bioData: "", //this is the initial data passes, can be updated further
       postCount: 0,
       profileImage: "",
+      fcm_token
     });
     const searchClient = algoliasearch(
       process.env.ALOGOLIA_APP_ID,
@@ -195,6 +196,7 @@ app.get("/users/:userId", async (req, res) => {
         userName: resArr[0].userName,
         bioData: resArr[0].bioData,
         email: resArr[0].email,
+        fcm_token: resArr[0].fcm_token,
         gender: resArr[0].gender || undefined,
       },
     });
@@ -947,7 +949,7 @@ app.post(
         profileImage: resArr[0].profileImage,
         image: url,
         StoryId: uuidv4(),
-        deleteAt: addHours(1),
+        deleteAt: addHours(24),
         createdAt: Timestamp.now(),
       };
       addDoc(storiesCollectionRef, postObj).then((docRef) => {

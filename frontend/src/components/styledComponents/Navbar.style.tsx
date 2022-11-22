@@ -2,7 +2,9 @@ import styled, { css } from "styled-components";
 
 export const NavContainer = styled.div`
 #last_grid{
+  display: none;
   @media screen and (max-width: 750px) {
+    display: block;
     margin-left: 8%;
     }
 }

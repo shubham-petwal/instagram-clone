@@ -159,7 +159,7 @@ function Navbar() {
             <img className="nav_icons" src={love} width="28px" alt="logo" />
             <img className="nav_icons" src={message} width="28px" alt="logo" /> */}
             <Dropdown>
-              <DropdownProfile>
+              <DropdownProfile >
                 <Dropdown.Toggle>
                   <ProfileAvatar>
                     <Avatar id="avatar" src={userData.profileImage} />

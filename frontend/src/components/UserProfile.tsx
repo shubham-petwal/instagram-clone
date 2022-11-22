@@ -7,9 +7,9 @@ import {
   EditAndSettingsDiv,
   AllPostImages,
 } from "./styledComponents/UserProfile.style";
+import { Spinner } from "react-bootstrap";
 import Navbar from "./Navbar";
 import { Avatar } from "@material-ui/core";
-import WhiteRing from "../assets/images/UserHighlightRing.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
@@ -17,7 +17,6 @@ import LoadingBar from 'react-top-loading-bar'
 import StatusStories from "./StatusStories";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-import { PostDetailModal } from "./PostDetailModal";
 import { AuthContext } from "../context/AuthContext";
 import { collection, doc, onSnapshot, query } from "firebase/firestore";
 import { db } from "../db";
@@ -265,7 +264,7 @@ function UserProfile() {
                 dataLength={imageArray ? imageArray.length : 0} //This is important field to render the next data
                 next={getNextDataOfUserPost}
                 hasMore={hasMorePosts}
-                loader={imageArray.length < 3 ? <h4>Loading...</h4> : null}
+                loader={ imageArray.length>3?<div style={{ textAlign: "center" }}><Spinner animation="border" role="status"/></div>:null}
                 endMessage={
                   <p style={{ textAlign: "center" }}>
                     <b>Yay! You have seen it all</b>
