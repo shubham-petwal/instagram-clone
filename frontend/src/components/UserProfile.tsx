@@ -35,6 +35,78 @@ interface SocialCount {
   inbound_count: number;
   outbound_count: number;
 }
+interface ButtonProps {
+  targetUserId: string;
+}
+
+function FollowingButton(props:ButtonProps){
+  const [isFollowing, setFollowing] = useState<boolean>(true);
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const user = useContext(AuthContext);
+  const userId = user?.uid;
+  const targetUserId = props.targetUserId;
+  useEffect(() => {
+    if(!targetUserId){
+      return;
+    }
+    setLoading(true);
+    axios
+      .get(`http://localhost:90/${userId}/isFollowing/${targetUserId}`)
+      .then((result) => {
+        setFollowing(result.data.data.isFollowing);
+      })
+      .catch((err)=>{
+        console.log("error fetching check following API",err);
+      });
+    setLoading(false);
+  }, [isFollowing,props]);
+
+  async function handleButtonClick() {
+    try {
+      setLoading(true);
+      const result = await axios.post("http://localhost:90/follow", {
+        userId,
+        target_userId: targetUserId,
+      });
+      setFollowing(!isFollowing);
+      setLoading(false);
+      if (result.data.success == false) {
+        console.log(result.data.message);
+      }
+    } catch (err) {
+      setLoading(false);
+      console.log(err);
+    }
+  }
+
+
+   return (
+    <>
+      {isFollowing ?
+        isLoading ? (
+          <button>
+            <Spinner animation="border" role="status" size="sm">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </button>
+        ) : (
+          <button onClick={handleButtonClick}>following</button>
+        )
+      :
+        isLoading ? (
+          <button style={{backgroundColor :"rgba( 0, 149, 246, 1)", color : "white"}}>
+            <Spinner animation="border" role="status" size="sm">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </button>
+        ) : (
+          <button style={{backgroundColor :"rgba( 0, 149, 246, 1)", color : "white"}} onClick={handleButtonClick}>follow</button>
+        )
+      }
+    </>
+   );
+}
+
 function UserProfile() {
   const params = useParams();
   const [progress, setProgress] = useState(0)
@@ -65,6 +137,7 @@ function UserProfile() {
   });
   const [hasMorePosts, setHasMorePosts] = useState<boolean>(true);
   const [storyArray, setStoryArray] = useState<any>();
+
   const getNextDataOfUserPost = async () => {
     try {
       chatRef.current?.scrollIntoView();
@@ -86,6 +159,7 @@ function UserProfile() {
       console.log(error);
     }
   };
+
   const StoryNextData = async () => {
     try {
       const lastDoc = storyArray[storyArray.length - 1].deleteAt;
@@ -166,61 +240,72 @@ function UserProfile() {
       <Navbar />
       <UserProfileContainer>
         <div className="align_center">
-          <UserDataSection>
-            <div>
-              <Avatar
-                id="userProfileAvatar"
-                src={userRetrievedData?.profileImage}
-              />
-            </div>
-            <UserInfoContainer>
-              <EditAndSettingsDiv>
-                <p>{userRetrievedData?.userName}</p>
-                {user?.uid == userId ? (
-                  <button onClick={() => navigate("/editProfile")}>
-                    Edit Profile
-                  </button>
-                ) : null}
-                <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
-              </EditAndSettingsDiv>
-              <EditAndSettingsDiv>
-                <div>
-                  {/* did not implemented post count dynamically as imageArray.length, because we will be getting 3 posts at a time so it will dependent upont post fetched */}
-                  <span>6 </span>
-                  posts
-                </div>
-                <div
-                  onClick={() => {
-                    setCurrentMethod("followers");
-                    return setShowFollowerModal(true);
-                  }}
+        <UserDataSection>
+          <div>
+            <Avatar
+              id="userProfileAvatar"
+              src={userRetrievedData?.profileImage}
+            />
+          </div>
+          <UserInfoContainer>
+            <EditAndSettingsDiv>
+              <p>{userRetrievedData?.userName}</p>
+              {user?.uid == userId ? (
+                <button onClick={() => navigate("/editProfile")}>
+                  Edit Profile
+                </button>
+              ) : 
+              <>
+                <button onClick={()=>
+                    navigate(`/chat/${userRetrievedData?.userName}`)
+                  }
                 >
-                  <span>{socialCount?.inbound_count || 0} </span>
-                  followers
-                </div>
-                <div
-                  onClick={() => {
-                    setCurrentMethod("following");
-                    return setShowFollowerModal(true);
-                  }}
-                >
-                  <span>{socialCount?.outbound_count || 0} </span>
-                  following
-                </div>
-              </EditAndSettingsDiv>
-              <EditAndSettingsDiv>
-                <span>{userRetrievedData?.fullName}</span>
-                <p style={{ fontSize: "16px", display: "block" }}>
-                  {" "}
-                  {userRetrievedData?.bioData}{" "}
-                </p>
-              </EditAndSettingsDiv>
-            </UserInfoContainer>
-          </UserDataSection>
+                  Message
+                </button>
+                <FollowingButton targetUserId={userId} />
+              </>
+              }
+            </EditAndSettingsDiv>
+            <EditAndSettingsDiv>
+              <div>
+                {/* did not implemented post count dynamically as imageArray.length, because we will be getting 3 posts at a time so it will dependent upont post fetched */}
+                <span>6 </span>
+                posts
+              </div>
+              <div
+                onClick={() => {
+                  setCurrentMethod("followers");
+                  return setShowFollowerModal(true);
+                }}
+                style = {{cursor:"pointer"}}
+              >
+                <span>{socialCount?.inbound_count || 0} </span>
+                followers
+              </div>
+              <div
+                onClick={() => {
+                  setCurrentMethod("following");
+                  return setShowFollowerModal(true);
+                }}
+                style = {{cursor:"pointer"}}
+              >
+                <span>{socialCount?.outbound_count || 0} </span>
+                following
+              </div>
+            </EditAndSettingsDiv>
+            <EditAndSettingsDiv>
+              <span>{userRetrievedData?.fullName}</span>
+              <p style={{ fontSize: "16px", display: "block" }}>
+                {" "}
+                {userRetrievedData?.bioData}{" "}
+              </p>
+            </EditAndSettingsDiv>
+          </UserInfoContainer>
+        </UserDataSection>
         </div>
         <div className="align_center">
           <UserHighlightSection>
-            <div id="userProfileHighlight">
+            <div id="userProfileHighlight"> 
               <ul>
                 {storyArray ? (
                   storyArray.length > 0 ? (
@@ -241,17 +326,14 @@ function UserProfile() {
                       />
                     ))
                   ) : (
-                    <p>No content</p>
+                    null
                   )
                 ) : (
-                  <p>No content</p>
+                  null
                 )}
-                {storyArray && storyArray.length > 0 ? (
-                  <FontAwesomeIcon
-                    onClick={StoryNextData}
-                    icon={faCircleArrowRight}
-                  />
-                ) : null}
+                {storyArray&&storyArray.length>0 ?
+                <FontAwesomeIcon onClick={StoryNextData} icon={faCircleArrowRight}/>
+                :null}
               </ul>
             </div>
           </UserHighlightSection>

@@ -13,6 +13,7 @@ import subh from "../assets/images/shubham.jpg";
 import Avatar from "@material-ui/core/Avatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleUser, faBookmark } from "@fortawesome/free-regular-svg-icons";
+import { CometChat } from "@cometchat-pro/chat";  
 import { faListUl } from "@fortawesome/free-solid-svg-icons";
 import {
   faPlaneCircleExclamation,
@@ -61,6 +62,13 @@ function Navbar() {
   let navigate = useNavigate();
   const signOut = async () => {
     await auth.signOut();
+    CometChat.logout().then(
+      () => {
+        console.log("Logout completed successfully");
+      },error=>{
+        console.log("Logout failed with exception:",{error});
+      }
+    )
     navigate("/");
   };
   useEffect(() => {
@@ -137,7 +145,7 @@ function Navbar() {
               alt="logo"
               onClick={() => navigate("/home")}
             />
-            <NavIcons src={message} width="28px" alt="logo" />
+            <NavIcons src={message} width="28px" alt="logo" onClick={() => navigate(`/chat`)}/>
             <NavIcons
               src={plus}
               width="28px"
@@ -154,10 +162,6 @@ function Navbar() {
             />
             <NavIcons src={love} width="28px" alt="logo" />
 
-            {/* <img className="nav_icons" src={home} width="28px" alt="logo" />
-            <img className="nav_icons" src={find} width="28px" alt="logo" />
-            <img className="nav_icons" src={love} width="28px" alt="logo" />
-            <img className="nav_icons" src={message} width="28px" alt="logo" /> */}
             <Dropdown>
               <DropdownProfile >
                 <Dropdown.Toggle>
@@ -204,7 +208,7 @@ function Navbar() {
                   </Dropdown.Toggle>
                 </DropdownProfile>
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => navigate("/userProfile")}>
+                  <Dropdown.Item onClick={() => navigate(`/userProfile/${userData.userName}`)}>
                     <NavIcons
                       src={userData.profileImage}
                       width="25px"
@@ -213,7 +217,7 @@ function Navbar() {
                     />{" "}
                     Profile
                   </Dropdown.Item>
-                  <Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate(`/home`)}>
                     <NavIcons
                       src={home}
                       width="25px"
@@ -222,7 +226,7 @@ function Navbar() {
                     />{" "}
                     Home
                   </Dropdown.Item>
-                  <Dropdown.Item>
+                  <Dropdown.Item onClick={() => navigate(`/chat`)}>
                     <NavIcons
                       src={message}
                       width="25px"
@@ -231,7 +235,7 @@ function Navbar() {
                     />{" "}
                     Messages
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={() => setModalIsOpen(true)}>
+                  <Dropdown.Item onClick={() => setModalIsOpen(true)} >
                     <NavIcons
                       src={plus}
                       width="25px"
@@ -240,7 +244,7 @@ function Navbar() {
                     />{" "}
                     Create
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={() => navigate("/userProfile")}>
+                  <Dropdown.Item onClick={() => setModal(true)}>
                     <NavIcons
                       src={find}
                       width="25px"

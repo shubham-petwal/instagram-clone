@@ -85,9 +85,6 @@ export const UserHighlightSection = styled.div`
       opacity: 0.5;
     }
   }
-  #userProfileHighlight{
-    /* position: absolute; */
-  }
   display: flex;
   /* margin: 45px 0px 20px 0px; */
   padding: 25px 0px 20px 0px;

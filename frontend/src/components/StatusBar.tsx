@@ -101,10 +101,10 @@ function StatusBar(props:any) {
               />
             ))
           ) : (
-            <p>No content</p>
+            null
           )
         ) : (
-          <p>No content</p>
+          null
         )}
       </ul>
       {storyArray.length>0?

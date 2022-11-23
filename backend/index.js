@@ -165,10 +165,10 @@ app.post("/register", async (req, res) => {
     }).catch((err)=>{
       console.log("unable to register user into algolia");
     })
-    res.send({ success: true, message: "user Registered Successfully" });
+    res.send({ success: true, message: "user Registered Successfully",data:{userName : userName, fullName : fullName}  });
   } catch (error) {
     console.log(error);
-    res.send({ success: false, message: error.message });
+    res.send({ success: false, message: error.message});
   }
 });
 
@@ -520,7 +520,7 @@ app.post("/updateProfileImage", upload.single("file"), async (req, res) => {
       process.env.ALOGOLIA_APP_ID,
       process.env.ALOGOLIA_ADMIN_API_KEY
     );
-    
+    const instaIndex = searchClient.initIndex("instagram_users")
     const actors = {
       fullName : resArr[0].fullName,
       userName : resArr[0].userName,

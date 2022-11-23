@@ -14,6 +14,7 @@ import { AuthContext } from "../context/AuthContext";
 import BlueButton from "../assets/images/blueButton.png";
 import LoadingBar from "react-top-loading-bar";
 
+import { CometChat } from "@cometchat-pro/chat";
 import { Avatar } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -92,10 +93,23 @@ function Home() {
         } else {
           console.log("Post Details not found");
         }
-        const userData = await axios.get(
+        await axios.get(
           `http://localhost:90/users/${user?.uid}`
-        );
-        setRetrievedData(userData.data.data);
+        ).then((userData)=>{
+            setRetrievedData(userData.data.data);
+            // logging user in Cometchat once user data in retrieved on home page
+            let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
+            var chat_uid = user?.uid;
+            
+            CometChat.login(chat_uid, authKey).then(
+              (user) => {
+                console.log("logged in ", user);
+              },
+              (error) => {
+                console.log("error", error);
+              }
+            );
+        })
       } catch (error: any) {
         console.log(error.message);
       }
