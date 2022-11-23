@@ -178,6 +178,10 @@ export const ActionIconsDiv = styled.div`
     width: 26px;
     margin-left: 9px;
     margin-right: 9px;
+    cursor: pointer;
+    :hover{
+        opacity: 0.6;
+      }
   }
   }
   div.likes-wrapper {

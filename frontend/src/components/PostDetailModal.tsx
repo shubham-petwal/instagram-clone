@@ -29,6 +29,7 @@ import { Avatar } from "@material-ui/core";
 import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../db";
 import redHeart from "../assets/images/red-heart-icon.svg";
+import { sendNotification } from "../utilities/sendNotification";
 
 export function PostDetailModal(props: any) {
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ export function PostDetailModal(props: any) {
       setLoading(false);
       setComment("");
       const token = props.fcm_token;
-      sendNotification(token,"Comment Notification",`${props.currentUserName} has Commented on your post`)
+      sendNotification(token,"Comment Notification",`${props.currentUserName} has Commented on your post`,props.userId,props.currentUserProfileImage)
       console.log("Notification sent")
     } catch (error) {
       console.log(error);
@@ -68,7 +69,7 @@ export function PostDetailModal(props: any) {
     });
     if(!props.liked){
       const token = props.fcm_token;
-      sendNotification(token,"Like Notification",`${props.currentUserName} has liked your post`)
+      sendNotification(token,"Like Notification",`${props.currentUserName} has liked your post`,props.userId,props.currentUserProfileImage)
       console.log("Notification sent")
     }
   };
@@ -97,31 +98,6 @@ export function PostDetailModal(props: any) {
         setTotalLikes(doc.data()?.likes_count);
       }
     );
-  }
-  const sendNotification = (token:string,Notifi_title:string,Notifi_body:string)=>{
-    let body = {
-      to: token,
-      notification:{
-        title: Notifi_title,
-        body:Notifi_body,
-        icon:"",
-        click_action:"https://google.com"
-      }
-    }
-    
-    let options = {
-      method: "POST",
-      headers: new Headers({
-        Authorization: "key=AAAAfnSlWp8:APA91bH-KZ3UngzLMme_8e9vDt4jEw-HvSOI_BOX361qxxsJAOrkXM3ehUiadPywIqNqBeKnokDOVJmKO8jKLVhS5_8k0UzflLx4CuAin2SbTw_tsDYSdH3f9a37YJ6mGG3AxIXoWsZO",
-        "Content-Type":"application/json"
-      }),
-      body: JSON.stringify(body)
-    }
-
-    fetch("https://fcm.googleapis.com/fcm/send", options).then(res=>{
-      console.log(res)
-      console.log("SENT")
-    }).catch((e)=>console.log(e))
   }
 
   useEffect(() => {

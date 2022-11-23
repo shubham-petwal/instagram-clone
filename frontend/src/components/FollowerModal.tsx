@@ -20,6 +20,7 @@ import {
 import { AuthContext } from "../context/AuthContext";
 
 import "../styles/FollowerModal.scss";
+import { sendNotification } from "../utilities/sendNotification";
 
 interface FollowersInterface {
   fullName: string;
@@ -55,6 +56,7 @@ function RemoveButton(props: ButtonProps) {
         userId: targetUserId,
         target_userId: userId,
       });
+      
       setLoading(false);
       setFollowing(!isFollowing);
     } catch (err) {

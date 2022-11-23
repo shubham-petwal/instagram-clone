@@ -31,6 +31,7 @@ import { db } from "../db";
 import { collection, doc, onSnapshot, query } from "firebase/firestore";
 import { async } from "@firebase/util";
 import redHeart from "../assets/images/red-heart-icon.svg";
+import { sendNotification } from "../utilities/sendNotification";
 
 interface PostInterFace {
   postImage: string;
@@ -39,10 +40,11 @@ interface PostInterFace {
   userId: string;
   profileImage:string;
   currentUserName:string;
+  currentUserProfileImage:string;
   userName:string;
 }
 
-function Posts({ postImage, caption, postId, userId ,userName,profileImage,currentUserName}: PostInterFace) {
+function Posts({ postImage, caption, postId, userId ,userName,profileImage,currentUserName,currentUserProfileImage}: PostInterFace) {
   const navigate = useNavigate();
   const [comment, setComment] = useState("");
   const [userRetrievedData, setRetrievedData] = useState<any>();
@@ -52,33 +54,6 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
   const [likesArrayDetails, setLikesArrayDetails] = useState<any>();
   const [modalState, setModalState] = useState(false);
   const user = useContext(AuthContext);
-
-
-  const sendNotification = (token:string,Notifi_title:string,Notifi_body:string)=>{
-    let body = {
-      to: token,
-      notification:{
-        title: Notifi_title,
-        body:Notifi_body,
-        icon:"",
-        click_action:"https://google.com"
-      }
-    }
-    
-    let options = {
-      method: "POST",
-      headers: new Headers({
-        Authorization: "key=AAAAfnSlWp8:APA91bH-KZ3UngzLMme_8e9vDt4jEw-HvSOI_BOX361qxxsJAOrkXM3ehUiadPywIqNqBeKnokDOVJmKO8jKLVhS5_8k0UzflLx4CuAin2SbTw_tsDYSdH3f9a37YJ6mGG3AxIXoWsZO",
-        "Content-Type":"application/json"
-      }),
-      body: JSON.stringify(body)
-    }
-    
-    fetch("https://fcm.googleapis.com/fcm/send", options).then(res=>{
-      console.log(res)
-      console.log("SENT")
-    }).catch((e)=>console.log(e))
-  }
 
 
   const data = {
@@ -91,7 +66,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
       const result = await axios.post("http://localhost:90/addComment", data);
       setComment("");
       const token = userRetrievedData?.fcm_token;
-      sendNotification(token,"Comment Notification",`${currentUserName} has Commented on your post`)
+      sendNotification(token,"Comment Notification",`${currentUserName} has Commented on your post`,userId,currentUserProfileImage)
       console.log("Notification sent")
     } catch (error) {
       console.log(error);
@@ -161,7 +136,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
     })
     if(!liked){
       const token = userRetrievedData?.fcm_token;
-      sendNotification(token,"Like Notification",`${currentUserName} has liked your post`)
+      sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,userRetrievedData?.profileImage)
       console.log("Notification sent")
     }
   };
@@ -235,6 +210,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
         userId = {userId}
         fcm_token = {userRetrievedData?.fcm_token}
         currentUserName={currentUserName}
+        currentUserProfileImage={currentUserProfileImage}
 
       />
     </PostContainer>

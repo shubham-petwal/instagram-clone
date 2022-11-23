@@ -16,6 +16,7 @@ import {messaging} from "./db"
 import { ToastContainer, toast } from "react-toastify";
 import { CometChat } from "@cometchat-pro/chat";
 import Chat from "./components/Chat";
+import axios from "axios";
 
 
 
@@ -23,11 +24,19 @@ function App() {
   const user = useContext(AuthContext);
 
   useEffect(()=>{
-    onMessage(messaging, (payload) => {
+    onMessage(messaging, async(payload) => {
       console.log('Message received. ', payload);
       toast(payload.notification?.body);
+        const data = {
+          userId:payload.data?.userId,
+          profileImage:payload.data?.profileImage,
+          message:payload.notification?.body
+        }
+        const result = await axios.post("http://localhost:90/addNotification", data);
+        console.log("Notification added successfully")
     })
   },[user?.uid])
+
   useEffect(() => {
     const appID = "225772fb85438ae5";
     const region = "us";

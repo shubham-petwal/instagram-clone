@@ -24,6 +24,7 @@ import FollowerModal from "./FollowerModal";
 import ProfilePosts from "./ProfilePosts";
 import { Timestamp } from "firebase/firestore";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { sendNotification } from "../utilities/sendNotification";
 interface GetDataInterface {
   image: string;
   caption: string;
@@ -37,15 +38,26 @@ interface SocialCount {
 }
 interface ButtonProps {
   targetUserId: string;
+  targetFcmToken:string
 }
 
 function FollowingButton(props:ButtonProps){
   const [isFollowing, setFollowing] = useState<boolean>(true);
   const [isLoading, setLoading] = useState<boolean>(false);
+  const [userRetrievedData, setRetrievedData] = useState<any>();
   const user = useContext(AuthContext);
   const userId = user?.uid;
   const targetUserId = props.targetUserId;
   useEffect(() => {
+    axios
+    .get(`http://localhost:90/users/${userId}`)
+    .then((userData) => {
+      setRetrievedData(userData.data.data);
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+
     if(!targetUserId){
       return;
     }
@@ -68,6 +80,12 @@ function FollowingButton(props:ButtonProps){
         userId,
         target_userId: targetUserId,
       });
+      if(!isFollowing &&userId){
+        const token = props.targetFcmToken;
+        sendNotification(token,"Follow notification",`${userRetrievedData?.userName} has followed you`,userId,userRetrievedData?.profileImage)
+        console.log("Notification sent")
+      }
+
       setFollowing(!isFollowing);
       setLoading(false);
       if (result.data.success == false) {
@@ -262,14 +280,14 @@ function UserProfile() {
                 >
                   Message
                 </button>
-                <FollowingButton targetUserId={userId} />
+                <FollowingButton targetUserId={userId} targetFcmToken = {userRetrievedData?.fcm_token}/>
               </>
               }
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
               <div>
                 {/* did not implemented post count dynamically as imageArray.length, because we will be getting 3 posts at a time so it will dependent upont post fetched */}
-                <span>6 </span>
+                <span>{imageArray.length} </span>
                 posts
               </div>
               <div
@@ -397,12 +415,6 @@ function UserProfile() {
   );
 }
 
-// {
-//   imageArray?
-//  imageArray.length>0?imageArray.map((item:any)=>(
-//  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
-// )):<p>No content</p>
-// :<p>No content</p>
-// }
+
 
 export default UserProfile;

@@ -161,6 +161,7 @@ function Home() {
                     userName={item.userName}
                     profileImage={item.profileImage}
                     currentUserName = {userRetrievedData?.userName}
+                    currentUserProfileImage = {userRetrievedData?.profileImage}
                   />
                 ))
               ) : (

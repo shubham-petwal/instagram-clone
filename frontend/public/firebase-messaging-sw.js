@@ -26,7 +26,6 @@ firebase.initializeApp({
 
 // eslint-disable-next-line
 const messaging = firebase.messaging();
-
 messaging.onBackgroundMessage((message) => {
   return self.showNotification(
     message.notification.title,

@@ -1175,6 +1175,49 @@ app.get("/getStories", async (req, res) => {
   }
 });
 
+app.post("/addNotification", async (req, res) => {
+  const { userId,profileImage,message} = req.body;
+  try {
+    const collectionRef = collection(db, "notifications");
+    const docRef = await addDoc(collectionRef, {
+      userId,
+      profileImage,
+      message
+    });
+    res.send({ success: true, message: "notification added Successfully" });
+  } catch (error) {
+    console.log(error);
+    res.send({ success: false, message: error.message});
+  }
+});
+
+app.get("/getNotifications/:userId", async (req, res) => {
+  //need to send the userId, profileImg url in the response
+  try {
+    const userId = req.params.userId;
+    const collectionRef = collection(db, "notifications");
+    const q = query(collectionRef, where("userId", "==", userId.toString())); //created a query
+    const querySnapshot = await getDocs(q);
+    const resArr = [];
+    querySnapshot.forEach((doc) => {
+      resArr.push(doc.data());
+    });
+    if (resArr.length == 0) {
+      throw new Error("unable to find the user with provided userId");
+    }
+    res.send({
+      success: true,
+      message: "request fetched successfully",
+      data: resArr,
+    });
+  } catch (error) {
+    res.send({
+      success: false,
+      message: error.message,
+    });
+  }
+});
+
 app.listen(process.env.PORT, () => {
   console.log(`app started at port ${process.env.PORT}`);
 });
