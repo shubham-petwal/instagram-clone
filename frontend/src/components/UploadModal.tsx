@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import { UploadModalBodyDiv } from './styledComponents/UploadModal.style';
+import { CometChat } from '@cometchat-pro/chat';
 
 interface PropsInterface {
     method: string;
@@ -12,6 +13,12 @@ interface PropsInterface {
     setModalIsOpen: React.Dispatch<React.SetStateAction<boolean>>
     header:string
   }
+const toBase64 = (file : any) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = error => reject(error);
+});
 
 function UploadModal(props:PropsInterface) {
     const [fileData, setFileData] = useState<string | any>();
@@ -32,10 +39,29 @@ function UploadModal(props:PropsInterface) {
         formData.append("caption", postCaption); //---------conditionally
       }
       try {
-        const result = await axios.post(
+        await axios.post(
           `http://localhost:90/${props.method}`, //---------conditionally
           formData
-        );
+        ).then(async (result)=>{
+          if(props.method == "updateProfileImage"){
+            CometChat.callExtension(
+              'avatar',
+              'POST',
+              'v1/upload',
+              {
+                avatar: await toBase64(fileData) ,
+              }
+            ).then(response => {
+              // { avatarURL: "https://data-eu.cometchat.io/avatars/photo123.jpg" }
+                console.log("comet avatar : ",response);
+              }).catch(error => {
+                // Error occured
+                console.log("comet avatar : ",error)
+            });
+          }
+        }).catch((error)=>{
+          console.log("cometchat err : ",error)
+        })
         console.log("Uploaded Succesfully");
         navigate("/");
       } catch (error) {
