@@ -47,7 +47,6 @@ function FollowingButton(props:ButtonProps){
   const user = useContext(AuthContext);
   const userId = user?.uid;
   const targetUserId = props.targetUserId;
-  console.log("target : ",targetUserId)
   useEffect(() => {
     if(!targetUserId){
       return;
@@ -56,7 +55,6 @@ function FollowingButton(props:ButtonProps){
     axios
       .get(`http://localhost:90/${userId}/isFollowing/${targetUserId}`)
       .then((result) => {
-        console.log(result);
         setFollowing(result.data.data.isFollowing);
       })
       .catch((err)=>{
@@ -218,7 +216,6 @@ function UserProfile() {
       axios.get(`http://localhost:90/getPosts?userId=${userId}&page=3`).then((allPosts) => {
         const Details = allPosts.data;
         if (Details) {
-          console.log("usr retrieved data : ",userRetrievedData);
           setImageArray(Details.data);
         }
       });

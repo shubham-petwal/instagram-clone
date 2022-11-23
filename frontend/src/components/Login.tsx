@@ -47,17 +47,7 @@ function Login() {
   const signIn = async (email: string, password: string) => {
     try {
       const response = await auth.signInWithEmailAndPassword(email, password);
-      let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
-      var chat_uid = "test2";
-    
-      CometChat.login(chat_uid, authKey).then(
-        (user) => {
-          console.log("logged in ", user);
-        },
-        (error) => {
-          console.log("error", error);
-        }
-      );
+      console.log("login user : ",response);
       navigate("/home");
     } catch (error: any) {
       window.alert(error);

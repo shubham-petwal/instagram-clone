@@ -69,35 +69,47 @@ function SignUp() {
       if(!checkResponse.data.isAllowed){
         throw new Error(checkResponse.data.message);
       }
-      const response = await auth.createUserWithEmailAndPassword(
+      await auth.createUserWithEmailAndPassword(
         emailRef.current!.value,
         passwordRef.current!.value
-      );
+      ).then((response)=>{
+        const userId = response.user?.uid;
+        const registerObject = {
+          userId : userId,
+          userName : userNameRef.current?.value,
+          fullName : fullNameRef.current?.value,
+          email : emailRef.current?.value,
+          password : passwordRef.current?.value
+        }
         //sending post request to server to store the user in the firestore cloud database
         //@types-ignore
-      const userId = response.user?.uid;
-      const registerObject = {
-        userId : userId,
-        userName : userNameRef.current?.value,
-        fullName : fullNameRef.current?.value,
-        email : emailRef.current?.value,
-        password : passwordRef.current?.value
-      }
-      const result = await axios.post('http://localhost:90/register', registerObject);
-
-      let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
-      var uid = userNameRef.current?.value || "";
-      var name = fullNameRef.current?.value || "";
-
-      var user = new CometChat.User(uid);
-      user.setName(name);
-      CometChat.createUser(user, authKey).then(
-          user => {
-              console.log("user created", user);
-          },error => {
-              console.log("error", error);
-          }
-      )
+        axios.post('http://localhost:90/register', registerObject).then((result)=>{
+          // console.log("signup-result : ",result);
+          let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
+          var uid = userId;
+          var name = result.data.data.fullName;
+          var user = new CometChat.User(uid);
+          user.setName(name);
+          CometChat.createUser(user, authKey).then(
+            user => {
+              console.log("cometchat user created", user);
+              CometChat.login(uid, authKey).then(
+                (user) => {
+                  console.log("logged in cometchat", user);
+                },
+                (error) => {
+                  console.log("cometchat login error", error);
+                }
+              );
+            },error => {
+                console.log("cometchat user creation error", error);
+            }
+          )
+          
+        })
+      }).catch((err)=>{
+        console.log("user creation error : " ,err )
+      })
 
       navigate("/home");
     } catch (error:any) {

@@ -164,10 +164,10 @@ app.post("/register", async (req, res) => {
     }).catch((err)=>{
       console.log("unable to register user into algolia");
     })
-    res.send({ success: true, message: "user Registered Successfully" });
+    res.send({ success: true, message: "user Registered Successfully",data:{userName : userName, fullName : fullName}  });
   } catch (error) {
     console.log(error);
-    res.send({ success: false, message: error.message });
+    res.send({ success: false, message: error.message});
   }
 });
 
