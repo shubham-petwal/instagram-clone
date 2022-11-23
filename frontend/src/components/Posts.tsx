@@ -90,6 +90,9 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
     try {
       const result = await axios.post("http://localhost:90/addComment", data);
       setComment("");
+      const token = userRetrievedData?.fcm_token;
+      sendNotification(token,"Comment Notification",`${currentUserName} has Commented on your post`)
+      console.log("Notification sent")
     } catch (error) {
       console.log(error);
     }
