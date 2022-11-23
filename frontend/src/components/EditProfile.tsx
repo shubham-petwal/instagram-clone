@@ -15,6 +15,7 @@ import {
   GenderRadioWrapperDiv
 } from "./styledComponents/EditProfile.style";
 import { auth } from "../firebaseSetup";
+import { CometChat } from "@cometchat-pro/chat";
 import UploadModal from "./UploadModal";
 
 function EditProfile() {
@@ -66,6 +67,21 @@ function EditProfile() {
     }
     const response = await axios.post('http://localhost:90/updateUser',userUpdateObject);
 
+    let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
+    let uid = userId;
+    let name = fullNameRef?.current ? fullNameRef?.current.value : "";
+
+    var user = new CometChat.User(uid);
+
+    user.setName(name);
+    
+    CometChat.updateUser(user, authKey).then(
+        user => {
+            console.log("user updated", user);
+        }, error => {
+            console.log("error", error);
+        }
+    )
   };
 
   const handleInputChange = (event : React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{

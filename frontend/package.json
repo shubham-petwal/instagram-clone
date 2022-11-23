@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@cometchat-pro/chat": "^3.0.10",
     "@fortawesome/fontawesome-svg-core": "^6.2.0",
     "@fortawesome/free-brands-svg-icons": "^6.2.0",
     "@fortawesome/free-regular-svg-icons": "^6.2.0",
@@ -33,8 +34,8 @@
     "react-dropdown": "^1.11.0",
     "react-infinite-scroll-component": "^6.1.0",
     "react-insta-stories": "^2.4.2",
-    "react-modal": "^3.16.1",
     "react-instantsearch-dom": "^6.38.1",
+    "react-modal": "^3.16.1",
     "react-redux": "^8.0.4",
     "react-router-dom": "^6.4.2",
     "react-scripts": "5.0.1",
@@ -44,7 +45,11 @@
     "styled-components": "^5.3.6",
     "typescript": "^4.8.4",
     "web-vitals": "^2.1.4",
-    "yup": "^0.32.11"
+    "yup": "^0.32.11",
+		"@emotion/core": "^10.0.35",
+		"dateformat": "^4.0.0",
+		"html-react-parser": "^1.4.5",
+		"twemoji": "^13.0.1"
   },
   "scripts": {
     "start": "react-scripts start",

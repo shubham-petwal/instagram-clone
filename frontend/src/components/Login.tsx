@@ -28,6 +28,7 @@ import {
   OrSplitter,
   ShowPasswordBtn,
 } from "./styledComponents/LoginStyled";
+import { CometChat } from "@cometchat-pro/chat";
 const logo = require("../assets/images/instagram.png");
 const fb = require("../assets/images/facebook.png");
 const insta1 = require("../assets/images/insta1.png");
@@ -46,6 +47,7 @@ function Login() {
   const signIn = async (email: string, password: string) => {
     try {
       const response = await auth.signInWithEmailAndPassword(email, password);
+      console.log("login user : ",response);
       navigate("/home");
     } catch (error: any) {
       window.alert(error);

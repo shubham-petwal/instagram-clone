@@ -8,6 +8,7 @@ import {
   AllPostImages,
 } from "./styledComponents/UserProfile.style";
 import Navbar from "./Navbar";
+import { Spinner } from "react-bootstrap";
 import { Avatar } from "@material-ui/core";
 import WhiteRing from "../assets/images/UserHighlightRing.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -36,6 +37,78 @@ interface SocialCount {
   inbound_count: number;
   outbound_count: number;
 }
+interface ButtonProps {
+  targetUserId: string;
+}
+
+function FollowingButton(props:ButtonProps){
+  const [isFollowing, setFollowing] = useState<boolean>(true);
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const user = useContext(AuthContext);
+  const userId = user?.uid;
+  const targetUserId = props.targetUserId;
+  useEffect(() => {
+    if(!targetUserId){
+      return;
+    }
+    setLoading(true);
+    axios
+      .get(`http://localhost:90/${userId}/isFollowing/${targetUserId}`)
+      .then((result) => {
+        setFollowing(result.data.data.isFollowing);
+      })
+      .catch((err)=>{
+        console.log("error fetching check following API",err);
+      });
+    setLoading(false);
+  }, [isFollowing,props]);
+
+  async function handleButtonClick() {
+    try {
+      setLoading(true);
+      const result = await axios.post("http://localhost:90/follow", {
+        userId,
+        target_userId: targetUserId,
+      });
+      setFollowing(!isFollowing);
+      setLoading(false);
+      if (result.data.success == false) {
+        console.log(result.data.message);
+      }
+    } catch (err) {
+      setLoading(false);
+      console.log(err);
+    }
+  }
+
+
+   return (
+    <>
+      {isFollowing ?
+        isLoading ? (
+          <button>
+            <Spinner animation="border" role="status" size="sm">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </button>
+        ) : (
+          <button onClick={handleButtonClick}>following</button>
+        )
+      :
+        isLoading ? (
+          <button style={{backgroundColor :"rgba( 0, 149, 246, 1)", color : "white"}}>
+            <Spinner animation="border" role="status" size="sm">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+          </button>
+        ) : (
+          <button style={{backgroundColor :"rgba( 0, 149, 246, 1)", color : "white"}} onClick={handleButtonClick}>follow</button>
+        )
+      }
+    </>
+   );
+}
+
 function UserProfile() {
   const params = useParams();
   const user = useContext(AuthContext);
@@ -63,6 +136,7 @@ function UserProfile() {
   });
   const [hasMorePosts, setHasMorePosts] = useState<boolean>(true);
   const [storyArray, setStoryArray] = useState<any>();
+
   const getNextDataOfUserPost = async () => {
     try {
       chatRef.current?.scrollIntoView();
@@ -84,6 +158,7 @@ function UserProfile() {
       console.log(error);
     }
   };
+
   const StoryNextData = async () => {
     try {
       const lastDoc = storyArray[storyArray.length - 1].deleteAt;
@@ -129,8 +204,6 @@ function UserProfile() {
         console.log(err.message);
       })
 
-
-
       axios
         .get(`http://localhost:90/users/${userId}`)
         .then((userData) => {
@@ -171,7 +244,17 @@ function UserProfile() {
                 <button onClick={() => navigate("/editProfile")}>
                   Edit Profile
                 </button>
-              ) : null}
+              ) : 
+              <>
+                <button onClick={()=>
+                    navigate(`/chat/${userRetrievedData?.userName}`)
+                  }
+                >
+                  Message
+                </button>
+                <FollowingButton targetUserId={userId} />
+              </>
+              }
               <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
@@ -185,6 +268,7 @@ function UserProfile() {
                   setCurrentMethod("followers");
                   return setShowFollowerModal(true);
                 }}
+                style = {{cursor:"pointer"}}
               >
                 <span>{socialCount?.inbound_count || 0} </span>
                 followers
@@ -194,6 +278,7 @@ function UserProfile() {
                   setCurrentMethod("following");
                   return setShowFollowerModal(true);
                 }}
+                style = {{cursor:"pointer"}}
               >
                 <span>{socialCount?.outbound_count || 0} </span>
                 following
@@ -210,39 +295,39 @@ function UserProfile() {
         </UserDataSection>
         </div>
         <div className="align_center">
-        <UserHighlightSection>
-          <div id="userProfileHighlight">
-            <ul>
-              {storyArray ? (
-                storyArray.length > 0 ? (
-                  storyArray.map((item: any) => (
-                    //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
-                    <StatusStories
-                      key={Math.random()}
-                      Ringwidth="85"
-                      Ringheight="85"
-                      width="80"
-                      height="80"
-                      profileImage={item.profileImage}
-                      storyId={item.storyId}
-                      userName={item.userName}
-                      storyImage={item.image}
-                      createdAt={item.createdAt}
-                      nav={`/userProfile/${item.userName}`}
-                    />
-                  ))
+          <UserHighlightSection>
+            <div id="userProfileHighlight"> 
+              <ul>
+                {storyArray ? (
+                  storyArray.length > 0 ? (
+                    storyArray.map((item: any) => (
+                      //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
+                      <StatusStories
+                        key={Math.random()}
+                        Ringwidth="85"
+                        Ringheight="85"
+                        width="80"
+                        height="80"
+                        profileImage={item.profileImage}
+                        storyId={item.storyId}
+                        userName={item.userName}
+                        storyImage={item.image}
+                        createdAt={item.createdAt}
+                        nav={`/userProfile/${item.userName}`}
+                      />
+                    ))
+                  ) : (
+                    null
+                  )
                 ) : (
-                  <p>No content</p>
-                )
-              ) : (
-                <p>No content</p>
-              )}
-              {storyArray&&storyArray.length>0 ?
-              <FontAwesomeIcon onClick={StoryNextData} icon={faCircleArrowRight}/>
-              :null}
-            </ul>
-          </div>
-        </UserHighlightSection>
+                  null
+                )}
+                {storyArray&&storyArray.length>0 ?
+                <FontAwesomeIcon onClick={StoryNextData} icon={faCircleArrowRight}/>
+                :null}
+              </ul>
+            </div>
+          </UserHighlightSection>
         </div>
 
         <div className="align_center">
