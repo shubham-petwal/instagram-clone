@@ -19,7 +19,6 @@ import Chat from "./components/Chat";
 import axios from "axios";
 
 
-
 function App() {
   const user = useContext(AuthContext);
 

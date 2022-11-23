@@ -13,8 +13,9 @@ import subh from "../assets/images/shubham.jpg";
 import Avatar from "@material-ui/core/Avatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleUser, faBookmark } from "@fortawesome/free-regular-svg-icons";
-import { CometChat } from "@cometchat-pro/chat";  
-import { faListUl } from "@fortawesome/free-solid-svg-icons";
+import { CometChat } from "@cometchat-pro/chat";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 import {
   faPlaneCircleExclamation,
   faRepeat,
@@ -36,11 +37,14 @@ import {
   NavIcons,
   NavInput,
   NavLogo,
+  NotificationModalDiv,
   ProfileAvatar,
 } from "./styledComponents/Navbar.style";
 import UploadModal from "./UploadModal";
 import SearchModal from "./SearchModal";
 import axios from "axios";
+import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { db } from "../db";
 interface NavInterFace {
   profileImage: string;
 }
@@ -56,20 +60,34 @@ function Navbar() {
     userName: "",
   });
   const [showSearchModal, setModal] = useState<boolean>(false);
+  const [lgShow, setLgShow] = useState<boolean>(false);
   const user = useContext(AuthContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [showMediaIcons, setShowMediaIcons] = useState(false);
+  const [notifications, setNotifications] = useState<any>();
   let navigate = useNavigate();
   const signOut = async () => {
     await auth.signOut();
     CometChat.logout().then(
       () => {
         console.log("Logout completed successfully");
-      },error=>{
-        console.log("Logout failed with exception:",{error});
+      },
+      (error) => {
+        console.log("Logout failed with exception:", { error });
       }
-    )
+    );
     navigate("/");
+  };
+  const getNotificationData = async () => {
+    const collectionRef = query(
+      collection(db,"notifications"),where("userId", "==", user?.uid.toString())
+    );
+    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
+      const details: any = [];
+      querySnapshot.forEach((doc) => {
+        details.push(doc.data());
+      });
+      setNotifications(details);
+    });
   };
   useEffect(() => {
     const userID = user?.uid;
@@ -85,7 +103,9 @@ function Navbar() {
       .catch((err) => {
         console.log(err);
       });
+      getNotificationData()
   }, []);
+  console.log(notifications)
   return !user ? (
     <div>
       <NavContainer>
@@ -145,7 +165,12 @@ function Navbar() {
               alt="logo"
               onClick={() => navigate("/home")}
             />
-            <NavIcons src={message} width="28px" alt="logo" onClick={() => navigate(`/chat`)}/>
+            <NavIcons
+              src={message}
+              width="28px"
+              alt="logo"
+              onClick={() => navigate(`/chat`)}
+            />
             <NavIcons
               src={plus}
               width="28px"
@@ -160,10 +185,10 @@ function Navbar() {
               alt="logo"
               onClick={() => setModal(true)}
             />
-            <NavIcons src={love} width="28px" alt="logo" />
+            <NavIcons src={love} width="28px" alt="logo" onClick={()=>setLgShow(true)}/>
 
             <Dropdown>
-              <DropdownProfile >
+              <DropdownProfile>
                 <Dropdown.Toggle>
                   <ProfileAvatar>
                     <Avatar id="avatar" src={userData.profileImage} />
@@ -208,7 +233,11 @@ function Navbar() {
                   </Dropdown.Toggle>
                 </DropdownProfile>
                 <Dropdown.Menu>
-                  <Dropdown.Item onClick={() => navigate(`/userProfile/${userData.userName}`)}>
+                  <Dropdown.Item
+                    onClick={() =>
+                      navigate(`/userProfile/${userData.userName}`)
+                    }
+                  >
                     <NavIcons
                       src={userData.profileImage}
                       width="25px"
@@ -235,7 +264,7 @@ function Navbar() {
                     />{" "}
                     Messages
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={() => setModalIsOpen(true)} >
+                  <Dropdown.Item onClick={() => setModalIsOpen(true)}>
                     <NavIcons
                       src={plus}
                       width="25px"
@@ -259,7 +288,8 @@ function Navbar() {
                       width="25px"
                       height="22px"
                       alt="logo"
-                    />{" "}
+                      onClick={()=>setLgShow(true)}
+                    />
                     Notifications
                   </Dropdown.Item>
 
@@ -279,6 +309,34 @@ function Navbar() {
         setModalIsOpen={setModalIsOpen}
         header={"Create new post"}
       />
+      <Modal
+        size="xl"
+        scrollable={true}
+        show={lgShow}
+        onHide={() => setLgShow(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title id="example-modal-sizes-title-lg">
+          Notifications
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <NotificationModalDiv>
+          <ul>
+            {notifications?
+            notifications.map((item:any)=>(
+              <li id="notification_list">
+                <Avatar src={item.profileImage}/>
+                <span>
+                {item.message}
+                </span>
+                </li>
+            ))
+            :null}
+          </ul>
+          </NotificationModalDiv>
+        </Modal.Body>
+      </Modal>
 
       <SearchModal show={showSearchModal} onHide={() => setModal(false)} />
     </div>

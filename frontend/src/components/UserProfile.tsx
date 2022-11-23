@@ -410,6 +410,8 @@ function UserProfile() {
         onHide={() => setShowFollowerModal(false)}
         userId={userId}
         method={currentMethod}
+        // targetFcmToken = {userRetrievedData?.fcm_token}
+
       />
     </div>
   );

@@ -72,8 +72,14 @@ function StatusBar(props:any) {
     getData();
   }, []);
   useEffect(()=>{
-    if(storyArray&&storyArray.length>0 && storyArray[0].userId==user?.uid){
-      props.setStoryState(true)
+    // storyArray[0].userId==user?.uid
+    if(storyArray&&storyArray.length>0){
+      storyArray.map((item)=>{
+        if(item.userId==user?.uid){
+          props.setStoryState(true)
+          return;
+        }
+      })
     }
     else{
       props.setStoryState(false)
