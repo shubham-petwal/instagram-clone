@@ -57,9 +57,6 @@ function Home() {
     return setIsStoryUploaded(bool);
   };
 
-
-
-
   const getNextData = async () => {
     try {
       const lastDoc = imageArray[imageArray.length - 1].createdAt;
@@ -127,7 +124,7 @@ function Home() {
         progress={progress}
         onLoaderFinished={() => setProgress(0)}
       />
-      <Navbar />
+      <Navbar setModalIsOpen={setModalIsOpen} />
       <HomePageContainer>
         <ToastContainer position="top-center" />
         <div id="all_posts">

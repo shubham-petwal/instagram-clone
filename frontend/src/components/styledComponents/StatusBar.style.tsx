@@ -19,15 +19,6 @@ position: relative;
       overflow-y: hidden;
       }
   ul {
-    /* display: flex;
-    margin-left: -20px;
-    overflow-y: scroll;
-    -ms-overflow-style: none;
-    scrollbar-width: none; */
-
-
-
-
     display: flex;
   align-items: center;
   list-style: none;

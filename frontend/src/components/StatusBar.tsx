@@ -112,6 +112,7 @@ function StatusBar(props: any) {
     }
   }, [storyArray]);
   useEffect(() => {
+
     if (
       scrl.current &&
       scrl?.current?.scrollWidth === scrl?.current?.offsetWidth

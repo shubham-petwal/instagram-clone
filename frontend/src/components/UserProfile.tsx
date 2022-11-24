@@ -13,7 +13,7 @@ import { Avatar } from "@material-ui/core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGear } from "@fortawesome/free-solid-svg-icons";
 import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
-import LoadingBar from 'react-top-loading-bar'
+import LoadingBar from "react-top-loading-bar";
 import StatusStories from "./StatusStories";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
@@ -25,6 +25,8 @@ import ProfilePosts from "./ProfilePosts";
 import { Timestamp } from "firebase/firestore";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { sendNotification } from "../utilities/sendNotification";
+import rightArrow from "../assets/images/rightArrow.png";
+import leftArrow from "../assets/images/leftArrow.png";
 interface GetDataInterface {
   image: string;
   caption: string;
@@ -38,10 +40,10 @@ interface SocialCount {
 }
 interface ButtonProps {
   targetUserId: string;
-  targetFcmToken:string
+  targetFcmToken: string;
 }
 
-function FollowingButton(props:ButtonProps){
+function FollowingButton(props: ButtonProps) {
   const [isFollowing, setFollowing] = useState<boolean>(true);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [userRetrievedData, setRetrievedData] = useState<any>();
@@ -50,15 +52,15 @@ function FollowingButton(props:ButtonProps){
   const targetUserId = props.targetUserId;
   useEffect(() => {
     axios
-    .get(`http://localhost:90/users/${userId}`)
-    .then((userData) => {
-      setRetrievedData(userData.data.data);
-    })
-    .catch((err) => {
-      console.log(err.message);
-    });
+      .get(`http://localhost:90/users/${userId}`)
+      .then((userData) => {
+        setRetrievedData(userData.data.data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
 
-    if(!targetUserId){
+    if (!targetUserId) {
       return;
     }
     setLoading(true);
@@ -67,11 +69,11 @@ function FollowingButton(props:ButtonProps){
       .then((result) => {
         setFollowing(result.data.data.isFollowing);
       })
-      .catch((err)=>{
-        console.log("error fetching check following API",err);
+      .catch((err) => {
+        console.log("error fetching check following API", err);
       });
     setLoading(false);
-  }, [isFollowing,props]);
+  }, [isFollowing, props]);
 
   async function handleButtonClick() {
     try {
@@ -80,10 +82,17 @@ function FollowingButton(props:ButtonProps){
         userId,
         target_userId: targetUserId,
       });
-      if(!isFollowing &&userId){
+      if (!isFollowing && userId) {
         const token = props.targetFcmToken;
-        sendNotification(token,"Follow notification",`${userRetrievedData?.userName} has followed you`,targetUserId,userRetrievedData?.profileImage,"")
-        console.log("Notification sent")
+        sendNotification(
+          token,
+          "Follow notification",
+          `${userRetrievedData?.userName} has followed you`,
+          targetUserId,
+          userRetrievedData?.profileImage,
+          ""
+        );
+        console.log("Notification sent");
       }
 
       setFollowing(!isFollowing);
@@ -97,10 +106,9 @@ function FollowingButton(props:ButtonProps){
     }
   }
 
-
-   return (
+  return (
     <>
-      {isFollowing ?
+      {isFollowing ? (
         isLoading ? (
           <button>
             <Spinner animation="border" role="status" size="sm">
@@ -110,29 +118,35 @@ function FollowingButton(props:ButtonProps){
         ) : (
           <button onClick={handleButtonClick}>following</button>
         )
-      :
-        isLoading ? (
-          <button style={{backgroundColor :"rgba( 0, 149, 246, 1)", color : "white"}}>
-            <Spinner animation="border" role="status" size="sm">
-              <span className="visually-hidden">Loading...</span>
-            </Spinner>
-          </button>
-        ) : (
-          <button style={{backgroundColor :"rgba( 0, 149, 246, 1)", color : "white"}} onClick={handleButtonClick}>follow</button>
-        )
-      }
+      ) : isLoading ? (
+        <button
+          style={{ backgroundColor: "rgba( 0, 149, 246, 1)", color: "white" }}
+        >
+          <Spinner animation="border" role="status" size="sm">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </button>
+      ) : (
+        <button
+          style={{ backgroundColor: "rgba( 0, 149, 246, 1)", color: "white" }}
+          onClick={handleButtonClick}
+        >
+          follow
+        </button>
+      )}
     </>
-   );
+  );
 }
 
 function UserProfile() {
   const params = useParams();
-  const [progress, setProgress] = useState(0)
+  const [progress, setProgress] = useState(0);
   const user = useContext(AuthContext);
   const navigate = useNavigate();
   const chatRef = useRef<any>(null);
-  // const userId:string = params?.userId || "";
-
+  let scrl = useRef<any>(null);
+  const [scrollX, setscrollX] = useState(0);
+  const [scrolEnd, setscrolEnd] = useState(false);
   const [userId, setUserId] = useState<string>("");
   async function getUserId() {
     try {
@@ -188,11 +202,43 @@ function UserProfile() {
       const res = await axios.get(
         `http://localhost:90/getStories?userId=${user?.uid}&page=5&lastDocId=${date}`
       );
-      setStoryArray((prev: any) => {
-        return [...prev, ...res.data.data];
-      });
+      if (res.data.data.length == 0) {
+        setscrolEnd(true);
+        return;
+      }
+      if (res.data.data) {
+        setStoryArray((prev: any) => {
+          return [...prev, ...res.data.data];
+        });
+      }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const slide = (shift: any) => {
+    scrl.current.scrollLeft += shift;
+    setscrollX(scrollX + shift);
+
+    if (
+      Math.floor(scrl.current.scrollWidth - scrl.current.scrollLeft) <=
+      scrl.current.offsetWidth
+    ) {
+      setscrolEnd(true);
+    } else {
+      setscrolEnd(false);
+    }
+  };
+
+  const scrollCheck = () => {
+    setscrollX(scrl.current.scrollLeft);
+    if (
+      Math.floor(scrl.current.scrollWidth - scrl.current.scrollLeft) <=
+      scrl.current.offsetWidth
+    ) {
+      StoryNextData();
+    } else {
+      setscrolEnd(false);
     }
   };
 
@@ -204,7 +250,7 @@ function UserProfile() {
   }, [params]);
 
   useEffect(() => {
-    setProgress(100)
+    setProgress(100);
     if (!userId || userId == "") {
       return;
     }
@@ -217,7 +263,7 @@ function UserProfile() {
       });
       // const userId = user?.uid;
       axios
-        .get(`http://localhost:90/getStories?page=5&userId=${userId}`)
+        .get(`http://localhost:90/getStories?page=10&userId=${userId}`)
         .then((storyData) => {
           setStoryArray(storyData.data.data);
         })
@@ -248,6 +294,18 @@ function UserProfile() {
     }
   }, [params, userId]);
 
+  useEffect(() => {
+    if (
+      scrl.current &&
+      scrl?.current?.scrollWidth === scrl?.current?.offsetWidth
+    ) {
+      setscrolEnd(true);
+    } else {
+      setscrolEnd(false);
+    }
+    return () => {};
+  }, [scrl?.current?.scrollWidth, scrl?.current?.offsetWidth]);
+
   return (
     <div>
       <LoadingBar
@@ -258,76 +316,79 @@ function UserProfile() {
       <Navbar />
       <UserProfileContainer>
         <div className="align_center">
-        <UserDataSection>
-          <div>
-            <Avatar
-              id="userProfileAvatar"
-              src={userRetrievedData?.profileImage}
-            />
-          </div>
-          <UserInfoContainer>
-            <EditAndSettingsDiv>
-              <p>{userRetrievedData?.userName}</p>
-              {user?.uid == userId ? (
-                <button onClick={() => navigate("/editProfile")}>
-                  Edit Profile
-                </button>
-              ) : 
-              <>
-                <button onClick={()=>
-                    navigate(`/chat/${userRetrievedData?.userName}`)
-                  }
+          <UserDataSection>
+            <div>
+              <Avatar
+                id="userProfileAvatar"
+                src={userRetrievedData?.profileImage}
+              />
+            </div>
+            <UserInfoContainer>
+              <EditAndSettingsDiv>
+                <p>{userRetrievedData?.userName}</p>
+                {user?.uid == userId ? (
+                  <button onClick={() => navigate("/editProfile")}>
+                    Edit Profile
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={() =>
+                        navigate(`/chat/${userRetrievedData?.userName}`)
+                      }
+                    >
+                      Message
+                    </button>
+                    <FollowingButton
+                      targetUserId={userId}
+                      targetFcmToken={userRetrievedData?.fcm_token}
+                    />
+                  </>
+                )}
+              </EditAndSettingsDiv>
+              <EditAndSettingsDiv>
+                <div>
+                  {/* did not implemented post count dynamically as imageArray.length, because we will be getting 3 posts at a time so it will dependent upont post fetched */}
+                  <span>{imageArray.length} </span>
+                  posts
+                </div>
+                <div
+                  onClick={() => {
+                    setCurrentMethod("followers");
+                    return setShowFollowerModal(true);
+                  }}
+                  style={{ cursor: "pointer" }}
                 >
-                  Message
-                </button>
-                <FollowingButton targetUserId={userId} targetFcmToken = {userRetrievedData?.fcm_token}/>
-              </>
-              }
-            </EditAndSettingsDiv>
-            <EditAndSettingsDiv>
-              <div>
-                {/* did not implemented post count dynamically as imageArray.length, because we will be getting 3 posts at a time so it will dependent upont post fetched */}
-                <span>{imageArray.length} </span>
-                posts
-              </div>
-              <div
-                onClick={() => {
-                  setCurrentMethod("followers");
-                  return setShowFollowerModal(true);
-                }}
-                style = {{cursor:"pointer"}}
-              >
-                <span>{socialCount?.inbound_count || 0} </span>
-                followers
-              </div>
-              <div
-                onClick={() => {
-                  setCurrentMethod("following");
-                  return setShowFollowerModal(true);
-                }}
-                style = {{cursor:"pointer"}}
-              >
-                <span>{socialCount?.outbound_count || 0} </span>
-                following
-              </div>
-            </EditAndSettingsDiv>
-            <EditAndSettingsDiv>
-              <span>{userRetrievedData?.fullName}</span>
-              <p style={{ fontSize: "16px", display: "block" }}>
-                {" "}
-                {userRetrievedData?.bioData}{" "}
-              </p>
-            </EditAndSettingsDiv>
-          </UserInfoContainer>
-        </UserDataSection>
+                  <span>{socialCount?.inbound_count || 0} </span>
+                  followers
+                </div>
+                <div
+                  onClick={() => {
+                    setCurrentMethod("following");
+                    return setShowFollowerModal(true);
+                  }}
+                  style={{ cursor: "pointer" }}
+                >
+                  <span>{socialCount?.outbound_count || 0} </span>
+                  following
+                </div>
+              </EditAndSettingsDiv>
+              <EditAndSettingsDiv>
+                <span>{userRetrievedData?.fullName}</span>
+                <p style={{ fontSize: "16px", display: "block" }}>
+                  {" "}
+                  {userRetrievedData?.bioData}{" "}
+                </p>
+              </EditAndSettingsDiv>
+            </UserInfoContainer>
+          </UserDataSection>
         </div>
         <div className="align_center">
           <UserHighlightSection>
-            <div id="userProfileHighlight"> 
-              <ul>
-                {storyArray ? (
-                  storyArray.length > 0 ? (
-                    storyArray.map((item: any) => (
+            <ul ref={scrl} onScroll={scrollCheck}>
+              {storyArray
+                ? storyArray.length > 0
+                  ? storyArray.map((item: any) => (
                       //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
                       <StatusStories
                         key={Math.random()}
@@ -343,17 +404,32 @@ function UserProfile() {
                         nav={`/userProfile/${item.userName}`}
                       />
                     ))
-                  ) : (
-                    null
-                  )
-                ) : (
-                  null
+                  : null
+                : null}
+            </ul>
+            {storyArray && storyArray.length > 0 ? (
+              <>
+                {scrollX !== 0 && (
+                  <img
+                    id="left_arrow"
+                    src={leftArrow}
+                    onClick={() => slide(-250)}
+                    width="25px"
+                    height="25px"
+                  />
                 )}
-                {storyArray&&storyArray.length>0 ?
-                <FontAwesomeIcon onClick={StoryNextData} icon={faCircleArrowRight}/>
-                :null}
-              </ul>
-            </div>
+
+                {!scrolEnd && (
+                  <img
+                    id="right_arrow"
+                    src={rightArrow}
+                    onClick={() => slide(250)}
+                    width="25px"
+                    height="25px"
+                  />
+                )}
+              </>
+            ) : null}
           </UserHighlightSection>
         </div>
 
@@ -364,7 +440,13 @@ function UserProfile() {
                 dataLength={imageArray ? imageArray.length : 0} //This is important field to render the next data
                 next={getNextDataOfUserPost}
                 hasMore={hasMorePosts}
-                loader={ imageArray.length>3?<div style={{ textAlign: "center" }}><Spinner animation="border" role="status"/></div>:null}
+                loader={
+                  imageArray.length > 3 ? (
+                    <div style={{ textAlign: "center" }}>
+                      <Spinner animation="border" role="status" />
+                    </div>
+                  ) : null
+                }
                 endMessage={
                   <p style={{ textAlign: "center" }}>
                     <b>Yay! You have seen it all</b>
@@ -411,12 +493,9 @@ function UserProfile() {
         userId={userId}
         method={currentMethod}
         // targetFcmToken = {userRetrievedData?.fcm_token}
-
       />
     </div>
   );
 }
-
-
 
 export default UserProfile;

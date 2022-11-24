@@ -149,3 +149,12 @@ li{
   }
 }
 `;
+
+export const NotificationDiv = styled.div`
+position: relative;
+#red_dot{
+  position: absolute;
+  left:28px;
+  top: 15px;
+}
+`

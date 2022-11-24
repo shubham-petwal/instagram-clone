@@ -136,7 +136,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
     })
     if(!liked){
       const token = userRetrievedData?.fcm_token;
-      sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,userRetrievedData?.profileImage,postImage)
+      sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,currentUserProfileImage,postImage)
       console.log("Notification sent")
     }
   };

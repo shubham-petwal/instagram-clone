@@ -12,17 +12,10 @@ import search from "../assets/images/search-svgrepo-com.svg";
 import subh from "../assets/images/shubham.jpg";
 import Avatar from "@material-ui/core/Avatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleUser, faBookmark } from "@fortawesome/free-regular-svg-icons";
+import { faCircleUser, faPlusSquare } from "@fortawesome/free-regular-svg-icons";
 import { CometChat } from "@cometchat-pro/chat";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import {
-  faPlaneCircleExclamation,
-  faRepeat,
-  faUserCheck,
-  faStar,
-  faGear,
-} from "@fortawesome/free-solid-svg-icons";
 import "react-dropdown/style.css";
 import { Link, Navigate, NavLink, useNavigate } from "react-router-dom";
 import Dropdown from "react-bootstrap/Dropdown";
@@ -30,6 +23,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../firebaseSetup";
 import type {} from "styled-components/cssprop";
+import redDot from "../assets/images/redDot.png"
 import {
   DropdownProfile,
   HamburgerDiv,
@@ -37,6 +31,7 @@ import {
   NavIcons,
   NavInput,
   NavLogo,
+  NotificationDiv,
   NotificationModalDiv,
   ProfileAvatar,
 } from "./styledComponents/Navbar.style";
@@ -45,26 +40,29 @@ import SearchModal from "./SearchModal";
 import axios from "axios";
 import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { db } from "../db";
-interface NavInterFace {
-  profileImage: string;
-}
+
 interface UserDataInterface {
   profileImage: string;
   fullName: string;
   userName: string;
 }
-function Navbar() {
+function Navbar(props:any) {
   const [userData, setUserData] = useState<UserDataInterface>({
     profileImage: "",
     fullName: "",
     userName: "",
   });
+  const [isNotification,setIsNotification] = useState<boolean>(false)
   const [showSearchModal, setModal] = useState<boolean>(false);
   const [lgShow, setLgShow] = useState<boolean>(false);
   const user = useContext(AuthContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any>();
   let navigate = useNavigate();
+  const handleNotification = ()=>{
+    setLgShow(true)
+    setIsNotification(false)
+  }
   const signOut = async () => {
     await auth.signOut();
     CometChat.logout().then(
@@ -87,6 +85,7 @@ function Navbar() {
         details.push(doc.data());
       });
       setNotifications(details);
+      setIsNotification(true)
     });
     return unsubscribe
   };
@@ -107,6 +106,9 @@ function Navbar() {
       const unsubscribe = getNotificationData()
       return unsubscribe
   }, []);
+  useEffect(()=>{
+    setIsNotification(false)
+  },[])
   return !user ? (
     <div>
       <NavContainer>
@@ -167,7 +169,12 @@ function Navbar() {
               alt="logo"
               onClick={() => setModal(true)}
             />
-            <NavIcons src={love} width="28px" alt="logo" onClick={()=>setLgShow(true)}/>
+              <NotificationDiv>
+            <NavIcons src={love} width="28px" alt="logo" onClick={handleNotification}/>
+            {isNotification?
+            <img id="red_dot" src={redDot} width="12px"/>
+            :null}
+              </NotificationDiv>
 
             <Dropdown>
               <DropdownProfile>
@@ -186,6 +193,10 @@ function Navbar() {
                   Profile
                 </Dropdown.Item>
 
+                <Dropdown.Item onClick={()=>props.setModalIsOpen(true)}>
+                <FontAwesomeIcon icon={faPlusSquare} />
+                  Add story
+                </Dropdown.Item>
                 <Dropdown.Item href="/" id="logout" onClick={signOut}>
                   Log out
                 </Dropdown.Item>
@@ -239,7 +250,7 @@ function Navbar() {
                       height="22px"
                       alt="logo"
                     />{" "}
-                    Create
+                    Create post
                   </Dropdown.Item>
                   <Dropdown.Item onClick={() => setModal(true)}>
                     <NavIcons
@@ -258,6 +269,15 @@ function Navbar() {
                       alt="logo"
                     />
                     Notifications
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={()=>props.setModalIsOpen(true)}>
+                    <NavIcons
+                      src={plus}
+                      width="25px"
+                      height="22px"
+                      alt="logo"
+                    />
+                    Add story
                   </Dropdown.Item>
 
                   <Dropdown.Item href="/" id="logout" onClick={signOut}>
