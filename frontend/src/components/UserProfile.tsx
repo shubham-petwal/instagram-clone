@@ -255,13 +255,12 @@ function UserProfile() {
                 <FollowingButton targetUserId={userId} />
               </>
               }
-              <FontAwesomeIcon icon={faGear}></FontAwesomeIcon>
             </EditAndSettingsDiv>
             <EditAndSettingsDiv>
               <div>
-                {/* did not implemented post count dynamically as imageArray.length, because we will be getting 3 posts at a time so it will dependent upont post fetched */}
-                <span>6 </span>
-                posts
+                {/* we will be getting 3 posts at a time if we will depend upont post fetched */}
+                <span>{userRetrievedData?.postCount} </span>
+                {userRetrievedData?.postCount <=1 ? "post" : "posts"} 
               </div>
               <div
                 onClick={() => {

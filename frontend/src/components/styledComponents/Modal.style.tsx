@@ -20,7 +20,7 @@ const imageWrapperDiv = `
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #c0c0c0;
+    background-color: white;
     img{
         width: 100%;
         object-fit: contain;

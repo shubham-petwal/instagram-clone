@@ -76,6 +76,17 @@ function Navbar() {
     axios
       .get(`http://localhost:90/users/${userID}`)
       .then((result) => {
+        let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
+        var chat_uid = user?.uid;
+        
+        CometChat.login(chat_uid, authKey).then(
+          (user) => {
+            console.log("logged in ", user);
+          },
+          (error) => {
+            console.log("error", error);
+          }
+        );
         setUserData({
           profileImage: result.data.data.profileImage,
           fullName: result.data.data.fullName,
@@ -86,6 +97,7 @@ function Navbar() {
         console.log(err);
       });
   }, []);
+  
   return !user ? (
     <div>
       <NavContainer>
