@@ -64,7 +64,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
     }
   };
 
-  const getData = async () => {
+  const getData =  () => {
     const collectionRef = query(
       collection(db, `post_interaction/${postId}/likes`)
     );
@@ -80,9 +80,9 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
   };
 
   useEffect(() => {
-    getData();
+    const dataUnsbscription = getData();
     if (user?.uid) {
-      const unsubscribe = onSnapshot(
+      const postUnsubscription = onSnapshot(
         doc(db, `post_interaction/${postId}/likes/${user?.uid}`),
         (doc) => {
           // console.log("Current data: ", doc.data());
@@ -94,13 +94,17 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         }
       );
     }
-    const unsubscribe = onSnapshot(
+    const postCountUnsubscription = onSnapshot(
       doc(db, "post_interaction", postId),
       (doc) => {
         setTotalComments(doc.data()?.comments_count);
         setTotalLikes(doc.data()?.likes_count);
       }
     );
+    return ()=>{
+      dataUnsbscription();
+      postCountUnsubscription();
+    }
   },[]);
   function handlePostClick(event: React.MouseEvent<HTMLElement>) {
     setModalState((prev) => {
@@ -108,10 +112,16 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
     });
   }
   const handleLikePost = async () => {
-    const result = await axios.post("http://localhost:90/like", {
-      likedBy_userId: user?.uid,
-      postId: postId,
-    });
+    // this will instantly show liked post to the user
+    setLiked(!liked);
+    try{
+      const result = await axios.post("http://localhost:90/like", {
+        likedBy_userId: user?.uid,
+        postId: postId,
+      });
+    }catch(err){
+      setLiked(!liked);
+    }
   };
   return (
     <PostContainer>
@@ -132,7 +142,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
       <LikeCommentShareDiv>
         <ThreeIconsDiv>
           {liked ? (
-            <img onClick={handleLikePost} src={redHeart} />
+            <img style={{cursor:"pointer"}} onClick={handleLikePost} src={redHeart} />
           ) : (
             <FontAwesomeIcon onClick={handleLikePost} icon={faHeart} />
           )}
@@ -181,6 +191,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         userName={userName}
         liked = {liked}
         userId = {userId}
+        setLiked = {setLiked}
       />
     </PostContainer>
   );

@@ -54,17 +54,22 @@ export function PostDetailModal(props: any) {
   };
 
   const handleLikePost = async () => {
-    const result = await axios.post("http://localhost:90/like", {
-      likedBy_userId: user?.uid,
-      postId: props.postId,
-    });
+    try{
+      props.setLiked(!props.liked);
+      const result = await axios.post("http://localhost:90/like", {
+        likedBy_userId: user?.uid,
+        postId: props.postId,
+      });
+    }catch(err){
+      props.setLiked(!props.liked);
+    }
   };
 
   function handleClick() {
     props.setModal(props.modalState);
   }
 
-  const getData = async () => {
+  const getData =  () => {
     const collectionRef = query(
       collection(db, `post_interaction/${props.postId}/comments`),orderBy("createdAt","asc")
     );
@@ -77,6 +82,7 @@ export function PostDetailModal(props: any) {
       setcommentsArray(commentsDetails);
       
     });
+    return unsubscribe;
   };
   const getTotalLikesAndComments = ()=>{
     const unsubscribe = onSnapshot(
@@ -86,11 +92,16 @@ export function PostDetailModal(props: any) {
         setTotalLikes(doc.data()?.likes_count);
       }
     );
+    return unsubscribe;
   }
 
   useEffect(() => {
-    getData();
-    getTotalLikesAndComments();
+    const dataUnsbscription =  getData();
+    const likesUnsbscription = getTotalLikesAndComments();
+    return ()=>{
+      dataUnsbscription()
+      likesUnsbscription();
+    }
   }, []);
   
   useEffect(()=>{
@@ -171,7 +182,7 @@ export function PostDetailModal(props: any) {
                   <div className="icon-wrapper">
                     <div className="left-icon">
                       {props.liked ? (
-                        <img onClick={handleLikePost} src={redHeart} />
+                        <img style={{cursor : "pointer"}} onClick={handleLikePost} src={redHeart} />
                       ) : (
                         <FontAwesomeIcon
                           onClick={handleLikePost}

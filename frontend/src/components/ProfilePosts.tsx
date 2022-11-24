@@ -27,7 +27,8 @@ function ProfilePosts(props: any) {
           else{
             setLiked(false)
           }
-      });
+        });
+        return unsubscribe;
       }
   },[]);
   return (
