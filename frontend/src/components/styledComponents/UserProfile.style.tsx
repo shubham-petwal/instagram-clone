@@ -41,7 +41,7 @@ export const UserInfoContainer = styled.div`
 `;
 export const EditAndSettingsDiv = styled.div`
   display: flex;
-    div {
+  div {
     @media screen and (max-width: 400px) {
       display: flex;
       flex-direction: column;
@@ -49,7 +49,7 @@ export const EditAndSettingsDiv = styled.div`
     }
   }
   flex-wrap: wrap;
-  height: 55px;
+  min-height: 55px;
   justify-content: space-between;
   p {
     font-size: 25px;
