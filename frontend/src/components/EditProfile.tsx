@@ -56,32 +56,39 @@ function EditProfile() {
   },[])
 
   const handleFormSubmit = async (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    console.log("form submitted");
-    const userUpdateObject = {
-      fullName : fullNameRef?.current?.value,
-      userName : userNameRef?.current?.value,
-      bioData : bioDataRef?.current?.value,
-      gender,
-      userId
+    try{
+      e.preventDefault();
+      const userUpdateObject = {
+        fullName : fullNameRef?.current?.value,
+        userName : userNameRef?.current?.value,
+        bioData : bioDataRef?.current?.value,
+        gender,
+        userId
+      }
+      const checkResponse = await axios.get(`http://localhost:90/allowedRegistration/${userNameRef.current?.value}`);
+      if(!checkResponse.data.isAllowed){
+        throw new Error(checkResponse.data.message);
+      }
+      const response = await axios.post('http://localhost:90/updateUser',userUpdateObject);
+  
+      let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
+      let uid = userId;
+      let name = fullNameRef?.current ? fullNameRef?.current.value : "";
+  
+      var user = new CometChat.User(uid);
+  
+      user.setName(name);
+      
+      CometChat.updateUser(user, authKey).then(
+          user => {
+              console.log("user updated", user);
+          }, error => {
+              console.log("error", error);
+          }
+      )
+    }catch(error){
+      console.log(error);
     }
-    const response = await axios.post('http://localhost:90/updateUser',userUpdateObject);
-
-    let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
-    let uid = userId;
-    let name = fullNameRef?.current ? fullNameRef?.current.value : "";
-
-    var user = new CometChat.User(uid);
-
-    user.setName(name);
-    
-    CometChat.updateUser(user, authKey).then(
-        user => {
-            console.log("user updated", user);
-        }, error => {
-            console.log("error", error);
-        }
-    )
   };
 
   const handleInputChange = (event : React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{

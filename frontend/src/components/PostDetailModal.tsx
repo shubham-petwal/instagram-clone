@@ -109,7 +109,7 @@ export function PostDetailModal(props: any) {
               <DetailsWrapperDiv>
                 <AuthorProfileDiv>
                   <div className="profile-img">
-                    <img src={props.profileImage} alt="profile image" />
+                    <img style={{objectFit : "cover"}} src={props.profileImage} alt="profile image" />
                   </div>
                   <div className="description">
                     <p className="user-name" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${props.userName}`)}}>{props.userName}</p>
@@ -121,7 +121,7 @@ export function PostDetailModal(props: any) {
                 <CommentsWrapperDiv>
                   <CommentDiv>
                     <div className="profile-img">
-                      <img src={props.profileImage} alt="profile image" />
+                      <img  style={{objectFit : "cover"}} src={props.profileImage} alt="profile image" />
                     </div>
                     <div>
                       <p className="comment-data">
@@ -142,6 +142,7 @@ export function PostDetailModal(props: any) {
                           <div className="profile-img">
                             <img
                               src={commentDoc.commentBy_profileImage}
+                              style={{objectFit : "cover"}} 
                             />
                           </div>
                           <div>
