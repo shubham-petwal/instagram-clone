@@ -455,7 +455,7 @@ app.post("/addComment", async (req, res) => {
     if (resArr.length == 0) {
       throw new Error("unable to find the user with provided userId");
     }
-    const newDate = new Date().toLocaleString();
+    const newDate = new Date().toDateString();
     const data = {
       commentBy_fullName: resArr[0].fullName,
       commentBy_userName: resArr[0].userName,
@@ -1176,13 +1176,15 @@ app.get("/getStories", async (req, res) => {
 });
 
 app.post("/addNotification", async (req, res) => {
-  const { userId,profileImage,message} = req.body;
+  const { userId,profileImage,message,postImage} = req.body;
   try {
     const collectionRef = collection(db, "notifications");
     const docRef = await addDoc(collectionRef, {
       userId,
       profileImage,
-      message
+      message,
+      postImage,
+      createdAt:Timestamp.now()
     });
     res.send({ success: true, message: "notification added Successfully" });
   } catch (error) {

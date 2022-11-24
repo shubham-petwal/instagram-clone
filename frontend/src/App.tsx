@@ -29,7 +29,8 @@ function App() {
         const data = {
           userId:payload.data?.userId,
           profileImage:payload.data?.profileImage,
-          message:payload.notification?.body
+          message:payload.notification?.body,
+          postImage:payload.data?.postImage
         }
         const result = await axios.post("http://localhost:90/addNotification", data);
         console.log("Notification added successfully")

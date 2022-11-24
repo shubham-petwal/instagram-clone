@@ -82,7 +82,7 @@ function FollowingButton(props:ButtonProps){
       });
       if(!isFollowing &&userId){
         const token = props.targetFcmToken;
-        sendNotification(token,"Follow notification",`${userRetrievedData?.userName} has followed you`,userId,userRetrievedData?.profileImage)
+        sendNotification(token,"Follow notification",`${userRetrievedData?.userName} has followed you`,targetUserId,userRetrievedData?.profileImage,"")
         console.log("Notification sent")
       }
 

@@ -77,17 +77,18 @@ function Navbar() {
     );
     navigate("/");
   };
-  const getNotificationData = async () => {
+  const getNotificationData = () => {
     const collectionRef = query(
-      collection(db,"notifications"),where("userId", "==", user?.uid.toString())
+      collection(db,"notifications"),orderBy("createdAt","desc"),where("userId", "==", user?.uid)
     );
-    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
+    const unsubscribe = onSnapshot(collectionRef,(querySnapshot) => {
       const details: any = [];
       querySnapshot.forEach((doc) => {
         details.push(doc.data());
       });
       setNotifications(details);
     });
+    return unsubscribe
   };
   useEffect(() => {
     const userID = user?.uid;
@@ -103,9 +104,9 @@ function Navbar() {
       .catch((err) => {
         console.log(err);
       });
-      getNotificationData()
+      const unsubscribe = getNotificationData()
+      return unsubscribe
   }, []);
-  console.log(notifications)
   return !user ? (
     <div>
       <NavContainer>
@@ -130,25 +131,6 @@ function Navbar() {
             <NavLink to="/home">
               <NavLogo src={logo} alt="logo" />
             </NavLink>
-            {/* <Dropdown>
-              <Dropdown.Toggle
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "#dbdbdb",
-                  fontSize: "32px",
-                }}
-              ></Dropdown.Toggle>
-
-              <Dropdown.Menu>
-                <Dropdown.Item href="/">
-                  <FontAwesomeIcon icon={faUserCheck} /> Following
-                </Dropdown.Item>
-                <Dropdown.Item href="/">
-                  <FontAwesomeIcon icon={faStar} /> Favourites
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown> */}
           </Grid>
 
           <Grid item xs={3} id="input_grid">
@@ -203,20 +185,6 @@ function Navbar() {
                   <FontAwesomeIcon icon={faCircleUser} />
                   Profile
                 </Dropdown.Item>
-
-                {/* <Dropdown.Item href="/">
-                    <FontAwesomeIcon icon={faBookmark} /> Saved
-                  </Dropdown.Item>
-                  <Dropdown.Item href="/">
-                    <FontAwesomeIcon className="icon" icon={faGear} /> Settings
-                  </Dropdown.Item>
-                  <Dropdown.Item href="/">
-                    <FontAwesomeIcon icon={faPlaneCircleExclamation} /> Report a
-                    problem
-                  </Dropdown.Item>
-                  <Dropdown.Item href="/">
-                    <FontAwesomeIcon icon={faRepeat} /> Switch accounts
-                  </Dropdown.Item> */}
 
                 <Dropdown.Item href="/" id="logout" onClick={signOut}>
                   Log out
@@ -275,20 +243,19 @@ function Navbar() {
                   </Dropdown.Item>
                   <Dropdown.Item onClick={() => setModal(true)}>
                     <NavIcons
-                      src={find}
+                      src={search}
                       width="25px"
                       height="22px"
                       alt="logo"
                     />{" "}
                     Search
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={() => navigate("/userProfile")}>
+                  <Dropdown.Item onClick={()=>setLgShow(true)}>
                     <NavIcons
                       src={love}
                       width="25px"
                       height="22px"
                       alt="logo"
-                      onClick={()=>setLgShow(true)}
                     />
                     Notifications
                   </Dropdown.Item>
@@ -325,11 +292,14 @@ function Navbar() {
           <ul>
             {notifications?
             notifications.map((item:any)=>(
-              <li id="notification_list">
+              <li key={Math.random()} id="notification_list">
                 <Avatar src={item.profileImage}/>
                 <span>
                 {item.message}
                 </span>
+                {item.postImage?
+                <img id="image" src={item.postImage} height="45px" width="45px"/>:null
+                }
                 </li>
             ))
             :null}

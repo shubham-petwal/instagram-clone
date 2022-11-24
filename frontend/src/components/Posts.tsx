@@ -66,7 +66,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
       const result = await axios.post("http://localhost:90/addComment", data);
       setComment("");
       const token = userRetrievedData?.fcm_token;
-      sendNotification(token,"Comment Notification",`${currentUserName} has Commented on your post`,userId,currentUserProfileImage)
+      sendNotification(token,"Comment Notification",`${currentUserName} has commented on your post`,userId,currentUserProfileImage,postImage)
       console.log("Notification sent")
     } catch (error) {
       console.log(error);
@@ -136,7 +136,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
     })
     if(!liked){
       const token = userRetrievedData?.fcm_token;
-      sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,userRetrievedData?.profileImage)
+      sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,userRetrievedData?.profileImage,postImage)
       console.log("Notification sent")
     }
   };

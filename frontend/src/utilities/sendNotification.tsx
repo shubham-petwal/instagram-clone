@@ -1,4 +1,4 @@
-export const sendNotification = (token:string,Notifi_title:string,Notifi_body:string,userId:string,profileImage:string)=>{
+export const sendNotification = (token:string,Notifi_title:string,Notifi_body:string,userId:string,profileImage:string,postImage:string)=>{
     let body = {
       to: token,
       notification:{
@@ -11,6 +11,7 @@ export const sendNotification = (token:string,Notifi_title:string,Notifi_body:st
       data:{
         profileImage:profileImage,
         userId:userId,
+        postImage:postImage
       }
     }
     

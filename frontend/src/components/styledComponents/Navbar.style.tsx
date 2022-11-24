@@ -129,6 +129,7 @@ export const NotificationModalDiv = styled.div`
 }
 li{
   cursor: pointer;
+  border-radius: 10px;
   padding: 5px 10px 5px 0px;
   /* margin-bottom:25px; */
   display: flex;
@@ -137,9 +138,14 @@ li{
   border-bottom: 1px solid ${borderColor};
   span{
     margin-left: 10px;
+    width:350px;
   }
   :hover{
     background-color: #faf9f9;
+  }
+  #image{
+    margin-left: 30px;
+    border-radius: 10px;
   }
 }
 `;

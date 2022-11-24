@@ -8,6 +8,7 @@ export const StatusStoriesContainer = styled.li`
   margin-top: 18px;
   margin-right: 12px;
   img {
+    z-index: 1;
     border-radius: 50%;
     object-fit:cover;
   }
@@ -15,7 +16,6 @@ export const StatusStoriesContainer = styled.li`
     position: absolute;
     top: 2.5px;
     left: 2.5px;
-    /* z-index: 1; */
   }
   p {
     box-sizing: border-box;
