@@ -80,7 +80,7 @@ router.post(
         profileImage: resArr[0].profileImage,
         image: url,
         StoryId: uuidv4(),
-        deleteAt: addHours(1),
+        deleteAt: addHours(0.1),
         createdAt: Timestamp.now(),
       };
       addDoc(storiesCollectionRef, postObj).then((docRef) => {
