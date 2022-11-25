@@ -14,7 +14,7 @@ import {
   UserDetailsContainer,
 } from "./styledComponents/Posts.style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import {
   faComment,
@@ -29,7 +29,6 @@ import { Value } from "sass";
 import { PostDetailModal } from "./PostDetailModal";
 import { db } from "../db";
 import { collection, doc, onSnapshot, query } from "firebase/firestore";
-import { async } from "@firebase/util";
 import redHeart from "../assets/images/red-heart-icon.svg";
 import { sendNotification } from "../utilities/sendNotification";
 
@@ -42,11 +41,13 @@ interface PostInterFace {
   currentUserName:string;
   currentUserProfileImage:string;
   userName:string;
+  currentUserFcmToken:string
 }
 
-function Posts({ postImage, caption, postId, userId ,userName,profileImage,currentUserName,currentUserProfileImage}: PostInterFace) {
+function Posts({ postImage, caption, postId, userId ,userName,profileImage,currentUserName,currentUserProfileImage,currentUserFcmToken}: PostInterFace) {
   const navigate = useNavigate();
   const [comment, setComment] = useState("");
+  const [isLoading, setLoading] = useState<boolean>(false);
   const [userRetrievedData, setRetrievedData] = useState<any>();
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
@@ -63,11 +64,15 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
   };
   const handleAddComments = async () => {
     try {
+      setLoading(true);
       const result = await axios.post("http://localhost:90/addComment", data);
+      setLoading(false);
       setComment("");
       const token = userRetrievedData?.fcm_token;
-      sendNotification(token,"Comment Notification",`${currentUserName} has commented on your post`,userId,currentUserProfileImage,postImage)
-      console.log("Notification sent")
+      if(token!=currentUserFcmToken){
+        sendNotification(token,"Comment Notification",`${currentUserName} has commented on your post`,userId,currentUserProfileImage,postImage)
+        console.log("Notification sent")
+      }
     } catch (error) {
       console.log(error);
     }
@@ -136,8 +141,10 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
     })
     if(!liked){
       const token = userRetrievedData?.fcm_token;
+      if(token!=currentUserFcmToken){
       sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,currentUserProfileImage,postImage)
       console.log("Notification sent")
+      }
     }
   };
   return (
@@ -193,7 +200,13 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
           onChange={(e) => setComment(e.target.value)}
           value={comment}
         />
-        <button onClick={handleAddComments}>Post</button>
+                            {isLoading?
+                    <button>
+                      <Spinner animation="border" role="status" size="sm"/>
+                    </button>:
+                    <button onClick={handleAddComments}>Post</button>
+                  }
+        
       </AddCommentsDiv>
       <PostDetailModal
         key={Math.random()}
@@ -211,6 +224,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
         fcm_token = {userRetrievedData?.fcm_token}
         currentUserName={currentUserName}
         currentUserProfileImage={currentUserProfileImage}
+        currentUserFcmToken={currentUserFcmToken}
 
       />
     </PostContainer>

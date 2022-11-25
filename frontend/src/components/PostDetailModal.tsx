@@ -54,8 +54,10 @@ export function PostDetailModal(props: any) {
       setLoading(false);
       setComment("");
       const token = props.fcm_token;
-      sendNotification(token,"Comment Notification",`${props.currentUserName} has commented on your post`,props.userId,props.currentUserProfileImage,props.postImage)
-      console.log("Notification sent")
+      if(token!=props.currentUserFcmToken){
+        sendNotification(token,"Comment Notification",`${props.currentUserName} has commented on your post`,props.userId,props.currentUserProfileImage,props.postImage)
+        console.log("Notification sent")
+      }
     } catch (error) {
       console.log(error);
       setLoading(false);
@@ -69,8 +71,10 @@ export function PostDetailModal(props: any) {
     });
     if(!props.liked){
       const token = props.fcm_token;
+      if(token!=props.currentUserFcmToken){
       sendNotification(token,"Like Notification",`${props.currentUserName} has liked your post`,props.userId,props.currentUserProfileImage,props.postImage)
       console.log("Notification sent")
+      }
     }
   };
 

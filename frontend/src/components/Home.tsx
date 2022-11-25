@@ -159,6 +159,7 @@ function Home() {
                     profileImage={item.profileImage}
                     currentUserName = {userRetrievedData?.userName}
                     currentUserProfileImage = {userRetrievedData?.profileImage}
+                    currentUserFcmToken = {userRetrievedData?.fcm_token}
                   />
                 ))
               ) : (

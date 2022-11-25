@@ -20,6 +20,7 @@ export const SuggestionContainer = styled.div`
   background: white;
   width: 350px;
   margin-left: 30px;
+border-radius: 10px;
   border: 1px solid ${borderColor};
   @media screen and (max-width: 1000px) {
     display: none;

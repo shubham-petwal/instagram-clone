@@ -1,10 +1,9 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Grid } from "@material-ui/core";
 // import "../styles/Navbar.scss";
 import logo from "../assets/images/instagram_logo.png";
 import hamIcon from "../assets/images/icons8-bulleted-list-100.png";
 import home from "../assets/images/home.svg";
-import find from "../assets/images/find.svg";
 import love from "../assets/images/love.svg";
 import message from "../assets/images/message.svg";
 import plus from "../assets/images/plus.svg";
@@ -38,7 +37,7 @@ import {
 import UploadModal from "./UploadModal";
 import SearchModal from "./SearchModal";
 import axios from "axios";
-import { collection, doc, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { collection, doc, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { db } from "../db";
 
 interface UserDataInterface {
@@ -54,13 +53,15 @@ function Navbar(props:any) {
   });
   const [isNotification,setIsNotification] = useState<boolean>(false)
   const [showSearchModal, setModal] = useState<boolean>(false);
-  const [lgShow, setLgShow] = useState<boolean>(false);
+  const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
+  const isRedDot = useRef<any>(false);
+  
   const user = useContext(AuthContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any>();
   let navigate = useNavigate();
   const handleNotification = ()=>{
-    setLgShow(true)
+    setShowNotificationModal(true)
     setIsNotification(false)
   }
   const signOut = async () => {
@@ -77,7 +78,7 @@ function Navbar(props:any) {
   };
   const getNotificationData = () => {
     const collectionRef = query(
-      collection(db,"notifications"),orderBy("createdAt","desc"),where("userId", "==", user?.uid)
+      collection(db,"notifications"),orderBy("createdAt","desc"),where("userId", "==", user?.uid),limit(20)
     );
     const unsubscribe = onSnapshot(collectionRef,(querySnapshot) => {
       const details: any = [];
@@ -85,10 +86,14 @@ function Navbar(props:any) {
         details.push(doc.data());
       });
       setNotifications(details);
-      setIsNotification(true)
+      if(isRedDot.current){
+        setIsNotification(true)
+      }
+      isRedDot.current = true;
     });
     return unsubscribe
   };
+
   useEffect(() => {
     const userID = user?.uid;
     axios
@@ -106,9 +111,6 @@ function Navbar(props:any) {
       const unsubscribe = getNotificationData()
       return unsubscribe
   }, []);
-  useEffect(()=>{
-    setIsNotification(false)
-  },[])
   return !user ? (
     <div>
       <NavContainer>
@@ -261,7 +263,7 @@ function Navbar(props:any) {
                     />{" "}
                     Search
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={()=>setLgShow(true)}>
+                  <Dropdown.Item onClick={()=>setShowNotificationModal(true)}>
                     <NavIcons
                       src={love}
                       width="25px"
@@ -299,8 +301,8 @@ function Navbar(props:any) {
       <Modal
         size="xl"
         scrollable={true}
-        show={lgShow}
-        onHide={() => setLgShow(false)}
+        show={showNotificationModal}
+        onHide={() => setShowNotificationModal(false)}
       >
         <Modal.Header closeButton>
           <Modal.Title id="example-modal-sizes-title-lg">

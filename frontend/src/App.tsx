@@ -24,7 +24,6 @@ function App() {
 
   useEffect(()=>{
     onMessage(messaging, async(payload) => {
-      console.log('Message received. ', payload);
       toast(payload.notification?.body);
         const data = {
           userId:payload.data?.userId,

@@ -4,8 +4,6 @@ export const sendNotification = (token:string,Notifi_title:string,Notifi_body:st
       notification:{
         title: Notifi_title,
         body:Notifi_body,
-        // profileImage:profileImage,
-        // userId:userId,
         click_action:"https://google.com"
       },
       data:{
