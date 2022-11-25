@@ -30,6 +30,7 @@ import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore"
 import { db } from "../db";
 import redHeart from "../assets/images/red-heart-icon.svg";
 import { sendNotification } from "../utilities/sendNotification";
+import ReactPlayer from "react-player";
 
 export function PostDetailModal(props: any) {
   const navigate = useNavigate();
@@ -64,17 +65,26 @@ export function PostDetailModal(props: any) {
     }
   };
 
+  function isImage(url : any) {
+    const regex = /.png|.jpg|.jpeg|.webp/;
+    return regex.test(url);
+  }  
+
   const handleLikePost = async () => {
-    const result = await axios.post("http://localhost:90/like", {
-      likedBy_userId: user?.uid,
-      postId: props.postId,
-    });
-    if(!props.liked){
+    try{
+      props.setLiked(!props.liked);
+      const result = await axios.post("http://localhost:90/like", {
+        likedBy_userId: user?.uid,
+        postId: props.postId,
+      });
+      // if(!props.liked)
       const token = props.fcm_token;
       if(token!=props.currentUserFcmToken){
-      sendNotification(token,"Like Notification",`${props.currentUserName} has liked your post`,props.userId,props.currentUserProfileImage,props.postImage)
-      console.log("Notification sent")
+        sendNotification(token,"Like Notification",`${props.currentUserName} has liked your post`,props.userId,props.currentUserProfileImage,props.postImage)
+        console.log("Notification sent")
       }
+    }catch(err){
+      props.setLiked(!props.liked);
     }
   };
 
@@ -82,7 +92,7 @@ export function PostDetailModal(props: any) {
     props.setModal(props.modalState);
   }
 
-  const getData = async () => {
+  const getData =  () => {
     const collectionRef = query(
       collection(db, `post_interaction/${props.postId}/comments`),orderBy("createdAt","asc")
     );
@@ -93,6 +103,7 @@ export function PostDetailModal(props: any) {
       });
       setcommentsArray(commentsDetails);
     });
+    return unsubscribe;
   };
   const getTotalLikesAndComments = ()=>{
     const unsubscribe = onSnapshot(
@@ -102,11 +113,16 @@ export function PostDetailModal(props: any) {
         setTotalLikes(doc.data()?.likes_count);
       }
     );
+    return unsubscribe;
   }
 
   useEffect(() => {
-    getData();
-    getTotalLikesAndComments();
+    const dataUnsbscription =  getData();
+    const likesUnsbscription = getTotalLikesAndComments();
+    return ()=>{
+      dataUnsbscription()
+      likesUnsbscription();
+    }
   }, []);
   
   useEffect(()=>{
@@ -120,12 +136,22 @@ export function PostDetailModal(props: any) {
           <ModalBackdrop>
             <ModalWrapperDiv>
               <ImageWrapperDiv>
-                <img src={props.postImage} />
+                {isImage(props.postImage) ? 
+                  <img src={props.postImage} />
+                : 
+                  <ReactPlayer
+                    url={props.postImage}
+                    controls
+                    width="100%"
+                    height="90%"
+                    playing={false}
+                  />
+                }
               </ImageWrapperDiv>
               <DetailsWrapperDiv>
                 <AuthorProfileDiv>
                   <div className="profile-img">
-                    <img src={props.profileImage} alt="profile image" />
+                    <img style={{objectFit : "cover"}} src={props.profileImage} alt="profile image" />
                   </div>
                   <div className="description">
                     <p className="user-name" style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${props.userName}`)}}>{props.userName}</p>
@@ -137,7 +163,7 @@ export function PostDetailModal(props: any) {
                 <CommentsWrapperDiv>
                   <CommentDiv>
                     <div className="profile-img">
-                      <img src={props.profileImage} alt="profile image" />
+                      <img  style={{objectFit : "cover"}} src={props.profileImage} alt="profile image" />
                     </div>
                     <div>
                       <p className="comment-data">
@@ -158,6 +184,7 @@ export function PostDetailModal(props: any) {
                           <div className="profile-img">
                             <img
                               src={commentDoc.commentBy_profileImage}
+                              style={{objectFit : "cover"}} 
                             />
                           </div>
                           <div>
@@ -186,7 +213,7 @@ export function PostDetailModal(props: any) {
                   <div className="icon-wrapper">
                     <div className="left-icon">
                       {props.liked ? (
-                        <img onClick={handleLikePost} src={redHeart} />
+                        <img style={{cursor : "pointer"}} onClick={handleLikePost} src={redHeart} />
                       ) : (
                         <FontAwesomeIcon
                           onClick={handleLikePost}

@@ -125,26 +125,32 @@ function StatusBar(props: any) {
   }, [scrl?.current?.scrollWidth, scrl?.current?.offsetWidth]);
   return (
     <StatusBarContainer>
-      <ul ref={scrl} onScroll={scrollCheck}>
-        {storyArray
-          ? storyArray.length > 0
-            ? storyArray.map((item: any) => (
-                <StatusStories
-                  key={Math.random()}
-                  Ringwidth="65"
-                  Ringheight="65"
-                  width="60"
-                  height="60"
-                  profileImage={item.profileImage}
-                  storyId={item.storyId}
-                  userName={item.userName}
-                  storyImage={item.image}
-                  createdAt={item.createdAt}
-                  nav={"/"}
-                />
-              ))
-            : null
-          : null}
+      <ul>
+        {storyArray ? (
+          storyArray.length > 0 ? (
+            storyArray.map((item: any) => (
+              //  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
+              <StatusStories
+                key={Math.random()}
+                Ringwidth="65"
+                Ringheight="65"
+                width="60"
+                height="60"
+                profileImage={item.profileImage}
+                storyId={item.storyId}
+                userName={item.userName}
+                storyImage={item.image}
+                createdAt = {item.createdAt}
+                thumbnailImage={item.thumbnailImage}
+                nav = {"/"}
+              />
+            ))
+          ) : (
+            null
+          )
+        ) : (
+          null
+        )}
       </ul>
       {storyArray.length > 0 ? (
         <>

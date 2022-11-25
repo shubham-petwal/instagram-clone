@@ -24,7 +24,7 @@ export const PostContainer = styled.div`
 export const PostImageDiv = styled.div`
   img {
     object-fit: contain;
-    min-height: 500px;
+    max-height: 500px;
     width: 100%;
   }
 `;

@@ -43,7 +43,12 @@ interface ButtonProps {
   targetFcmToken: string;
 }
 
-function FollowingButton(props: ButtonProps) {
+function isImage(url : any) {
+  const regex = /.png|.jpg|.jpeg|.webp/;
+  return regex.test(url);
+}
+
+function FollowingButton(props:ButtonProps){
   const [isFollowing, setFollowing] = useState<boolean>(true);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [userRetrievedData, setRetrievedData] = useState<any>();
@@ -402,6 +407,7 @@ function UserProfile() {
                         storyImage={item.image}
                         createdAt={item.createdAt}
                         nav={`/userProfile/${item.userName}`}
+                        thumbnailImage={item.thumbnailImage}
                       />
                     ))
                   : null
@@ -469,6 +475,7 @@ function UserProfile() {
                             height="280px"
                             width="300px"
                             role="button"
+                            thumbnailImage = {item.thumbnailImage}
                           />
                         </li>
                       ))

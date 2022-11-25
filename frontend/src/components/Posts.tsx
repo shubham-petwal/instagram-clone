@@ -16,6 +16,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import ReactPlayer from "react-player";
 import {
   faComment,
   faHeart,
@@ -42,6 +43,10 @@ interface PostInterFace {
   currentUserProfileImage:string;
   userName:string;
   currentUserFcmToken:string
+}
+function isImage(url : any) {
+  const regex = /.png|.jpg|.jpeg|.webp/;
+  return regex.test(url);
 }
 
 function Posts({ postImage, caption, postId, userId ,userName,profileImage,currentUserName,currentUserProfileImage,currentUserFcmToken}: PostInterFace) {
@@ -89,7 +94,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
     }
   };
 
-  const getData = async () => {
+  const getData =  () => {
     const collectionRef = query(
       collection(db, `post_interaction/${postId}/likes`)
     );
@@ -105,9 +110,9 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
   };
 
   useEffect(() => {
-    getData();
+    const dataUnsbscription = getData();
     if (user?.uid) {
-      const unsubscribe = onSnapshot(
+      const postUnsubscription = onSnapshot(
         doc(db, `post_interaction/${postId}/likes/${user?.uid}`),
         (doc) => {
           // console.log("Current data: ", doc.data());
@@ -119,7 +124,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
         }
       );
     }
-    const unsubscribe = onSnapshot(
+    const postCountUnsubscription = onSnapshot(
       doc(db, "post_interaction", postId),
       (doc) => {
         setTotalComments(doc.data()?.comments_count);
@@ -128,6 +133,10 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
     );
 
     getUserData()
+    return ()=>{
+      dataUnsbscription();
+      postCountUnsubscription();
+    }
   },[]);
   function handlePostClick(event: React.MouseEvent<HTMLElement>) {
     setModalState((prev) => {
@@ -135,16 +144,21 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
     });
   }
   const handleLikePost = async () => {
-    const result = await axios.post("http://localhost:90/like", {
-      likedBy_userId: user?.uid,
-      postId: postId,
-    })
-    if(!liked){
-      const token = userRetrievedData?.fcm_token;
-      if(token!=currentUserFcmToken){
-      sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,currentUserProfileImage,postImage)
-      console.log("Notification sent")
-      }
+    // this will instantly show liked post to the user
+    setLiked(!liked);
+    try{
+      const result = await axios.post("http://localhost:90/like", {
+        likedBy_userId: user?.uid,
+        postId: postId,
+      });
+      // if(!liked){
+        const token = userRetrievedData?.fcm_token;
+        if(token!=currentUserFcmToken){
+        sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,currentUserProfileImage,postImage)
+        console.log("Notification sent")
+        }
+    }catch(err){
+      setLiked(!liked);
     }
   };
   return (
@@ -160,13 +174,28 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
   
         </div>
       </PostHeader>
-      <PostImageDiv>
-        <img src={postImage} alt="imageI" onDoubleClick={handleLikePost} />
-      </PostImageDiv>
+      {isImage(postImage) ? 
+        <PostImageDiv>
+          <img src={postImage} alt="imageI" onDoubleClick={handleLikePost} />
+        </PostImageDiv>
+      :
+        <PostImageDiv>
+          <div style={{height : "400px", margin:"auto"}}>
+            <ReactPlayer
+              url={postImage}
+              controls
+              width="100%"
+              height="90%"
+              playing={false}
+            />
+          </div>
+        </PostImageDiv>
+      }
+      
       <LikeCommentShareDiv>
         <ThreeIconsDiv>
           {liked ? (
-            <img onClick={handleLikePost} src={redHeart} />
+            <img style={{cursor:"pointer"}} onClick={handleLikePost} src={redHeart} />
           ) : (
             <FontAwesomeIcon onClick={handleLikePost} icon={faHeart} />
           )}
@@ -225,7 +254,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
         currentUserName={currentUserName}
         currentUserProfileImage={currentUserProfileImage}
         currentUserFcmToken={currentUserFcmToken}
-
+        setLiked = {setLiked}
       />
     </PostContainer>
   );

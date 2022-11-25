@@ -49,7 +49,7 @@ export const EditAndSettingsDiv = styled.div`
     }
   }
   flex-wrap: wrap;
-  height: 55px;
+  min-height: 55px;
   justify-content: space-between;
   p {
     font-size: 25px;
