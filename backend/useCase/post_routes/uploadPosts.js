@@ -20,6 +20,7 @@ const storage = require("../../storage");
 const multer = require("multer");
 const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
+var thumbler = require("video-thumb");
 
 // DiskSotrage function accepts an object with two values which is {destination:"", filename:""}
 
@@ -31,6 +32,11 @@ const fileStoragePath = multer.diskStorage({
     callback(null, Date.now() + "--" + file.originalname);
   },
 });
+
+function isImage(url) {
+  const regex = /.png|.jpg|.jpeg/;
+  return regex.test(url);
+}
 
 async function uploadImageToBucket(destination, fileName) {
   await bucket.upload("./uploads/" + fileName, {
@@ -85,13 +91,49 @@ router.post("/", upload.single("file"), async (req, res) => {
       caption: caption,
       postId: uuidv4(),
       createdAt: Timestamp.now(),
+      thumbnailImage: "",
     };
+
+    const snapshotName = uuidv4();
+    if (!isImage(req.file.filename)) {
+      const thumblerPromise = new Promise((resolve, reject) => {
+        thumbler.extract(
+          `./uploads/${req.file.filename}`,
+          `./uploads/${snapshotName}.png`,
+          "00:00:01",
+          "300x400",
+          () => {
+            uploadImageToBucket(
+              "Thumbnail/" + `${snapshotName}.png`,
+              `${snapshotName}.png`
+            )
+              .then((snapshotURL) => {
+                resolve(snapshotURL);
+              })
+              .catch((err) => {
+                reject(err);
+              });
+          }
+        );
+      });
+      const thumbnailImage = await thumblerPromise;
+      postObj.thumbnailImage = thumbnailImage;
+    }
+
+
     addDoc(collectionRef, postObj).then(async (docRef) => {
       // updating the count of posts in userProfile once the post is uploaded;
       const updateDocResponse = await updateDoc(userDocumentRef, updationData);
       console.log("Document Added");
       const documentRef = doc(db, `Posts/${docRef.id}`);
       updateDoc(documentRef, { docId: docRef.id });
+      
+      if(!isImage(req.file.filename)){
+        fs.unlink("uploads/" + snapshotName + ".png", function (err) {
+          if (err) return console.log(err);
+          console.log("thumbnail deleted successfully");
+        });
+      }
       fs.unlink("uploads/" + req.file.filename, function (err) {
         if (err) return console.log(err);
         console.log("file deleted successfully");

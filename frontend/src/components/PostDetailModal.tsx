@@ -28,6 +28,7 @@ import { Avatar } from "@material-ui/core";
 import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../db";
 import redHeart from "../assets/images/red-heart-icon.svg";
+import ReactPlayer from "react-player";
 
 export function PostDetailModal(props: any) {
   const navigate = useNavigate();
@@ -52,6 +53,11 @@ export function PostDetailModal(props: any) {
       console.log(error);
     }
   };
+
+  function isImage(url : any) {
+    const regex = /.png|.jpg|.jpeg|.webp/;
+    return regex.test(url);
+  }  
 
   const handleLikePost = async () => {
     try{
@@ -115,7 +121,17 @@ export function PostDetailModal(props: any) {
           <ModalBackdrop>
             <ModalWrapperDiv>
               <ImageWrapperDiv>
-                <img src={props.postImage} />
+                {isImage(props.postImage) ? 
+                  <img src={props.postImage} />
+                : 
+                  <ReactPlayer
+                    url={props.postImage}
+                    controls
+                    width="100%"
+                    height="90%"
+                    playing={false}
+                  />
+                }
               </ImageWrapperDiv>
               <DetailsWrapperDiv>
                 <AuthorProfileDiv>

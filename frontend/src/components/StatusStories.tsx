@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { StatusStoriesContainer } from "./styledComponents/StatusStories.style";
 import ring from "../assets/images/storyRing.png";
-import play_svg from "../assets/images/play_svg.svg";
 import { useNavigate } from "react-router-dom";
 
 function isImage(url: any) {
@@ -19,6 +18,7 @@ function StatusStories({
   profileImage,
   createdAt,
   nav,
+  thumbnailImage
 }: any) {
   const navigate = useNavigate();
   const toComponentB = () => {
@@ -39,7 +39,8 @@ function StatusStories({
           {isImage(storyImage) ? (
             <img src={storyImage} id="main_image" width={width} height={height} />
           ) : (
-            <img src={play_svg} id="main_image" width={width} height={height} />
+            
+            <img src={thumbnailImage} id="main_image" width={width} height={height} />
           )}
         </div>
         <p>{userName}</p>

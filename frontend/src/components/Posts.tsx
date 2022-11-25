@@ -16,6 +16,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
+import ReactPlayer from "react-player";
 import {
   faComment,
   faHeart,
@@ -29,7 +30,6 @@ import { Value } from "sass";
 import { PostDetailModal } from "./PostDetailModal";
 import { db } from "../db";
 import { collection, doc, onSnapshot, query } from "firebase/firestore";
-import { async } from "@firebase/util";
 import redHeart from "../assets/images/red-heart-icon.svg";
 
 interface PostInterFace {
@@ -39,6 +39,10 @@ interface PostInterFace {
   userId: string;
   profileImage:string;
   userName:string
+}
+function isImage(url : any) {
+  const regex = /.png|.jpg|.jpeg|.webp/;
+  return regex.test(url);
 }
 
 function Posts({ postImage, caption, postId, userId ,userName,profileImage}: PostInterFace) {
@@ -136,9 +140,24 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
   
         </div>
       </PostHeader>
-      <PostImageDiv>
-        <img src={postImage} alt="imageI" onDoubleClick={handleLikePost} />
-      </PostImageDiv>
+      {isImage(postImage) ? 
+        <PostImageDiv>
+          <img src={postImage} alt="imageI" onDoubleClick={handleLikePost} />
+        </PostImageDiv>
+      :
+        <PostImageDiv>
+          <div style={{height : "400px", margin:"auto"}}>
+            <ReactPlayer
+              url={postImage}
+              controls
+              width="100%"
+              height="90%"
+              playing={false}
+            />
+          </div>
+        </PostImageDiv>
+      }
+      
       <LikeCommentShareDiv>
         <ThreeIconsDiv>
           {liked ? (
