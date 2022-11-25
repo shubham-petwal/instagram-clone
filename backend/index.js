@@ -24,6 +24,8 @@ const addComment = require("./useCase/post_interaction_routes/addComment");
 //stories routes
 const getStories = require("./useCase/stories_routes/getStories");
 const addStory = require("./useCase/stories_routes/addStory");
+//notification routes
+const addNotification = require("./useCase/notification_routes/addNotification")
 
 const app = express();
 app.use(cors());
@@ -32,8 +34,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); //it will provide posted data in the req.body json object
 
 dotenv.config();
-
-
 
 
 
@@ -73,23 +73,9 @@ app.use("/getUserId/:userName", getUserId);
 
 app.use("/getStories", getStories);
 
-app.post("/addNotification", async (req, res) => {
-  const { userId,profileImage,message,postImage} = req.body;
-  try {
-    const collectionRef = collection(db, "notifications");
-    const docRef = await addDoc(collectionRef, {
-      userId,
-      profileImage,
-      message,
-      postImage,
-      createdAt:Timestamp.now()
-    });
-    res.send({ success: true, message: "notification added Successfully" });
-  } catch (error) {
-    console.log(error);
-    res.send({ success: false, message: error.message});
-  }
-});
+app.use("/addNotification", addNotification);
+
+
 
 app.listen(process.env.PORT, () => {
   console.log(`app started at port ${process.env.PORT}`);

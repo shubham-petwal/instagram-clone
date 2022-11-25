@@ -5,8 +5,6 @@ import { StatusBarContainer } from "./styledComponents/StatusBar.style";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { Timestamp } from "firebase/firestore";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
 import rightArrow from "../assets/images/rightArrow.png";
 import leftArrow from "../assets/images/leftArrow.png";
 
@@ -125,7 +123,7 @@ function StatusBar(props: any) {
   }, [scrl?.current?.scrollWidth, scrl?.current?.offsetWidth]);
   return (
     <StatusBarContainer>
-      <ul>
+      <ul ref={scrl} onScroll={scrollCheck}>
         {storyArray ? (
           storyArray.length > 0 ? (
             storyArray.map((item: any) => (

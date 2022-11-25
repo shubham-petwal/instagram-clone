@@ -79,7 +79,7 @@ function Navbar() {
   };
   const getNotificationData = () => {
     const collectionRef = query(
-      collection(db,"notifications"),orderBy("createdAt","desc"),where("userId", "==", user?.uid),limit(20)
+      collection(db,"notifications"),orderBy("createdAt","desc"),where("userId", "==", user?.uid),limit(30)
     );
     const unsubscribe = onSnapshot(collectionRef,(querySnapshot) => {
       const details: any = [];

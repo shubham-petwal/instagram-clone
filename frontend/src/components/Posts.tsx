@@ -80,6 +80,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
       }
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
@@ -151,12 +152,13 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage,curre
         likedBy_userId: user?.uid,
         postId: postId,
       });
-      // if(!liked){
+      if(!liked){
         const token = userRetrievedData?.fcm_token;
         if(token!=currentUserFcmToken){
         sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,currentUserProfileImage,postImage)
         console.log("Notification sent")
         }
+      }
     }catch(err){
       setLiked(!liked);
     }

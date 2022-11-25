@@ -77,11 +77,12 @@ export function PostDetailModal(props: any) {
         likedBy_userId: user?.uid,
         postId: props.postId,
       });
-      // if(!props.liked)
-      const token = props.fcm_token;
-      if(token!=props.currentUserFcmToken){
-        sendNotification(token,"Like Notification",`${props.currentUserName} has liked your post`,props.userId,props.currentUserProfileImage,props.postImage)
-        console.log("Notification sent")
+      if(!props.liked){
+        const token = props.fcm_token;
+        if(token!=props.currentUserFcmToken){
+          sendNotification(token,"Like Notification",`${props.currentUserName} has liked your post`,props.userId,props.currentUserProfileImage,props.postImage)
+          console.log("Notification sent")
+        }
       }
     }catch(err){
       props.setLiked(!props.liked);
