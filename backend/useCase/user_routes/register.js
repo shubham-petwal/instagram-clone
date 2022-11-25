@@ -9,7 +9,7 @@ const algoliasearch = require('algoliasearch');
 dotenv.config();
 
 router.post("/", async (req, res) => {
-  const { userId, userName, fullName, email, password } = req.body;
+  const { userId, userName, fullName, email, password ,fcm_token} = req.body;
   try {
     const collectionRef = collection(db, "users");
     const salt = await bcrypt.genSalt();
@@ -24,6 +24,7 @@ router.post("/", async (req, res) => {
       bioData: "", //this is the initial data passes, can be updated further
       postCount: 0,
       profileImage: "",
+      fcm_token
     });
     const searchClient = algoliasearch(
       process.env.ALOGOLIA_APP_ID,

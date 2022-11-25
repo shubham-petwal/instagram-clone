@@ -30,6 +30,7 @@ router.get("/", async (req, res) => {
         userName: resArr[0].userName,
         bioData: resArr[0].bioData,
         email: resArr[0].email,
+        fcm_token: resArr[0].fcm_token,
         gender: resArr[0].gender || undefined,
       },
     });
