@@ -45,7 +45,7 @@ interface UserDataInterface {
   fullName: string;
   userName: string;
 }
-function Navbar(props:any) {
+function Navbar() {
   const [userData, setUserData] = useState<UserDataInterface>({
     profileImage: "",
     fullName: "",
@@ -58,6 +58,7 @@ function Navbar(props:any) {
   
   const user = useContext(AuthContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [storyModalIsOpen, setStoryModalIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any>();
   let navigate = useNavigate();
   const handleNotification = ()=>{
@@ -195,7 +196,7 @@ function Navbar(props:any) {
                   Profile
                 </Dropdown.Item>
 
-                <Dropdown.Item onClick={()=>props.setModalIsOpen(true)}>
+                <Dropdown.Item onClick={()=>setStoryModalIsOpen(true)}>
                 <FontAwesomeIcon icon={faPlusSquare} />
                   Add story
                 </Dropdown.Item>
@@ -272,7 +273,7 @@ function Navbar(props:any) {
                     />
                     Notifications
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={()=>props.setModalIsOpen(true)}>
+                  <Dropdown.Item onClick={()=>setStoryModalIsOpen(true)}>
                     <NavIcons
                       src={plus}
                       width="25px"
@@ -297,6 +298,12 @@ function Navbar(props:any) {
         isModalOpen={modalIsOpen}
         setModalIsOpen={setModalIsOpen}
         header={"Create new post"}
+      />
+            <UploadModal
+        method={"addStory"}
+        isModalOpen={storyModalIsOpen}
+        setModalIsOpen={setStoryModalIsOpen}
+        header={"Add new story"}
       />
       <Modal
         size="xl"

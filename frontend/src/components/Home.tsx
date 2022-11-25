@@ -124,7 +124,7 @@ function Home() {
         progress={progress}
         onLoaderFinished={() => setProgress(0)}
       />
-      <Navbar setModalIsOpen={setModalIsOpen} />
+      <Navbar />
       <HomePageContainer>
         <ToastContainer position="top-center" />
         <div id="all_posts">
