@@ -97,6 +97,7 @@ function StatusBar(props:any) {
                 userName={item.userName}
                 storyImage={item.image}
                 createdAt = {item.createdAt}
+                thumbnailImage={item.thumbnailImage}
                 nav = {"/"}
               />
             ))

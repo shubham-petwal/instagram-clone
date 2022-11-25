@@ -4,26 +4,26 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 
 //user related routes
-const getUser = require("./routes/user_routes/getUser");
-const allowedRegistration = require("./routes/user_routes/allowedRegistration");
-const register = require("./routes/user_routes/register");
-const updateUser = require("./routes/user_routes/updateUser");
-const isFollowingUser = require("./routes/user_routes/isFollowingUser");
-const getUserId = require("./routes/user_routes/getUserId");
-const updateProfileImage = require("./routes/user_routes/updateProfileImage");
+const getUser = require("./useCase/user_routes/getUser");
+const allowedRegistration = require("./useCase/user_routes/allowedRegistration");
+const register = require("./useCase/user_routes/register");
+const updateUser = require("./useCase/user_routes/updateUser");
+const isFollowingUser = require("./useCase/user_routes/isFollowingUser");
+const getUserId = require("./useCase/user_routes/getUserId");
+const updateProfileImage = require("./useCase/user_routes/updateProfileImage");
 // social-graph routes
-const follow = require("./routes/social_graph_routes/follow");
-const getFollowers = require("./routes/social_graph_routes/getFollowers");
-const getFollowing = require("./routes/social_graph_routes/getFollowing");
+const follow = require("./useCase/social_graph_routes/follow");
+const getFollowers = require("./useCase/social_graph_routes/getFollowers");
+const getFollowing = require("./useCase/social_graph_routes/getFollowing");
 // post related routes
-const getPosts = require("./routes/post_routes/getPosts");
-const uploadPost = require("./routes/post_routes/uploadPosts");
+const getPosts = require("./useCase/post_routes/getPosts");
+const uploadPost = require("./useCase/post_routes/uploadPosts");
 //post-interaction routes
-const like = require("./routes/post_interaction_routes/like");
-const addComment = require("./routes/post_interaction_routes/addComment");
+const like = require("./useCase/post_interaction_routes/like");
+const addComment = require("./useCase/post_interaction_routes/addComment");
 //stories routes
-const getStories = require("./routes/stories_routes/getStories");
-const addStory = require("./routes/stories_routes/addStory");
+const getStories = require("./useCase/stories_routes/getStories");
+const addStory = require("./useCase/stories_routes/addStory");
 
 const app = express();
 app.use(cors());

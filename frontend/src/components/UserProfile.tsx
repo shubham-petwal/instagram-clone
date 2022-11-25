@@ -41,6 +41,11 @@ interface ButtonProps {
   targetUserId: string;
 }
 
+function isImage(url : any) {
+  const regex = /.png|.jpg|.jpeg|.webp/;
+  return regex.test(url);
+}
+
 function FollowingButton(props:ButtonProps){
   const [isFollowing, setFollowing] = useState<boolean>(true);
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -313,6 +318,7 @@ function UserProfile() {
                         storyImage={item.image}
                         createdAt={item.createdAt}
                         nav={`/userProfile/${item.userName}`}
+                        thumbnailImage={item.thumbnailImage}
                       />
                     ))
                   ) : (
@@ -358,6 +364,7 @@ function UserProfile() {
                       height="280px"
                       width="300px"
                       role="button"
+                      thumbnailImage = {item.thumbnailImage}
                     />
                   </li>
                 ))
@@ -383,12 +390,5 @@ function UserProfile() {
   );
 }
 
-// {
-//   imageArray?
-//  imageArray.length>0?imageArray.map((item:any)=>(
-//  <li key={Math.random()}><img src={item.image} height="280px" width="300px" /></li>
-// )):<p>No content</p>
-// :<p>No content</p>
-// }
 
 export default UserProfile;

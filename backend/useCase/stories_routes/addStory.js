@@ -19,6 +19,7 @@ const storage = require("../../storage");
 const { v4: uuidv4 } = require("uuid");
 const multer = require("multer");
 const fs = require("fs");
+var thumbler = require("video-thumb");
 
 // DiskSotrage function accepts an object with two values which is {destination:"", filename:""}
 
@@ -30,6 +31,10 @@ const fileStoragePath = multer.diskStorage({
     callback(null, Date.now() + "--" + file.originalname);
   },
 });
+function isImage(url) {
+  const regex = /.png|.jpg|.jpeg/;
+  return regex.test(url);
+}
 
 async function uploadImageToBucket(destination, fileName) {
   await bucket.upload("./uploads/" + fileName, {
@@ -67,7 +72,8 @@ router.post(
       const q = query(
         userCollectionRef,
         where("userId", "==", userId.toString())
-      ); //created a query
+      );
+      //created a query
       const querySnapshot = await getDocs(q);
       const resArr = [];
       querySnapshot.forEach((doc) => {
@@ -80,19 +86,54 @@ router.post(
         profileImage: resArr[0].profileImage,
         image: url,
         StoryId: uuidv4(),
-        deleteAt: addHours(1),
+        deleteAt: addHours(0.1),
         createdAt: Timestamp.now(),
+        thumbnailImage: "",
       };
-      addDoc(storiesCollectionRef, postObj).then((docRef) => {
-        const documentRef = doc(db, `stories/${docRef.id}`);
-        updateDoc(documentRef, { docId: docRef.id });
-        console.log("Document Added");
-        fs.unlink("uploads/" + req.file.filename, function (err) {
-          if (err) return console.log(err);
-          console.log("file deleted successfully");
-          res.send({ success: true, message: "Uploaded Successfully" });
+      //if file is not an image
+      const snapshotName = uuidv4();
+      if (!isImage(req.file.filename)) {
+        const thumblerPromise = new Promise((resolve, reject) => {
+          thumbler.extract(
+            `./uploads/${req.file.filename}`,
+            `./uploads/${snapshotName}.png`,
+            "00:00:01",
+            "200x125",
+            () => {
+              uploadImageToBucket(
+                "Thumbnail/" + `${snapshotName}.png`,
+                `${snapshotName}.png`
+              )
+                .then((snapshotURL) => {
+                  resolve(snapshotURL);
+                })
+                .catch((err) => {
+                  reject(err);
+                });
+            }
+          );
         });
+        const thumbnailImage = await thumblerPromise;
+        postObj.thumbnailImage = thumbnailImage;
+      }
+      const docRef = await addDoc(storiesCollectionRef, postObj);
+      // const documentRef = doc(db, `stories/${docRef.id}`);
+      // await updateDoc(documentRef, { docId: docRef.id });
+      console.log("Document Added");
+
+      if (!isImage(req.file.filename)) {
+        fs.unlink("uploads/" + snapshotName + ".png", function (err) {
+          if (err) return console.log(err);
+          console.log("thumbnail deleted successfully");
+        });
+      }
+      fs.unlink("uploads/" + req.file.filename, function (err) {
+        if (err) return console.log(err);
+        console.log("file deleted successfully");
       });
+
+      res.send({ success: true, message: "Uploaded Successfully" });
+
     } catch (error) {
       console.log(error);
       res.send({ success: false, message: error.message });

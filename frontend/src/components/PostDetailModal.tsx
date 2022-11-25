@@ -28,6 +28,7 @@ import { Avatar } from "@material-ui/core";
 import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../db";
 import redHeart from "../assets/images/red-heart-icon.svg";
+import ReactPlayer from "react-player";
 
 export function PostDetailModal(props: any) {
   const navigate = useNavigate();
@@ -53,18 +54,28 @@ export function PostDetailModal(props: any) {
     }
   };
 
+  function isImage(url : any) {
+    const regex = /.png|.jpg|.jpeg|.webp/;
+    return regex.test(url);
+  }  
+
   const handleLikePost = async () => {
-    const result = await axios.post("http://localhost:90/like", {
-      likedBy_userId: user?.uid,
-      postId: props.postId,
-    });
+    try{
+      props.setLiked(!props.liked);
+      const result = await axios.post("http://localhost:90/like", {
+        likedBy_userId: user?.uid,
+        postId: props.postId,
+      });
+    }catch(err){
+      props.setLiked(!props.liked);
+    }
   };
 
   function handleClick() {
     props.setModal(props.modalState);
   }
 
-  const getData = async () => {
+  const getData =  () => {
     const collectionRef = query(
       collection(db, `post_interaction/${props.postId}/comments`),orderBy("createdAt","asc")
     );
@@ -77,6 +88,7 @@ export function PostDetailModal(props: any) {
       setcommentsArray(commentsDetails);
       
     });
+    return unsubscribe;
   };
   const getTotalLikesAndComments = ()=>{
     const unsubscribe = onSnapshot(
@@ -86,11 +98,16 @@ export function PostDetailModal(props: any) {
         setTotalLikes(doc.data()?.likes_count);
       }
     );
+    return unsubscribe;
   }
 
   useEffect(() => {
-    getData();
-    getTotalLikesAndComments();
+    const dataUnsbscription =  getData();
+    const likesUnsbscription = getTotalLikesAndComments();
+    return ()=>{
+      dataUnsbscription()
+      likesUnsbscription();
+    }
   }, []);
   
   useEffect(()=>{
@@ -104,7 +121,17 @@ export function PostDetailModal(props: any) {
           <ModalBackdrop>
             <ModalWrapperDiv>
               <ImageWrapperDiv>
-                <img src={props.postImage} />
+                {isImage(props.postImage) ? 
+                  <img src={props.postImage} />
+                : 
+                  <ReactPlayer
+                    url={props.postImage}
+                    controls
+                    width="100%"
+                    height="90%"
+                    playing={false}
+                  />
+                }
               </ImageWrapperDiv>
               <DetailsWrapperDiv>
                 <AuthorProfileDiv>
@@ -171,7 +198,7 @@ export function PostDetailModal(props: any) {
                   <div className="icon-wrapper">
                     <div className="left-icon">
                       {props.liked ? (
-                        <img onClick={handleLikePost} src={redHeart} />
+                        <img style={{cursor : "pointer"}} onClick={handleLikePost} src={redHeart} />
                       ) : (
                         <FontAwesomeIcon
                           onClick={handleLikePost}
