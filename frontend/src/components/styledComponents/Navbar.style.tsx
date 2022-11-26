@@ -1,11 +1,14 @@
 import styled, { css } from "styled-components";
+import { borderColor } from "./utilityFiles/variables";
 
 export const NavContainer = styled.div`
-#last_grid{
-  @media screen and (max-width: 750px) {
-    margin-left: 8%;
+  #last_grid {
+    display: none;
+    @media screen and (max-width: 750px) {
+      display: block;
+      margin-left: 8%;
     }
-}
+  }
   .MuiGrid-item {
     height: 60px !important;
   }
@@ -27,13 +30,13 @@ export const NavContainer = styled.div`
       /* display: none; */
     }
   }
-  #icons_grid{
+  #icons_grid {
     @media screen and (max-width: 750px) {
       /* margin-left:50px; */
       display: none !important;
     }
     @media screen and (max-width: 970px) {
-      margin-left:-30px;
+      margin-left: -30px;
     }
   }
   .show {
@@ -49,7 +52,6 @@ export const NavContainer = styled.div`
       margin-right: 6px;
     }
   }
-
 `;
 export const NavLogo = styled.img`
   height: 1.9rem;
@@ -109,11 +111,50 @@ export const ProfileAvatar = styled.div`
   }
 `;
 export const HamburgerDiv = styled.div`
-display: none;
-@media screen and (max-width: 750px) {
+  display: none;
+  @media screen and (max-width: 750px) {
     display: flex;
     margin-left: 35px;
     /* align-items: flex-end; */
   }
 `;
 
+export const NotificationModalDiv = styled.div`
+  /* height: 840px; */
+  overflow-x: hidden;
+  overflow-y: auto;
+  text-align: justify;
+  ::-webkit-scrollbar {
+  display: none;
+}
+li{
+  cursor: pointer;
+  border-radius: 10px;
+  padding: 5px 10px 5px 0px;
+  /* margin-bottom:25px; */
+  display: flex;
+  align-items: center;
+  height: 80px;
+  border-bottom: 1px solid ${borderColor};
+  span{
+    margin-left: 10px;
+    width:350px;
+  }
+  :hover{
+    background-color: #faf9f9;
+  }
+  #image{
+    margin-left: 30px;
+    border-radius: 10px;
+  }
+}
+`;
+
+export const NotificationDiv = styled.div`
+position: relative;
+#red_dot{
+  position: absolute;
+  left:28px;
+  top: 15px;
+}
+`

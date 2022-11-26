@@ -8,9 +8,12 @@ import {
   SuggestionContainer,
   SuggestionUserDetailsdiv,
 } from "./styledComponents/Home.style";
+import { Spinner } from "react-bootstrap";
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import BlueButton from "../assets/images/blueButton.png";
+import LoadingBar from "react-top-loading-bar";
+
 import { CometChat } from "@cometchat-pro/chat";
 import { Avatar } from "@material-ui/core";
 import { Link } from "react-router-dom";
@@ -20,6 +23,9 @@ import "react-toastify/dist/ReactToastify.css";
 import UploadModal from "./UploadModal";
 import { Timestamp } from "firebase/firestore";
 import ShowStory from "./ShowStory";
+import { getMessaging, onMessage,getToken } from "firebase/messaging";
+import {messaging} from "../db"
+
 
 interface DataInterface {
   image: string;
@@ -38,6 +44,7 @@ interface StoryInterface {
 }
 
 function Home() {
+  const [progress, setProgress] = useState(0);
   const user = useContext(AuthContext);
   const [imageArray, setImageArray] = useState<Array<DataInterface>>([]);
 
@@ -46,7 +53,6 @@ function Home() {
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [isStoryUploaded, setIsStoryUploaded] = useState<boolean>(true);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-
   const handleSetStory = (bool: boolean) => {
     return setIsStoryUploaded(bool);
   };
@@ -72,7 +78,9 @@ function Home() {
       console.log(error);
     }
   };
+
   useEffect(() => {
+    setProgress(100);
     const getData = async () => {
       try {
         const allPosts = await axios.get(`http://localhost:90/getPosts?page=3`);
@@ -103,20 +111,34 @@ function Home() {
         console.log(error.message);
       }
     };
-    getData();
+      getData();
+      
   }, []);
+
+
+
   return (
     <>
+      <LoadingBar
+        color="#f11946"
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)}
+      />
       <Navbar />
       <HomePageContainer>
         <ToastContainer position="top-center" />
         <div id="all_posts">
           <StatusBar setStoryState={handleSetStory} />
+          {imageArray.length>0?
           <InfiniteScroll
             dataLength={imageArray ? imageArray.length : 0} //This is important field to render the next data
             next={getNextData}
             hasMore={hasMore}
-            loader={<h4>Loading...</h4>}
+            loader={
+              <div style={{ textAlign: "center" }}>
+                <Spinner animation="border" role="status" />
+              </div>
+            }
             endMessage={
               <p style={{ textAlign: "center" }}>
                 <b>Yay! You have seen it all</b>
@@ -135,6 +157,9 @@ function Home() {
                     userId={item.userId}
                     userName={item.userName}
                     profileImage={item.profileImage}
+                    currentUserName = {userRetrievedData?.userName}
+                    currentUserProfileImage = {userRetrievedData?.profileImage}
+                    currentUserFcmToken = {userRetrievedData?.fcm_token}
                   />
                 ))
               ) : (
@@ -143,7 +168,8 @@ function Home() {
             ) : (
               <p>No content</p>
             )}
-          </InfiniteScroll>
+          </InfiniteScroll>:null
+          }
         </div>
         <SuggestionContainer>
           <SuggestionUserDetailsdiv>
@@ -197,7 +223,10 @@ function Home() {
         header={"Add new story"}
       />
     </>
+
   );
 }
 
 export default Home;
+
+// eea0VTGSo4bXmuF0JeOACY:APA91bEDqppFTseVU1UU54aYN5CF1guFaIo277erP_x7-0QWzqXWanOrzCvrBzXSPmBscg_7zWx4YaCFaJbQnNGjPnbs0kGHOGFjyweTFvdvwv84HvhlHBNG4X8MxVk-sJb-U9AvOJRu

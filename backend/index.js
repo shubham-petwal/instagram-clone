@@ -24,6 +24,8 @@ const addComment = require("./useCase/post_interaction_routes/addComment");
 //stories routes
 const getStories = require("./useCase/stories_routes/getStories");
 const addStory = require("./useCase/stories_routes/addStory");
+//notification routes
+const addNotification = require("./useCase/notification_routes/addNotification")
 
 const app = express();
 app.use(cors());
@@ -32,6 +34,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); //it will provide posted data in the req.body json object
 
 dotenv.config();
+
+
+
+
 
 // using middlewares for different endpoints
 
@@ -66,6 +72,10 @@ app.use("/:userId/isFollowing/:targetId", isFollowingUser);
 app.use("/getUserId/:userName", getUserId);
 
 app.use("/getStories", getStories);
+
+app.use("/addNotification", addNotification);
+
+
 
 app.listen(process.env.PORT, () => {
   console.log(`app started at port ${process.env.PORT}`);

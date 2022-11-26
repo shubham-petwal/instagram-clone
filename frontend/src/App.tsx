@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./styles/App.scss";
 import SignUp from "./components/SignUp";
 import { BrowserRouter, Routes, Route, useParams } from "react-router-dom";
@@ -10,11 +10,32 @@ import UserProfile from "./components/UserProfile";
 import EditProfile from "./components/EditProfile";
 import ChangPassword from "./components/ChangPassword";
 import ShowStory from "./components/ShowStory";
+import { AuthContext } from "./context/AuthContext";
+import { onMessage } from "firebase/messaging";
+import {messaging} from "./db"
+import { ToastContainer, toast } from "react-toastify";
 import { CometChat } from "@cometchat-pro/chat";
 import Chat from "./components/Chat";
-// import { usena } from 'react-router-dom'
+import axios from "axios";
+
 
 function App() {
+  const user = useContext(AuthContext);
+
+  useEffect(()=>{
+    onMessage(messaging, async(payload) => {
+      toast(payload.notification?.body);
+        const data = {
+          userId:payload.data?.userId,
+          profileImage:payload.data?.profileImage,
+          message:payload.notification?.body,
+          postImage:payload.data?.postImage
+        }
+        const result = await axios.post("http://localhost:90/addNotification", data);
+        console.log("Notification added successfully")
+    })
+  },[user?.uid])
+
   useEffect(() => {
     const appID = "225772fb85438ae5";
     const region = "us";

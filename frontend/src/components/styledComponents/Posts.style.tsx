@@ -79,6 +79,10 @@ export const ThreeIconsDiv = styled.div`
   img{
     width: 26px;
     margin-right: 14px;
+    cursor: pointer;
+    :hover{
+      opacity: 0.6;
+    }
     /* margin-left: 8px; */
   }
 `;

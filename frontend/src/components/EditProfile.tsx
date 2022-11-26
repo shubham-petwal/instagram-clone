@@ -12,17 +12,19 @@ import {
   LeftEditPage,
   PageDetails,
   RightEditPage,
-  GenderRadioWrapperDiv
+  GenderRadioWrapperDiv,
 } from "./styledComponents/EditProfile.style";
 import { auth } from "../firebaseSetup";
 import { CometChat } from "@cometchat-pro/chat";
 import UploadModal from "./UploadModal";
+import LoadingBar from "react-top-loading-bar";
 
 function EditProfile() {
   const navigate = useNavigate();
-  const [gender,setGender] = useState("NA")
+  const [progress, setProgress] = useState(0);
+  const [gender, setGender] = useState("NA");
   const [isActive, setIsActive] = useState(true);
-  const [modalIsOpen,setModalIsOpen] = useState(false);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const [userRetrievedData, setRetrievedData] = useState<any>();
   const emailRef = useRef<HTMLInputElement>(null);
   const fullNameRef = useRef<HTMLInputElement>(null);
@@ -35,25 +37,31 @@ function EditProfile() {
     navigate("/ChangePass");
   };
   const userId = auth.currentUser?.uid;
-  useEffect( ()=>{
+  useEffect(() => {
+    setProgress(100);
     let userData;
-    axios.get(`http://localhost:90/users/${userId}`).then((res)=>{
-      userData= res.data.data;
+    axios.get(`http://localhost:90/users/${userId}`).then((res) => {
+      userData = res.data.data;
       // imageUrl = userData.profileImage;
       setRetrievedData(userData);
-      if(emailRef.current && fullNameRef.current && userNameRef.current && bioDataRef.current ){
+      if (
+        emailRef.current &&
+        fullNameRef.current &&
+        userNameRef.current &&
+        bioDataRef.current
+      ) {
         emailRef.current.value = userData.email;
         fullNameRef.current.value = userData.fullName;
         userNameRef.current.value = userData.userName;
         bioDataRef.current.value = userData.bioData;
       }
-      if(userData.gender){
-        setGender(userData.gender)
-      }else{
-        setGender("NA")
+      if (userData.gender) {
+        setGender(userData.gender);
+      } else {
+        setGender("NA");
       }
-    })
-  },[])
+    });
+  }, []);
 
   const handleFormSubmit = async (e: React.SyntheticEvent) => {
     try{
@@ -91,16 +99,25 @@ function EditProfile() {
     }
   };
 
-  const handleInputChange = (event : React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
-    console.log(event.target.name , " : ", event.target.value)
-  }
-  const handleGenderChange = async (event : React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    console.log(event.target.name, " : ", event.target.value);
+  };
+  const handleGenderChange = async (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     // console.log(event.target.name , " : ", event.target.value)
     setGender(event.target.value);
-  }
+  };
 
   return (
     <div>
+      <LoadingBar
+        color="#f11946"
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)}
+      />
       <Navbar />
       <EditProfileMainContainer>
         <EditProfileContainer>
@@ -128,15 +145,33 @@ function EditProfile() {
               </LabelDiv>
               <InputDiv>
                 <p id="username">{userRetrievedData?.userName}</p>
-                <span onClick={()=>setModalIsOpen(true)} style={{fontSize : "12px", border:"none", background:"none", margin : "0px 3px", display:"block",color:"#4086fe"}}>Update profile</span>
-              </InputDiv> 
+                <span
+                  onClick={() => setModalIsOpen(true)}
+                  style={{
+                    fontSize: "12px",
+                    border: "none",
+                    background: "none",
+                    margin: "0px 3px",
+                    display: "block",
+                    color: "#4086fe",
+                  }}
+                >
+                  Update profile
+                </span>
+              </InputDiv>
             </div>
             <form onSubmit={handleFormSubmit}>
               <LabelDiv>
                 <label>Name</label>
               </LabelDiv>
               <InputDiv>
-                <input onChange={handleInputChange} name="fullName" type="text" ref={fullNameRef} placeholder="Name of User" />
+                <input
+                  onChange={handleInputChange}
+                  name="fullName"
+                  type="text"
+                  ref={fullNameRef}
+                  placeholder="Name of User"
+                />
                 <p>
                   You are using the same name on Instagram and Facebook. Go to
                   Facebook to change your name. <Link to="">Change Name</Link>
@@ -146,7 +181,13 @@ function EditProfile() {
                 <label>Username</label>
               </LabelDiv>
               <InputDiv>
-                <input onChange={handleInputChange} name="userName" type="text" ref={userNameRef} placeholder="Username" />
+                <input
+                  onChange={handleInputChange}
+                  name="userName"
+                  type="text"
+                  ref={userNameRef}
+                  placeholder="Username"
+                />
                 <p>
                   In most cases, you'll be able to change your username back to
                   shubham_petwal_ for another 14 days.{" "}
@@ -168,7 +209,12 @@ function EditProfile() {
                 <label>Bio</label>
               </LabelDiv>
               <InputDiv>
-                <textarea onChange={handleInputChange} name="bioData" ref={bioDataRef} maxLength={150} />
+                <textarea
+                  onChange={handleInputChange}
+                  name="bioData"
+                  ref={bioDataRef}
+                  maxLength={150}
+                />
                 <p>
                   You are using the same name on Instagram and Facebook. Go to
                   Facebook to change your name. Change Name
@@ -191,7 +237,13 @@ function EditProfile() {
                 <label>Email address</label>
               </LabelDiv>
               <InputDiv>
-                <input type="email" disabled name="email" onChange={handleInputChange} ref={emailRef} />
+                <input
+                  type="email"
+                  disabled
+                  name="email"
+                  onChange={handleInputChange}
+                  ref={emailRef}
+                />
               </InputDiv>
               <LabelDiv>
                 <label>Phone number</label>
@@ -205,13 +257,34 @@ function EditProfile() {
               <InputDiv>
                 <GenderRadioWrapperDiv>
                   <div>
-                    <input checked={gender==="male"} onChange={handleGenderChange} type="radio" value="male" name="gender" /><span>Male</span>
+                    <input
+                      checked={gender === "male"}
+                      onChange={handleGenderChange}
+                      type="radio"
+                      value="male"
+                      name="gender"
+                    />
+                    <span>Male</span>
                   </div>
                   <div>
-                    <input checked={gender==="female"} onChange={handleGenderChange} type="radio" value="female" name="gender" /><span>Female</span>
+                    <input
+                      checked={gender === "female"}
+                      onChange={handleGenderChange}
+                      type="radio"
+                      value="female"
+                      name="gender"
+                    />
+                    <span>Female</span>
                   </div>
                   <div>
-                    <input checked={gender==="NA"} onChange={handleGenderChange} type="radio" value="NA" name="gender" /><span>Prefer Not to say</span>
+                    <input
+                      checked={gender === "NA"}
+                      onChange={handleGenderChange}
+                      type="radio"
+                      value="NA"
+                      name="gender"
+                    />
+                    <span>Prefer Not to say</span>
                   </div>
                 </GenderRadioWrapperDiv>
                 {/* <input type="text" placeholder="gender" disabled /> */}
@@ -234,7 +307,12 @@ function EditProfile() {
           </RightEditPage>
         </EditProfileContainer>
       </EditProfileMainContainer>
-      <UploadModal method={"updateProfileImage"} isModalOpen={modalIsOpen} setModalIsOpen={setModalIsOpen} header={"Update profile image"}/>
+      <UploadModal
+        method={"updateProfileImage"}
+        isModalOpen={modalIsOpen}
+        setModalIsOpen={setModalIsOpen}
+        header={"Update profile image"}
+      />
     </div>
   );
 }

@@ -20,6 +20,7 @@ import {
 import { AuthContext } from "../context/AuthContext";
 
 import "../styles/FollowerModal.scss";
+import { sendNotification } from "../utilities/sendNotification";
 
 interface FollowersInterface {
   fullName: string;
@@ -55,6 +56,7 @@ function RemoveButton(props: ButtonProps) {
         userId: targetUserId,
         target_userId: userId,
       });
+      
       setLoading(false);
       setFollowing(!isFollowing);
     } catch (err) {
@@ -86,9 +88,27 @@ function FollowingButton(props: ButtonProps) {
   const userId = user?.uid;
   const targetUserId = props.targetUserId;
   const [isFollowing, setFollowing] = useState<boolean>(true);
+  const [userRetrievedData, setRetrievedData] = useState<any>();
+  const [targetUserRetrievedData, setTargetUserRetrievedData] = useState<any>();
   const [isLoading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
+    axios
+    .get(`http://localhost:90/users/${userId}`)
+    .then((userData) => {
+      setRetrievedData(userData.data.data);
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
+    axios
+    .get(`http://localhost:90/users/${targetUserId}`)
+    .then((userData) => {
+      setTargetUserRetrievedData(userData.data.data);
+    })
+    .catch((err) => {
+      console.log(err.message);
+    });
     setLoading(true);
     axios
       .get(`http://localhost:90/${userId}/isFollowing/${targetUserId}`)
@@ -105,6 +125,11 @@ function FollowingButton(props: ButtonProps) {
         userId,
         target_userId: targetUserId,
       });
+      if(!isFollowing &&userId){
+        const token = targetUserRetrievedData?.fcm_token;
+        sendNotification(token,"Follow notification",`${userRetrievedData?.userName} has followed you`,targetUserId,userRetrievedData?.profileImage,"")
+        console.log("Notification sent")
+      }
       setFollowing(!isFollowing);
       setLoading(false);
       if (result.data.success == false) {

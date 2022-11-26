@@ -4,12 +4,12 @@ import { borderColor, pageBgColor } from "./utilityFiles/variables";
 export const UserProfileContainer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
+  /* justify-content: center; */
   flex-wrap: wrap;
   flex-direction: column;
   padding-top: 80px;
   background: ${pageBgColor};
-  min-height: 100vh;
+  min-height: 110vh;
   min-width: 100vw;
 `;
 export const UserDataSection = styled.div`
@@ -76,6 +76,8 @@ export const EditAndSettingsDiv = styled.div`
 `;
 
 export const UserHighlightSection = styled.div`
+  max-width: 600px;
+  position: relative;
   svg {
     height: 30px;
     cursor: pointer;
@@ -86,17 +88,17 @@ export const UserHighlightSection = styled.div`
     }
   }
   display: flex;
-  /* margin: 45px 0px 20px 0px; */
   padding: 25px 0px 20px 0px;
-  max-width: 80vw;
   overflow-y: hidden;
   ul {
-    width: 100%;
+    max-width: 100%;
     display: flex;
+    align-items: center;
     list-style: none;
-    overflow-y: hidden;
+    overflow-x: scroll;
+    scroll-behavior: smooth;
     -ms-overflow-style: none;
-    scrollbar-width: none;
+
     padding-bottom: 15px;
     li {
       /* margin-right: 30px; */
@@ -107,6 +109,25 @@ export const UserHighlightSection = styled.div`
     display: none;
   }
   border-bottom: 1px solid ${borderColor};
+  #right_arrow {
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    margin-right: 20px;
+    z-index: 1;
+    cursor: pointer;
+  }
+  #left_arrow {
+    background: white;
+    border-radius: 50%;
+    bottom: 80px;
+    position: absolute;
+    margin-left: 20px;
+    z-index: 1;
+    cursor: pointer;
+  }
 `;
 
 export const AllPostImages = styled.div`

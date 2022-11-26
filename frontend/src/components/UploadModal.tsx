@@ -1,9 +1,10 @@
-import React, { useContext, useState } from 'react'
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState } from "react";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
+import { Spinner } from "react-bootstrap";
 import { UploadModalBodyDiv } from './styledComponents/UploadModal.style';
 import { CometChat } from '@cometchat-pro/chat';
 
@@ -21,6 +22,7 @@ const toBase64 = (file : any) => new Promise((resolve, reject) => {
 });
 
 function UploadModal(props:PropsInterface) {
+  const [isLoading, setLoading] = useState<boolean>(false);
     const [fileData, setFileData] = useState<string | any>();
     const [postCaption, setPostCaption] = useState("");
     const user = useContext(AuthContext);
@@ -39,6 +41,7 @@ function UploadModal(props:PropsInterface) {
         formData.append("caption", postCaption); //---------conditionally
       }
       try {
+        setLoading(true);
         await axios.post(
           `http://localhost:90/${props.method}`, //---------conditionally
           formData
@@ -63,45 +66,63 @@ function UploadModal(props:PropsInterface) {
           console.log("cometchat err : ",error)
         })
         console.log("Uploaded Succesfully");
+        setLoading(false);
         navigate("/");
       } catch (error) {
         console.log(error);
+        setLoading(false);
       }
-    };
-  
-    return (
-      <>
-        <Modal show={props.isModalOpen} onHide={()=>props.setModalIsOpen(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>{props.header}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <UploadModalBodyDiv> 
-          <input type="file" className="custom-file-input" name="file"  onChange={handleInputChange} />
-            </UploadModalBodyDiv>
-      <br/>
-      {props.method == "uploadPost" ? (
-        <textarea
-          value={postCaption}
-          onChange={(e) => setPostCaption(e.target.value)}
-          id="caption"
-          name="caption"
-          rows={7}
-          cols={37}
-          style = {{padding : "10px"}}
-          placeholder="Add Caption"
-        />
-      ) : null}
-
-          </Modal.Body>
-          <Modal.Footer>
-            <Button style={{"background":"#0095f6","color":"white"}} onClick={handleUpload}>
+    }
+  return (
+    <>
+      <Modal
+        show={props.isModalOpen}
+        onHide={() => props.setModalIsOpen(false)}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{props.header}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <UploadModalBodyDiv>
+            <input
+              type="file"
+              className="custom-file-input"
+              name="file"
+              onChange={handleInputChange}
+            />
+          </UploadModalBodyDiv>
+          <br />
+          {props.method == "uploadPost" ? (
+            <textarea
+              value={postCaption}
+              onChange={(e) => setPostCaption(e.target.value)}
+              id="caption"
+              name="caption"
+              rows={7}
+              cols={37}
+              placeholder="Add Caption"
+            />
+          ) : null}
+        </Modal.Body>
+        <Modal.Footer>
+          {isLoading ? (
+            <Button
+              style={{ background: "#0095f6", color: "white" }}
+            >
+              <Spinner animation="border" role="status" size="sm" />
+            </Button>
+          ) : (
+            <Button
+              style={{ background: "#0095f6", color: "white" }}
+              onClick={handleUpload}
+            >
               Upload
             </Button>
-          </Modal.Footer>
-        </Modal>
-      </>
-    );
+          )}
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
 }
 
-export default UploadModal
+export default UploadModal;

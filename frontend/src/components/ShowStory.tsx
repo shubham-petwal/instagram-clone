@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
-import Stories from "react-insta-stories";
-import { Link, Router, useLocation, useNavigate } from "react-router-dom";
+import Stories from 'react-insta-stories'
+import { Link, Router, useLocation, useNavigate, useNavigation } from "react-router-dom";
 import { ShowStoryContainer } from "./styledComponents/ShowStory.style";
 import ReactPlayer from "react-player";
 import { faCircleXmark } from "@fortawesome/free-regular-svg-icons";

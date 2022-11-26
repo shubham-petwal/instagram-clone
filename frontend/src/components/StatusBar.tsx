@@ -1,12 +1,12 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import StatusStories from "./StatusStories";
 import { StatusBarContainer } from "./styledComponents/StatusBar.style";
 
 import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 import { Timestamp } from "firebase/firestore";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleArrowRight } from "@fortawesome/free-solid-svg-icons";
+import rightArrow from "../assets/images/rightArrow.png";
+import leftArrow from "../assets/images/leftArrow.png";
 
 interface StoryInterface {
   image: string;
@@ -14,74 +14,116 @@ interface StoryInterface {
   StoryId: string;
   profileImage: string;
   createdAt: any;
-  deleteAt:any;
-  userId:string;
-  docId:string;
+  deleteAt: any;
+  userId: string;
+  docId: string;
   children: React.ReactNode;
 }
-function StatusBar(props:any) {
+function StatusBar(props: any) {
   const user = useContext(AuthContext);
   const [storyArray, setStoryArray] = useState<Array<StoryInterface>>([]);
   // const [lastDoc, setLastDoc] = useState<string>("");
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  
+  let scrl = useRef<any>(null);
+  const [scrollX, setscrollX] = useState(0);
+  const [scrolEnd, setscrolEnd] = useState(false);
 
   const getNextData = async () => {
     try {
-      // chatRef.current?.scrollIntoView();
-      const lastDoc = storyArray[storyArray.length - 1].deleteAt
-      const lastDocInMillis = new Timestamp(lastDoc.seconds , lastDoc.nanoseconds).toMillis();
+      const lastDoc = storyArray[storyArray.length - 1].deleteAt;
+      const lastDocInMillis = new Timestamp(
+        lastDoc.seconds,
+        lastDoc.nanoseconds
+      ).toMillis();
       const res = await axios.get(
-        `http://localhost:90/getStories?page=1&lastDocId=${lastDocInMillis}`
+        `http://localhost:90/getStories?page=5&lastDocId=${lastDocInMillis}`
       );
-      //have to use query params
-      if(res.data.data){
-        // console.log(res.data.data)
-        setStoryArray((prev) => {
-          return [...prev, ...res.data.data];
-        });
-      }
-      console.log("lastDoc Id is",lastDoc)
       if (res.data.data.length == 0) {
-        setHasMore(false);
+        setscrolEnd(true);
+        return;
+      }
+      if(res.data.data) {
+        setStoryArray((prev) => {
+          return [...prev,...res.data.data];
+        });
       }
     } catch (error) {
       console.log(error);
     }
   };
-  // console.log("Story Array is=",storyArray)
 
+  const slide = (shift:any) => {
+    scrl.current.scrollLeft += shift;
+    setscrollX(scrollX + shift);
+
+    if (
+      Math.floor(scrl.current.scrollWidth - scrl.current.scrollLeft) <=
+      scrl.current.offsetWidth
+    ) {
+      setscrolEnd(true);
+      console.log("Slide  function True")
+    } else {
+      setscrolEnd(false);
+    }
+  };
+
+  const scrollCheck = () => {
+    setscrollX(scrl.current.scrollLeft);
+    if (
+      Math.floor(scrl.current.scrollWidth - scrl.current.scrollLeft) <=
+      scrl.current.offsetWidth
+    ) {
+      getNextData()
+    } else {
+      setscrolEnd(false);
+    }
+  };
 
   useEffect(() => {
     const getData = async () => {
       try {
-        const allStories = await axios.get(`http://localhost:90/getStories?page=1`);
+        const allStories = await axios.get(
+          `http://localhost:90/getStories?page=10`
+        );
         const storyData = allStories.data;
         if (storyData) {
           setStoryArray(storyData.data);
         } else {
           console.log("Story Details not found not found");
         }
-        // console.log(newDate)
       } catch (error: any) {
         console.log(error.message);
       }
     };
-    
-    
+
     getData();
   }, []);
-  useEffect(()=>{
-    if(storyArray&&storyArray.length>0 && storyArray[0].userId==user?.uid){
-      props.setStoryState(true)
+  useEffect(() => {
+    if (storyArray && storyArray.length > 0) {
+      storyArray.map((item) => {
+        if (item.userId == user?.uid) {
+          props.setStoryState(true);
+          return;
+        }
+      });
+    } else {
+      props.setStoryState(false);
     }
-    else{
-      props.setStoryState(false)
+  }, [storyArray]);
+  useEffect(() => {
+
+    if (
+      scrl.current &&
+      scrl?.current?.scrollWidth === scrl?.current?.offsetWidth
+    ) {
+      setscrolEnd(true);
+    } else {
+      setscrolEnd(false);
     }
-  },[storyArray])
+    return () => {};
+  }, [scrl?.current?.scrollWidth, scrl?.current?.offsetWidth]);
   return (
     <StatusBarContainer>
-      <ul>
+      <ul ref={scrl} onScroll={scrollCheck}>
         {storyArray ? (
           storyArray.length > 0 ? (
             storyArray.map((item: any) => (
@@ -108,9 +150,29 @@ function StatusBar(props:any) {
           null
         )}
       </ul>
-      {storyArray.length>0?
-      <FontAwesomeIcon onClick={getNextData} icon={faCircleArrowRight}/>
-      :null}
+      {storyArray.length > 0 ? (
+        <>
+          {scrollX !== 0 && (
+            <img
+              id="left_arrow"
+              src={leftArrow}
+              onClick={() => slide(-200)}
+              width="25px"
+              height="25px"
+            />
+          )}
+
+          {!scrolEnd && (
+            <img
+              id="right_arrow"
+              src={rightArrow}
+              onClick={() => slide(200)}
+              width="25px"
+              height="25px"
+            />
+          )}
+        </>
+      ) : null}
     </StatusBarContainer>
   );
 }

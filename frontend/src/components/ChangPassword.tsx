@@ -5,6 +5,7 @@ import subh from "../assets/images/shubham.jpg";
 import Navbar from "./Navbar";
 import { auth } from "../firebaseSetup";
 import axios from "axios";
+import LoadingBar from "react-top-loading-bar";
 import {
   LabelDiv,
   EditProfileContainer,
@@ -17,6 +18,7 @@ import {
 import { AuthContext } from "../context/AuthContext";
 function ChangPassword() {
   const navigate = useNavigate();
+  const [progress, setProgress] = useState(0);
   const user = useContext(AuthContext);
   const [emailState, setEmailState] = useState("");
   const [isActive, setIsActive] = useState(true);
@@ -41,6 +43,7 @@ function ChangPassword() {
     }
   }
   useEffect(()=>{
+    setProgress(100);
     const getData = async () => {
       try {
         const userData = await axios.get(
@@ -60,6 +63,11 @@ function ChangPassword() {
 
   return (
     <>
+          <LoadingBar
+        color="#f11946"
+        progress={progress}
+        onLoaderFinished={() => setProgress(0)}
+      />
       <div>
         <Navbar />
         <EditProfileMainContainer>

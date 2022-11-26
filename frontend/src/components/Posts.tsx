@@ -14,7 +14,7 @@ import {
   UserDetailsContainer,
 } from "./styledComponents/Posts.style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
+import { Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import ReactPlayer from "react-player";
 import {
@@ -31,6 +31,7 @@ import { PostDetailModal } from "./PostDetailModal";
 import { db } from "../db";
 import { collection, doc, onSnapshot, query } from "firebase/firestore";
 import redHeart from "../assets/images/red-heart-icon.svg";
+import { sendNotification } from "../utilities/sendNotification";
 
 interface PostInterFace {
   postImage: string;
@@ -38,22 +39,29 @@ interface PostInterFace {
   postId: string;
   userId: string;
   profileImage:string;
-  userName:string
+  currentUserName:string;
+  currentUserProfileImage:string;
+  userName:string;
+  currentUserFcmToken:string
 }
 function isImage(url : any) {
   const regex = /.png|.jpg|.jpeg|.webp/;
   return regex.test(url);
 }
 
-function Posts({ postImage, caption, postId, userId ,userName,profileImage}: PostInterFace) {
+function Posts({ postImage, caption, postId, userId ,userName,profileImage,currentUserName,currentUserProfileImage,currentUserFcmToken}: PostInterFace) {
   const navigate = useNavigate();
   const [comment, setComment] = useState("");
+  const [isLoading, setLoading] = useState<boolean>(false);
+  const [userRetrievedData, setRetrievedData] = useState<any>();
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
   const [liked, setLiked] = useState(false);
   const [likesArrayDetails, setLikesArrayDetails] = useState<any>();
   const [modalState, setModalState] = useState(false);
   const user = useContext(AuthContext);
+
+
   const data = {
     userId: user?.uid,
     commentData: comment,
@@ -61,10 +69,29 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
   };
   const handleAddComments = async () => {
     try {
+      setLoading(true);
       const result = await axios.post("http://localhost:90/addComment", data);
+      setLoading(false);
       setComment("");
+      const token = userRetrievedData?.fcm_token;
+      if(token!=currentUserFcmToken){
+        sendNotification(token,"Comment Notification",`${currentUserName} has commented on your post`,userId,currentUserProfileImage,postImage)
+        console.log("Notification sent")
+      }
     } catch (error) {
       console.log(error);
+      setLoading(false);
+    }
+  };
+
+  const getUserData = async () => {
+    try {
+      const userData = await axios.get(
+        `http://localhost:90/users/${userId}`
+      );
+      setRetrievedData(userData.data.data);
+    } catch (error: any) {
+      console.log(error.message);
     }
   };
 
@@ -105,6 +132,8 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         setTotalLikes(doc.data()?.likes_count);
       }
     );
+
+    getUserData()
     return ()=>{
       dataUnsbscription();
       postCountUnsubscription();
@@ -123,6 +152,13 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         likedBy_userId: user?.uid,
         postId: postId,
       });
+      if(!liked){
+        const token = userRetrievedData?.fcm_token;
+        if(token!=currentUserFcmToken){
+        sendNotification(token,"Like Notification",`${currentUserName} has liked your post`,userId,currentUserProfileImage,postImage)
+        console.log("Notification sent")
+        }
+      }
     }catch(err){
       setLiked(!liked);
     }
@@ -131,7 +167,7 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
     <PostContainer>
       <PostHeader>
         <UserDetailsContainer>
-          <Avatar src={profileImage} />
+          <Avatar src={userRetrievedData?.profileImage} />
           <div>
             <span style={{cursor:"pointer"}} onClick={()=>{navigate(`/userProfile/${userName}`)}}>{userName}</span>
           </div>
@@ -195,7 +231,13 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
           onChange={(e) => setComment(e.target.value)}
           value={comment}
         />
-        <button onClick={handleAddComments}>Post</button>
+                            {isLoading?
+                    <button>
+                      <Spinner animation="border" role="status" size="sm"/>
+                    </button>:
+                    <button onClick={handleAddComments}>Post</button>
+                  }
+        
       </AddCommentsDiv>
       <PostDetailModal
         key={Math.random()}
@@ -205,11 +247,15 @@ function Posts({ postImage, caption, postId, userId ,userName,profileImage}: Pos
         }}
         postId={postId}
         postImage={postImage}
-        profileImage={profileImage}
+        profileImage={userRetrievedData?.profileImage}
         caption={caption}
         userName={userName}
         liked = {liked}
         userId = {userId}
+        fcm_token = {userRetrievedData?.fcm_token}
+        currentUserName={currentUserName}
+        currentUserProfileImage={currentUserProfileImage}
+        currentUserFcmToken={currentUserFcmToken}
         setLiked = {setLiked}
       />
     </PostContainer>

@@ -13,6 +13,7 @@ import {
 } from "./styledComponents/Modal.style";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
+import { Spinner } from "react-bootstrap";
 import {
   faXmarkCircle,
   faHeart,
@@ -28,10 +29,12 @@ import { Avatar } from "@material-ui/core";
 import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../db";
 import redHeart from "../assets/images/red-heart-icon.svg";
+import { sendNotification } from "../utilities/sendNotification";
 import ReactPlayer from "react-player";
 
 export function PostDetailModal(props: any) {
   const navigate = useNavigate();
+  const [isLoading, setLoading] = useState<boolean>(false);
   const user = useContext(AuthContext);
   const [totalComments, setTotalComments] = useState(0);
   const [totalLikes, setTotalLikes] = useState(0);
@@ -47,10 +50,18 @@ export function PostDetailModal(props: any) {
   const handleAddComments = async () => {
     try {
       // chatRef.current?.scrollIntoView();
+      setLoading(true);
       const result = await axios.post("http://localhost:90/addComment", data);
+      setLoading(false);
       setComment("");
+      const token = props.fcm_token;
+      if(token!=props.currentUserFcmToken){
+        sendNotification(token,"Comment Notification",`${props.currentUserName} has commented on your post`,props.userId,props.currentUserProfileImage,props.postImage)
+        console.log("Notification sent")
+      }
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
@@ -66,6 +77,13 @@ export function PostDetailModal(props: any) {
         likedBy_userId: user?.uid,
         postId: props.postId,
       });
+      if(!props.liked){
+        const token = props.fcm_token;
+        if(token!=props.currentUserFcmToken){
+          sendNotification(token,"Like Notification",`${props.currentUserName} has liked your post`,props.userId,props.currentUserProfileImage,props.postImage)
+          console.log("Notification sent")
+        }
+      }
     }catch(err){
       props.setLiked(!props.liked);
     }
@@ -82,11 +100,9 @@ export function PostDetailModal(props: any) {
     const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
       const commentsDetails: any = [];
       querySnapshot.forEach((doc) => {
-        // console.log(doc.data())
         commentsDetails.push(doc.data());
       });
       setcommentsArray(commentsDetails);
-      
     });
     return unsubscribe;
   };
@@ -227,7 +243,12 @@ export function PostDetailModal(props: any) {
                     />
                   </div>
                   <div className="post-button">
+                    {isLoading?
+                    <button>
+                      <Spinner animation="border" role="status" size="sm"/>
+                    </button>:
                     <button onClick={handleAddComments}>Post</button>
+                  }
                   </div>
                 </CommentInput>
               </DetailsWrapperDiv>

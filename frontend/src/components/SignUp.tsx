@@ -4,6 +4,7 @@ import React, {
   useContext,
   useState,
   useRef,
+  useEffect,
 } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFacebookSquare } from "@fortawesome/free-brands-svg-icons";
@@ -15,6 +16,7 @@ import { links1, links3 } from "../utilities/links";
 import { CometChat } from "@cometchat-pro/chat";
 import { useSelector, useDispatch } from 'react-redux'
 import Footer from "./Footer";
+import { getMessaging, onMessage,getToken } from "firebase/messaging";
 //importing styled components
 import {
   FooterDiv,
@@ -36,6 +38,7 @@ import {
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../firebaseSetup";
 import axios from "axios";
+import {messaging} from "../db"
 
 function SignUp() {
   const dispatch = useDispatch();
@@ -43,7 +46,7 @@ function SignUp() {
     return state;
   })
   console.log(fetchedLoading)
-
+  const [token, setToken] = useState("");
   const [showPass, setShowPass] = useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -62,6 +65,40 @@ function SignUp() {
   };
   const navigate = useNavigate();
   // Authentication code --------------------------------
+
+  function requestPermission() {
+    console.log("Requesting permission...");
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        console.log("Notification permission granted.");
+        getToken(messaging, { vapidKey: "BGXU4yZ_A-gQcf2jJNnreXI-2U8v969HpNAb6EDLihffwyVx3dLBhBSPMFfL6cvoYdTPbmCA_be0Z-nxT8q7Kjk" })
+        .then((currentToken) => {
+          if (currentToken) {
+            // Send the token to your server and update the UI if necessary
+            console.log("current Token:",currentToken)
+            setToken(currentToken)
+          } else {
+            // Show permission request UI
+            console.log(
+              "No registration token available. Request permission to generate one."
+            );
+            // ...
+          }
+        })
+        .catch((err) => {
+          console.log("An error occurred while retrieving token. ", err);
+          // ...
+        });
+      }
+      else{
+        console.log("Cannot get Token")
+      }
+    });
+  }
+  useEffect(()=>{
+    requestPermission();
+  },[])
+
   const user = useContext(AuthContext);
   const createAccount = async () => {
     try {
@@ -73,16 +110,18 @@ function SignUp() {
         emailRef.current!.value,
         passwordRef.current!.value
       ).then((response)=>{
-        const userId = response.user?.uid;
-        const registerObject = {
-          userId : userId,
-          userName : userNameRef.current?.value,
-          fullName : fullNameRef.current?.value,
-          email : emailRef.current?.value,
-          password : passwordRef.current?.value
-        }
         //sending post request to server to store the user in the firestore cloud database
         //@types-ignore
+      const userId = response.user?.uid;
+      const registerObject = {
+        userId : userId,
+        userName : userNameRef.current?.value,
+        fullName : fullNameRef.current?.value,
+        email : emailRef.current?.value,
+        password : passwordRef.current?.value,
+        fcm_token:token
+      }
+      //@types-ignore
         axios.post('http://localhost:90/register', registerObject).then((result)=>{
           // console.log("signup-result : ",result);
           let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
