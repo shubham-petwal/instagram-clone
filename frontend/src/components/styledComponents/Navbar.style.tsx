@@ -117,6 +117,21 @@ export const HamburgerDiv = styled.div`
     margin-left: 35px;
     /* align-items: flex-end; */
   }
+  #notification_div {
+    position: relative;
+    #red_dot {
+      position: absolute;
+      left: 28px;
+      top: 15px;
+    }
+  }
+  #profile_avatar {
+    display: flex;
+    align-items: center;
+    span {
+      margin-left: 10px;
+    }
+  }
 `;
 
 export const NotificationModalDiv = styled.div`
@@ -125,36 +140,36 @@ export const NotificationModalDiv = styled.div`
   overflow-y: auto;
   text-align: justify;
   ::-webkit-scrollbar {
-  display: none;
-}
-li{
-  cursor: pointer;
-  border-radius: 10px;
-  padding: 5px 10px 5px 0px;
-  /* margin-bottom:25px; */
-  display: flex;
-  align-items: center;
-  height: 80px;
-  border-bottom: 1px solid ${borderColor};
-  span{
-    margin-left: 10px;
-    width:350px;
+    display: none;
   }
-  :hover{
-    background-color: #faf9f9;
-  }
-  #image{
-    margin-left: 30px;
+  li {
+    cursor: pointer;
     border-radius: 10px;
+    padding: 5px 10px 5px 0px;
+    /* margin-bottom:25px; */
+    display: flex;
+    align-items: center;
+    height: 80px;
+    border-bottom: 1px solid ${borderColor};
+    span {
+      margin-left: 10px;
+      width: 350px;
+    }
+    :hover {
+      background-color: #faf9f9;
+    }
+    #image {
+      margin-left: 30px;
+      border-radius: 10px;
+    }
   }
-}
 `;
 
 export const NotificationDiv = styled.div`
-position: relative;
-#red_dot{
-  position: absolute;
-  left:28px;
-  top: 15px;
-}
-`
+  position: relative;
+  #red_dot {
+    position: absolute;
+    left: 28px;
+    top: 15px;
+  }
+`;

@@ -2,7 +2,7 @@ import styled, { css } from "styled-components";
 import { borderColor, globalFacebookColor, primaryFontColor } from "./utilityFiles/variables";
 
 export const PostContainer = styled.div`
-  margin-top: 15px;
+  margin-bottom: 15px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;

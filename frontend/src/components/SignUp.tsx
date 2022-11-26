@@ -17,6 +17,7 @@ import { CometChat } from "@cometchat-pro/chat";
 import { useSelector, useDispatch } from 'react-redux'
 import Footer from "./Footer";
 import { getMessaging, onMessage,getToken } from "firebase/messaging";
+import { Spinner } from "react-bootstrap";
 //importing styled components
 import {
   FooterDiv,
@@ -48,6 +49,7 @@ function SignUp() {
   console.log(fetchedLoading)
   const [token, setToken] = useState("");
   const [showPass, setShowPass] = useState(false);
+  const [isLoading, setLoading] = useState<boolean>(false);
   const passwordRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const fullNameRef = useRef<HTMLInputElement>(null);
@@ -71,7 +73,7 @@ function SignUp() {
     Notification.requestPermission().then((permission) => {
       if (permission === "granted") {
         console.log("Notification permission granted.");
-        getToken(messaging, { vapidKey: "BGXU4yZ_A-gQcf2jJNnreXI-2U8v969HpNAb6EDLihffwyVx3dLBhBSPMFfL6cvoYdTPbmCA_be0Z-nxT8q7Kjk" })
+        getToken(messaging, {vapidKey: process.env.REACT_APP_NOTIFICATION_VAPID_KEY})
         .then((currentToken) => {
           if (currentToken) {
             // Send the token to your server and update the UI if necessary
@@ -102,6 +104,7 @@ function SignUp() {
   const user = useContext(AuthContext);
   const createAccount = async () => {
     try {
+      setLoading(true);
       const checkResponse = await axios.get(`http://localhost:90/allowedRegistration/${userNameRef.current?.value}`);
       if(!checkResponse.data.isAllowed){
         throw new Error(checkResponse.data.message);
@@ -146,6 +149,7 @@ function SignUp() {
           )
           
         })
+        setLoading(false);
       }).catch((err)=>{
         console.log("user creation error : " ,err )
       })
@@ -153,6 +157,7 @@ function SignUp() {
       navigate("/home");
     } catch (error:any) {
       window.alert(error.message);
+      setLoading(false);
     }
   };
   return user ? (
@@ -287,7 +292,12 @@ function SignUp() {
                 Cookies Policy.
               </InfoDiv>
               <SignUpButton type="submit" className="signUpButton">
-                Sign Up
+              {isLoading?
+                      <Spinner animation="border" role="status" size="sm"/>:
+                      <button>
+                        Sign Up
+                      </button>
+                  }
               </SignUpButton>
             </form>
           )}
