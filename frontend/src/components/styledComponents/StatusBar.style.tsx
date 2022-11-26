@@ -3,6 +3,7 @@ import { borderColor } from "./utilityFiles/variables";
 
 export const StatusBarContainer = styled.div`
 position: relative;
+margin-bottom: 25px;
   max-width: 470px;
   height: 120px;
   border-radius: 10px;

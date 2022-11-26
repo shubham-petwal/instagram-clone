@@ -113,6 +113,11 @@ export const LoginBtn = styled.button`
     background-color: #3695f6;
     cursor: pointer;
   }
+  button{
+    background: none;
+    border: none;
+    color: white;
+  }
 `;
 
 export const OrSplitter = styled.h4`

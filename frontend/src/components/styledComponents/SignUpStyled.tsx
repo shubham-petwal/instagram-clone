@@ -91,6 +91,9 @@ const SignUpFormWrapperDiv = styled.div`
 const SignUpButton = styled.button`
   ${blueButtonStyles("73%")};
   margin: 20px 0 30px 0;
+  button{
+    ${blueButtonStyles("73%")};
+  }
 `;
 const LoginWithFacebookBtn = styled(SignUpButton)`
   //we are inheriting the styles of signup button

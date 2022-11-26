@@ -11,7 +11,10 @@ import search from "../assets/images/search-svgrepo-com.svg";
 import subh from "../assets/images/shubham.jpg";
 import Avatar from "@material-ui/core/Avatar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleUser, faPlusSquare } from "@fortawesome/free-regular-svg-icons";
+import {
+  faCircleUser,
+  faPlusSquare,
+} from "@fortawesome/free-regular-svg-icons";
 import { CometChat } from "@cometchat-pro/chat";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
@@ -22,7 +25,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../firebaseSetup";
 import type {} from "styled-components/cssprop";
-import redDot from "../assets/images/redDot.png"
+import redDot from "../assets/images/redDot.png";
 import {
   DropdownProfile,
   HamburgerDiv,
@@ -37,7 +40,15 @@ import {
 import UploadModal from "./UploadModal";
 import SearchModal from "./SearchModal";
 import axios from "axios";
-import { collection, doc, limit, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  limit,
+  onSnapshot,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "../db";
 
 interface UserDataInterface {
@@ -51,20 +62,21 @@ function Navbar() {
     fullName: "",
     userName: "",
   });
-  const [isNotification,setIsNotification] = useState<boolean>(false)
+  const [isNotification, setIsNotification] = useState<boolean>(false);
   const [showSearchModal, setModal] = useState<boolean>(false);
-  const [showNotificationModal, setShowNotificationModal] = useState<boolean>(false);
+  const [showNotificationModal, setShowNotificationModal] =
+    useState<boolean>(false);
   const isRedDot = useRef<any>(false);
-  
+
   const user = useContext(AuthContext);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [storyModalIsOpen, setStoryModalIsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any>();
   let navigate = useNavigate();
-  const handleNotification = ()=>{
-    setShowNotificationModal(true)
-    setIsNotification(false)
-  }
+  const handleNotification = () => {
+    setShowNotificationModal(true);
+    setIsNotification(false);
+  };
   const signOut = async () => {
     await auth.signOut();
     CometChat.logout().then(
@@ -79,20 +91,23 @@ function Navbar() {
   };
   const getNotificationData = () => {
     const collectionRef = query(
-      collection(db,"notifications"),orderBy("createdAt","desc"),where("userId", "==", user?.uid),limit(30)
+      collection(db, "notifications"),
+      orderBy("createdAt", "desc"),
+      where("userId", "==", user?.uid),
+      limit(30)
     );
-    const unsubscribe = onSnapshot(collectionRef,(querySnapshot) => {
+    const unsubscribe = onSnapshot(collectionRef, (querySnapshot) => {
       const details: any = [];
       querySnapshot.forEach((doc) => {
         details.push(doc.data());
       });
       setNotifications(details);
-      if(isRedDot.current){
-        setIsNotification(true)
+      if (isRedDot.current) {
+        setIsNotification(true);
       }
       isRedDot.current = true;
     });
-    return unsubscribe
+    return unsubscribe;
   };
 
   useEffect(() => {
@@ -102,7 +117,7 @@ function Navbar() {
       .then((result) => {
         let authKey = "002a47a79f08f99cbf6dac2c6eb18e0946c57fa3";
         var chat_uid = user?.uid;
-        
+
         CometChat.login(chat_uid, authKey).then(
           (user) => {
             console.log("logged in ", user);
@@ -120,10 +135,10 @@ function Navbar() {
       .catch((err) => {
         console.log(err);
       });
-      const unsubscribe = getNotificationData()
-      return unsubscribe
+    const unsubscribe = getNotificationData();
+    return unsubscribe;
   }, []);
-  
+
   return !user ? (
     <div>
       <NavContainer>
@@ -184,12 +199,17 @@ function Navbar() {
               alt="logo"
               onClick={() => setModal(true)}
             />
-              <NotificationDiv>
-            <NavIcons src={love} width="28px" alt="logo" onClick={handleNotification}/>
-            {isNotification?
-            <img id="red_dot" src={redDot} width="12px"/>
-            :null}
-              </NotificationDiv>
+            <NotificationDiv>
+              <NavIcons
+                src={love}
+                width="28px"
+                alt="logo"
+                onClick={handleNotification}
+              />
+              {isNotification ? (
+                <img id="red_dot" src={redDot} width="12px" />
+              ) : null}
+            </NotificationDiv>
 
             <Dropdown>
               <DropdownProfile>
@@ -208,8 +228,8 @@ function Navbar() {
                   Profile
                 </Dropdown.Item>
 
-                <Dropdown.Item onClick={()=>setStoryModalIsOpen(true)}>
-                <FontAwesomeIcon icon={faPlusSquare} />
+                <Dropdown.Item onClick={() => setStoryModalIsOpen(true)}>
+                  <FontAwesomeIcon icon={faPlusSquare} />
                   Add story
                 </Dropdown.Item>
                 <Dropdown.Item href="/" id="logout" onClick={signOut}>
@@ -232,13 +252,10 @@ function Navbar() {
                       navigate(`/userProfile/${userData.userName}`)
                     }
                   >
-                    <NavIcons
-                      src={userData.profileImage}
-                      width="25px"
-                      height="22px"
-                      alt="logo"
-                    />{" "}
-                    Profile
+                    <div id="profile_avatar">
+                      <Avatar src={userData.profileImage} />
+                      <span>Profile</span>
+                    </div>
                   </Dropdown.Item>
                   <Dropdown.Item onClick={() => navigate(`/home`)}>
                     <NavIcons
@@ -276,7 +293,8 @@ function Navbar() {
                     />{" "}
                     Search
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={()=>setShowNotificationModal(true)}>
+                  <Dropdown.Item onClick={() => setShowNotificationModal(true)}>
+                    <div id="notification_div">
                     <NavIcons
                       src={love}
                       width="25px"
@@ -284,8 +302,12 @@ function Navbar() {
                       alt="logo"
                     />
                     Notifications
+                    {isNotification ? (
+                      <img id="red_dot" src={redDot} width="12px" />
+                    ) : null}
+                    </div>
                   </Dropdown.Item>
-                  <Dropdown.Item onClick={()=>setStoryModalIsOpen(true)}>
+                  <Dropdown.Item onClick={() => setStoryModalIsOpen(true)}>
                     <NavIcons
                       src={plus}
                       width="25px"
@@ -311,7 +333,7 @@ function Navbar() {
         setModalIsOpen={setModalIsOpen}
         header={"Create new post"}
       />
-            <UploadModal
+      <UploadModal
         method={"addStory"}
         isModalOpen={storyModalIsOpen}
         setModalIsOpen={setStoryModalIsOpen}
@@ -325,26 +347,29 @@ function Navbar() {
       >
         <Modal.Header closeButton>
           <Modal.Title id="example-modal-sizes-title-lg">
-          Notifications
+            Notifications
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <NotificationModalDiv>
-          <ul>
-            {notifications?
-            notifications.map((item:any)=>(
-              <li key={Math.random()} id="notification_list">
-                <Avatar src={item.profileImage}/>
-                <span>
-                {item.message}
-                </span>
-                {item.postImage?
-                <img id="image" src={item.postImage} height="45px" width="45px"/>:null
-                }
-                </li>
-            ))
-            :null}
-          </ul>
+            <ul>
+              {notifications
+                ? notifications.map((item: any) => (
+                    <li key={Math.random()} id="notification_list">
+                      <Avatar src={item.profileImage} />
+                      <span>{item.message}</span>
+                      {item.postImage ? (
+                        <img
+                          id="image"
+                          src={item.postImage}
+                          height="45px"
+                          width="45px"
+                        />
+                      ) : null}
+                    </li>
+                  ))
+                : null}
+            </ul>
           </NotificationModalDiv>
         </Modal.Body>
       </Modal>

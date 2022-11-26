@@ -122,6 +122,8 @@ function StatusBar(props: any) {
     return () => {};
   }, [scrl?.current?.scrollWidth, scrl?.current?.offsetWidth]);
   return (
+    <>
+    {storyArray.length>0?
     <StatusBarContainer>
       <ul ref={scrl} onScroll={scrollCheck}>
         {storyArray ? (
@@ -173,7 +175,9 @@ function StatusBar(props: any) {
           )}
         </>
       ) : null}
-    </StatusBarContainer>
+    </StatusBarContainer>:null
+    }
+    </>
   );
 }
 export default StatusBar;

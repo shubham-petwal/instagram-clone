@@ -9,6 +9,7 @@ import Footer from "./Footer";
 // authentication imports
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../firebaseSetup";
+import { Spinner } from "react-bootstrap";
 import {
   ChangingImages,
   DownloadBtn,
@@ -46,15 +47,19 @@ function Login() {
   const [password, setPassword] = useState("");
   const signIn = async (email: string, password: string) => {
     try {
+      setLoading(true);
       const response = await auth.signInWithEmailAndPassword(email, password);
+      setLoading(false);
       console.log("login user : ",response);
       navigate("/home");
     } catch (error: any) {
       window.alert(error);
+      setLoading(false);
       // navigate('/home');
     }
   };
   const [showPassword, setShowPassword] = useState(true);
+  const [isLoading, setLoading] = useState<boolean>(false);
   const [imageCount, setImageCount] = useState(1);
   const passwordRef = useRef<HTMLInputElement>(null);
   const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
@@ -141,7 +146,13 @@ function Login() {
               {/* below ts ignore is place to ignore the onClick method call */}
               {/* @ts-ignore */}
               <LoginBtn onClick={handleLogin} disabled={validation()}>
-                Log In
+              {isLoading?
+                      <Spinner animation="border" role="status" size="sm"/>:
+                      <button>
+                        Log In
+                      </button>
+                  }
+                
               </LoginBtn>
             </MainForm>
             <span>
